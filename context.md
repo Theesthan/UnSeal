@@ -10,9 +10,9 @@ Repo bootstrapped: `docs/PRD.md`, `CLAUDE.md`, `.claude/` (skills, hooks, settin
 
 ## In progress
 - Branch `feat/central-rules-json`: central rules done; next `tamil_nadu.json` (TNSIC fee rules).
-- Tamil and Hindi eval: plan in `docs/language-eval-plan.md`. Client done; next the four draft
-  schemas (`llm/schemas.py`) and the case runner. Needs `BHARATCODE_API_KEY` in the repo-root
-  `.env` (then run the smoke test first); pass bar to agree before the first call.
+- Tamil and Hindi eval: built and ready to run (`docs/language-eval-plan.md`, "How it runs").
+  Waiting on `BHARATCODE_API_KEY` in the repo-root `.env`, agreement on the pass bar, and a
+  native-speaker proofread of the case inputs; then smoke test, run, review, ADR 0002.
 
 ## Done
 - 2026-10-26 Product renamed from RTI Saathi to UnSeal (package `unseal`).
@@ -21,6 +21,9 @@ Repo bootstrapped: `docs/PRD.md`, `CLAUDE.md`, `.claude/` (skills, hooks, settin
 - 2026-10-26 `config.py` + `llm/client.py`: stateless strict Responses calls, 503 backoff 2/4/8 s,
   one doubled-budget truncation retry, one schema retry, request-id-only logs; 17 tests over a
   fake transport plus an opt-in live smoke test. BharatCode behaviour not yet seen live.
+- 2026-10-26 Draft schemas (`llm/schemas.py`: Rewrite, Intake, Compose, AppealFacts), v1 prompts
+  (`src/unseal/prompts/`), `client.structured_call` (retry stats), and the eval: 20 cases,
+  checks A2 to A4, gates, results sheet, recordings; live runner opt-in.
 
 ## Open
 - `BharatCode.txt` contents unknown: ask the organisers (PRD open questions).

@@ -8,7 +8,7 @@ UnSeal turns a citizen's concern into a filing-ready RTI application (English, H
 Product spec: [docs/PRD.md](docs/PRD.md). When scope changes, update the PRD first, then this file, and keep the two in sync.
 Living state (what exists, what is in flight, open questions): [context.md](context.md).
 
-**Status (26 Oct 2026):** only `apps/api` exists, with the rules data and loader (`rules/engine.py`), settings (`config.py`) and the BharatCode client (`llm/client.py`). Everything else in the layout below is the target; create each piece as it is built, and correct this file if the real structure differs.
+**Status (26 Oct 2026):** only `apps/api` exists, with the rules data and loader (`rules/engine.py`), settings (`config.py`), the BharatCode client (`llm/client.py`), draft step schemas and prompts (v1), and the Tamil and Hindi eval. Everything else in the layout below is the target; create each piece as it is built, and correct this file if the real structure differs.
 
 ## Golden rules (read before every task)
 
@@ -27,13 +27,15 @@ CLAUDE.md  README.md  .env.example  docker-compose.yml
 apps/
   api/                    # Python 3.12: FastAPI + AI harness + Telegram bot + PDFs
     pyproject.toml  Dockerfile  alembic/
-    prompts/              # one versioned prompt file per harness step
     fonts/                # Noto Sans, Noto Sans Tamil, Noto Sans Devanagari (OFL)
     src/unseal/
       main.py             # FastAPI app and routes (no business logic here)
       config.py           # pydantic-settings; reads env vars
       llm/client.py       # the ONLY place that calls BharatCode
-      llm/schemas.py      # Pydantic models for every model output
+      llm/schemas.py      # Pydantic models for every model output (USER_FACING fields per model)
+      llm/prompts.py      # loads prompts/<step>.md (front matter `version: N`)
+      prompts/            # one versioned prompt file per harness step (inside the package so it ships)
+      evals/lang_eval.py  # Tamil and Hindi eval: checks A2 to A4, gates, results sheet
       harness/            # intake, classify, rewrite, validate, compose, read_reply, appeal
       rules/engine.py     # pure functions: deadlines, fees
       rules/data/         # rti_act.json (statute, every jurisdiction) + central.json, tamil_nadu.json
@@ -46,7 +48,8 @@ apps/
     tests/
       unit/               # rules engine, validators, redaction, crypto
       golden/             # 30 fictional cases + expected flags and rewrites
-      fixtures/recorded/  # recorded model responses for offline tests
+      golden/lang_eval/   # cases.json (20 Tamil and Hindi cases) + the live eval runner
+      fixtures/recorded/  # recorded model responses for offline tests (lang_eval/<case>.json)
   web/                    # Next.js App Router + TypeScript (strict) + Tailwind
 docs/
 ```
@@ -64,6 +67,7 @@ API (run from `apps/api`; uses `uv`, or `pip install -e ".[dev]"` as a fallback)
 | One test | `uv run pytest tests/unit/test_rules_data.py::test_name -q` (or `-k <expr>`) |
 | Coverage | `uv run pytest --cov=unseal --cov-report=term-missing` |
 | Live smoke call (real API, needs key in `.env`) | `uv run pytest -m live tests/live` |
+| Live Tamil and Hindi eval | `uv run pytest -m live tests/golden/lang_eval` (`-k tamil`, `LANG_EVAL_RUNS=1`) |
 | Live golden eval (real API) | `uv run pytest -m live tests/golden` |
 | Lint and format | `uv run ruff check . --fix && uv run ruff format .` |
 | Types | `uv run mypy src` |
@@ -107,7 +111,7 @@ Nothing secret may ever use the `NEXT_PUBLIC_` prefix; those values ship to the 
 
 `intake → classify → rewrite → validate → compose → (track) → read_reply → appeal`
 
-- Each step: one prompt file in `prompts/` (front matter `version: N`), one Pydantic output schema, one function in `harness/`.
+- Each step: one prompt file in `src/unseal/prompts/` (front matter `version: N`, `{language}` is the only placeholder), one Pydantic output schema in `llm/schemas.py`, one function in `harness/`. Prompts never contain section numbers, fees or deadlines (a test enforces it).
 - `compose` fills a Jinja template. The model writes only the subject line and the numbered questions; names and addresses come from the DB at render time.
 - Applicant name, address and phone are **never** sent to the model. Reply photos contain personal data: send them only after the user opts in, and keep only the extracted fields.
 - Changing a prompt requires bumping its `version` and passing the live golden eval (at least 27 of 30 cases) before merge.

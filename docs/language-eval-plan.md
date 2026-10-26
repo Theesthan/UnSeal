@@ -2,7 +2,7 @@
 
 **Question:** can `qwen-3.8-27b` understand and write Tamil and Hindi well enough for UnSeal to work natively in those languages, or do we take the PRD fallback (compose in English, translate, show both for the user to review)?
 **Timebox:** 3 hours from first call. No verdict by then means we take the fallback.
-**Output:** a scored results sheet and ADR `docs/adr/0002-language-strategy.md` recording the decision.
+**Output:** scored results sheets (`docs/eval/language-eval-results-ta.md`, `-hi.md`) and ADR `docs/adr/0002-language-strategy.md` recording the decision.
 
 ## What is tested
 
@@ -12,7 +12,7 @@ Only the language steps of the harness, with fictional applicants. Dates, fees a
 | --- | --- | --- |
 | Rewrite | 1 to 4 | A "why" or opinion ask becomes a request for specific records; a third-party personal ask is flagged, not rewritten |
 | Intake | 5 to 7 | Slots extracted from free text written in the language; a vague message gets one or two follow-up questions in the same language |
-| Compose | 8, 9 | Formal subject line and numbered questions, placeholders such as `<REG_NO>` kept verbatim |
+| Compose | 8, 9 | Formal subject line and questions, placeholders such as `<REG_NO>` kept verbatim |
 | Appeal facts | 10 | One facts paragraph that uses only the dates it was given |
 
 ## Cases
@@ -30,8 +30,8 @@ Inputs were drafted by Claude. **A native speaker proofreads them before the run
 | TA-5 | Intake | நான் சென்னையில் உள்ள ஒரு அரசு கலைக் கல்லூரியில் படிக்கிறேன். ஏப்ரல் 2026 பருவத் தேர்வில் கணிதப் பாடத்தில் தோல்வி என்று முடிவு வந்தது. என் விடைத்தாளின் நகல் வேண்டும். தபாலில் அனுப்பினால் போதும். | Tamil Nadu; state university exams; April 2026 session; answer script copy; delivery by post; BPL unknown, so asked |
 | TA-6 | Intake | 2025 ஜனவரியில் புதிய குடும்ப அட்டைக்கு விண்ணப்பித்தேன். இன்னும் கிடைக்கவில்லை. நான் வறுமைக் கோட்டுக்குக் கீழ் உள்ளவன்; என்னிடம் சான்று உள்ளது. | Tamil Nadu; civil supplies; application status and file notings since Jan 2025; BPL yes |
 | TA-7 | Intake | அரசு அலுவலகத்தில் என் கோப்பு நகரவே இல்லை. | No draft; one or two follow-up questions in Tamil (which office, which application, when) |
-| TA-8 | Compose | Accepted records (English): certified copy of the evaluated answer script, Mathematics, April 2026 session, `<REG_NO>`; marks per question; dates of evaluation and any revaluation | Tamil subject line and 3 numbered questions, formal register, `<REG_NO>` intact |
-| TA-9 | Compose | Accepted records (English): work order, sanctioned amount, completion certificate and measurement book entries for the road in `<WARD>` | Tamil subject line and 4 numbered questions, `<WARD>` intact |
+| TA-8 | Compose | Accepted records (English): certified copy of the evaluated answer script, Mathematics, April 2026 session, `<REG_NO>`; marks per question; dates of evaluation and any revaluation | Tamil subject line and 3 questions, formal register, `<REG_NO>` intact |
+| TA-9 | Compose | Accepted records (English): work order, sanctioned amount, completion certificate and measurement book entries for the road in `<WARD>` | Tamil subject line and 4 questions, `<WARD>` intact |
 | TA-10 | Appeal facts | Filed by post 2026-08-03; received 2026-08-07; reply due 2026-09-06; no reply as of 2026-10-20. Ground (from code): no reply in time | One Tamil paragraph using exactly these dates; no section numbers, fees or new dates |
 
 ### Hindi
@@ -45,8 +45,8 @@ Inputs were drafted by Claude. **A native speaker proofreads them before the run
 | HI-5 | Intake | मैं दिल्ली में रहता हूँ। मार्च 2026 में मैंने EPFO में PF निकासी का दावा किया था, लेकिन अब तक पैसा नहीं आया। मुझे दावे की स्थिति और फ़ाइल नोटिंग चाहिए। जवाब ईमेल से भेजें। | Central (EPFO); March 2026; claim status and file notings; delivery by email; BPL unknown, so asked |
 | HI-6 | Intake | मेरे पिताजी की पेंशन जनवरी 2026 से बंद है। हमारे पास BPL कार्ड है। | Authority unclear, so asked (central or state pension); BPL yes |
 | HI-7 | Intake | सरकारी दफ़्तर में मेरी फ़ाइल आगे नहीं बढ़ रही। | No draft; one or two follow-up questions in Hindi |
-| HI-8 | Compose | Accepted records (English): status of PF withdrawal claim `<CLAIM_NO>` filed March 2026; file notings; name and designation of the officer holding it | Hindi subject line and 3 numbered questions, `<CLAIM_NO>` intact |
-| HI-9 | Compose | Accepted records (English): certified copy of the evaluated answer book, `<SUBJECT>`, `<ROLL_NO>`, May 2026 examination; marks per question | Hindi subject line and 2 numbered questions, placeholders intact |
+| HI-8 | Compose | Accepted records (English): status of PF withdrawal claim `<CLAIM_NO>` filed March 2026; file notings; name and designation of the officer holding it | Hindi subject line and 3 questions, `<CLAIM_NO>` intact |
+| HI-9 | Compose | Accepted records (English): certified copy of the evaluated answer book, `<SUBJECT>`, `<ROLL_NO>`, May 2026 examination; marks per question | Hindi subject line and 2 questions, placeholders intact |
 | HI-10 | Appeal facts | Same facts as TA-10 | One Hindi paragraph using exactly these dates; no section numbers, fees or new dates |
 
 ## Scoring
@@ -55,10 +55,10 @@ Inputs were drafted by Claude. **A native speaker proofreads them before the run
 
 | Check | Rule |
 | --- | --- |
-| A1 Schema | Output parses against its Pydantic schema; count first-call passes and passes after one retry |
-| A2 No invented legal values | No section numbers, rupee amounts or dates that are not in the input (regex for `Section`, `பிரிவு`, `धारा`, `Rs`, `ரூ`, `रु`, `₹`, and date patterns) |
+| A1 Schema | Output parses against its Pydantic schema; count first-call passes and passes after one retry. Busy calls are excluded and reported (they say nothing about the model) |
+| A2 No invented legal values | Every number in the output (Tamil and Devanagari digits included) must appear in the input; 2005, the year in the Act's name, is allowed and list numbering is ignored. A section word (`Section`, `S.`, `பிரிவு`, `धारा`) counts only when a number follows, since பிரிவு and धारा are also everyday words; a currency mark (`Rs`, `rupees`, `₹`, `ரூ.`, `ரூபாய்`, `रु.`, `रुपये`) always counts |
 | A3 Placeholders | Every `<PLACEHOLDER>` in the input appears verbatim in the output |
-| A4 Script | At least 80% of letters in user-facing fields are in the target script (Tamil or Devanagari), excluding placeholders and acronyms such as CBSE, EPFO, PF |
+| A4 Script | At least 80% of letters in user-facing fields (`USER_FACING` on each schema) are in the target script, excluding placeholders and acronyms such as CBSE, EPFO, PF. Reported, not gated: it feeds the reviewer's L score |
 
 **Task (T)**, pass or fail per case against the Expected column. Any reviewer can score this.
 
@@ -87,11 +87,13 @@ The PRD sets no bar, so this is a proposal. Per language:
 
 ## How it runs
 
-1. **Prerequisites:** `llm/client.py` is built (Responses API, `store=False`, strict JSON schema, one retry, truncation and 503 handling). Still to do: the four draft output schemas in `llm/schemas.py` (rewrite, intake, compose, appeal facts) and the case runner. `BHARATCODE_API_KEY` goes in the repo-root `.env` only; never pasted into chat.
-2. **Smoke call:** `uv run pytest -m live tests/live` (from `apps/api`) makes one English rewrite, confirming the base URL, model name and structured output before spending the timebox.
-3. **Run:** the cases above as a `live`-marked test under `tests/golden/lang_eval/`, 3 runs per case (sampling varies), `reasoning={"effort": "none"}` on intake. About 20 cases x 3 runs x roughly 1.5k tokens is near 90k tokens, around 1% of the 10M daily cap.
-4. **Record:** outputs are fictional, so they are saved under `tests/fixtures/recorded/lang_eval/` and double as offline fixtures for the harness tests.
-5. **Score:** automated checks run in the test; T and L go in `docs/language-eval-results.md` (one table per language).
+Everything below runs from `apps/api`. The pieces: draft schemas in `llm/schemas.py`, v1 prompts in `src/unseal/prompts/`, the cases in `tests/golden/lang_eval/cases.json` (the machine copy of the tables above), checks and gates in `src/unseal/evals/lang_eval.py`.
+
+1. **Key:** put `BHARATCODE_API_KEY` in the repo-root `.env` only; never paste it into chat.
+2. **Smoke call:** `uv run pytest -m live tests/live` makes one English rewrite, confirming the base URL, model name and structured output before spending the timebox.
+3. **Run:** `uv run pytest -m live tests/golden/lang_eval` runs every case 3 times (sampling varies), sequentially, with a 4,096-token budget and `reasoning={"effort": "none"}` on intake. Add `-k tamil` or `-k hindi` for one language, or `LANG_EVAL_RUNS=1` for a quick pass. Roughly 20 cases x 3 runs x 1.5k tokens is near 90k tokens, around 1% of the 10M daily cap.
+4. **Record:** every run is saved to `tests/fixtures/recorded/lang_eval/<case>.json` (fictional cases, so safe to commit); an offline test keeps those files valid against the schemas, and they double as fixtures for the harness tests.
+5. **Score:** the run writes `docs/eval/language-eval-results-<ta|hi>.md` with the gates, a row per case (first-call valid, invented values, placeholders, script share) and every output, plus blank T and L1 to L3 columns for the reviewers. The test fails if an automated gate fails. Each rerun overwrites the sheet, so copy reviewer scores out first.
 6. **Decide:** write ADR 0002 with the scores, the decision per language, and what would reopen it (a model change, or golden cases failing).
 
 ## Owners
