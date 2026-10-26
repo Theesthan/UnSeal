@@ -1,0 +1,142 @@
+[
+  {
+    "id": "TA-1",
+    "language": "ta",
+    "kind": "rewrite",
+    "input": "எனது பருவத் தேர்வில் கணிதப் பாடத்தில் ஏன் இவ்வளவு குறைந்த மதிப்பெண் வழங்கப்பட்டது?",
+    "expected": "Certified copy of the evaluated answer script (subject, <REG_NO>, exam session); marks per question"
+  },
+  {
+    "id": "TA-2",
+    "language": "ta",
+    "kind": "rewrite",
+    "input": "எங்கள் வார்டில் உள்ள சாலை ஏன் இரண்டு வருடங்களாகப் போடப்படவில்லை?",
+    "expected": "Work order, sanctioned amount, tender and contractor, measurement book, completion certificate, with dates"
+  },
+  {
+    "id": "TA-3",
+    "language": "ta",
+    "kind": "rewrite",
+    "input": "எனது ஓய்வூதிய விண்ணப்பத்தை நிராகரித்தது சரியா என்று அதிகாரி விளக்க வேண்டும்.",
+    "expected": "Copy of the rejection order, file notings, rules or circulars relied on"
+  },
+  {
+    "id": "TA-4",
+    "language": "ta",
+    "kind": "rewrite",
+    "input": "எனது பக்கத்து வீட்டுக்காரரின் வருமான வரி விவரங்களை வழங்கவும்.",
+    "expected": "Personal-information flag; no request for that person's data; an aggregate alternative at most"
+  },
+  {
+    "id": "TA-5",
+    "language": "ta",
+    "kind": "intake",
+    "input": "நான் சென்னையில் உள்ள ஒரு அரசு கலைக் கல்லூரியில் படிக்கிறேன். ஏப்ரல் 2026 பருவத் தேர்வில் கணிதப் பாடத்தில் தோல்வி என்று முடிவு வந்தது. என் விடைத்தாளின் நகல் வேண்டும். தபாலில் அனுப்பினால் போதும்.",
+    "expected": "Tamil Nadu; state university exams; April 2026 session; answer script copy; delivery by post; BPL unknown, so asked"
+  },
+  {
+    "id": "TA-6",
+    "language": "ta",
+    "kind": "intake",
+    "input": "2025 ஜனவரியில் புதிய குடும்ப அட்டைக்கு விண்ணப்பித்தேன். இன்னும் கிடைக்கவில்லை. நான் வறுமைக் கோட்டுக்குக் கீழ் உள்ளவன்; என்னிடம் சான்று உள்ளது.",
+    "expected": "Tamil Nadu; civil supplies; application status and file notings since Jan 2025; BPL yes"
+  },
+  {
+    "id": "TA-7",
+    "language": "ta",
+    "kind": "intake",
+    "input": "அரசு அலுவலகத்தில் என் கோப்பு நகரவே இல்லை.",
+    "expected": "No draft; one or two follow-up questions in Tamil (which office, which application, when)"
+  },
+  {
+    "id": "TA-8",
+    "language": "ta",
+    "kind": "compose",
+    "input": "Accepted records: certified copy of the evaluated answer script, Mathematics, April 2026 session, register number <REG_NO>; marks awarded per question; dates of evaluation and any revaluation",
+    "expected": "Tamil subject line and 3 questions, formal register, <REG_NO> intact"
+  },
+  {
+    "id": "TA-9",
+    "language": "ta",
+    "kind": "compose",
+    "input": "Accepted records: work order; sanctioned amount; completion certificate; measurement book entries for the road in <WARD>",
+    "expected": "Tamil subject line and 4 questions, <WARD> intact"
+  },
+  {
+    "id": "TA-10",
+    "language": "ta",
+    "kind": "appeal_facts",
+    "input": "Application filed by post on 2026-08-03. Received by the public authority on 2026-08-07. Reply was due on 2026-09-06. No reply received as of 2026-10-20. Ground: no reply within the time allowed.",
+    "expected": "One Tamil paragraph using exactly these dates; no section numbers, fees or new dates"
+  },
+  {
+    "id": "HI-1",
+    "language": "hi",
+    "kind": "rewrite",
+    "input": "मेरा पासपोर्ट अब तक जारी क्यों नहीं हुआ?",
+    "expected": "Application status, police verification dates, file notings"
+  },
+  {
+    "id": "HI-2",
+    "language": "hi",
+    "kind": "rewrite",
+    "input": "CBSE ने 12वीं की भौतिकी परीक्षा में मुझे इतने कम अंक क्यों दिए?",
+    "expected": "Certified copy of the evaluated answer book (<ROLL_NO>, subject, year); marks per question"
+  },
+  {
+    "id": "HI-3",
+    "language": "hi",
+    "kind": "rewrite",
+    "input": "क्या रेलवे द्वारा मेरी नियुक्ति रद्द करना उचित था?",
+    "expected": "Copy of the cancellation order, file notings, rules relied on"
+  },
+  {
+    "id": "HI-4",
+    "language": "hi",
+    "kind": "rewrite",
+    "input": "मेरे पड़ोसी की आयकर रिटर्न की प्रति दीजिए।",
+    "expected": "Personal-information flag; no request for that person's data"
+  },
+  {
+    "id": "HI-5",
+    "language": "hi",
+    "kind": "intake",
+    "input": "मैं दिल्ली में रहता हूँ। मार्च 2026 में मैंने EPFO में PF निकासी का दावा किया था, लेकिन अब तक पैसा नहीं आया। मुझे दावे की स्थिति और फ़ाइल नोटिंग चाहिए। जवाब ईमेल से भेजें।",
+    "expected": "Central (EPFO); March 2026; claim status and file notings; delivery by email; BPL unknown, so asked"
+  },
+  {
+    "id": "HI-6",
+    "language": "hi",
+    "kind": "intake",
+    "input": "मेरे पिताजी की पेंशन जनवरी 2026 से बंद है। हमारे पास BPL कार्ड है।",
+    "expected": "Authority unclear, so asked (central or state pension); BPL yes"
+  },
+  {
+    "id": "HI-7",
+    "language": "hi",
+    "kind": "intake",
+    "input": "सरकारी दफ़्तर में मेरी फ़ाइल आगे नहीं बढ़ रही।",
+    "expected": "No draft; one or two follow-up questions in Hindi"
+  },
+  {
+    "id": "HI-8",
+    "language": "hi",
+    "kind": "compose",
+    "input": "Accepted records: status of PF withdrawal claim <CLAIM_NO> filed in March 2026; file notings on the claim; name and designation of the officer holding the file",
+    "expected": "Hindi subject line and 3 questions, <CLAIM_NO> intact"
+  },
+  {
+    "id": "HI-9",
+    "language": "hi",
+    "kind": "compose",
+    "input": "Accepted records: certified copy of the evaluated answer book for <SUBJECT>, roll number <ROLL_NO>, May 2026 examination; marks awarded per question",
+    "expected": "Hindi subject line and 2 questions, placeholders intact"
+  },
+  {
+    "id": "HI-10",
+    "language": "hi",
+    "kind": "appeal_facts",
+    "input": "Application filed by post on 2026-08-03. Received by the public authority on 2026-08-07. Reply was due on 2026-09-06. No reply received as of 2026-10-20. Ground: no reply within the time allowed.",
+    "expected": "One Hindi paragraph using exactly these dates; no section numbers, fees or new dates"
+  }
+]
