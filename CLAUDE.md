@@ -8,7 +8,7 @@ UnSeal turns a citizen's concern into a filing-ready RTI application (English, H
 Product spec: [docs/PRD.md](docs/PRD.md). When scope changes, update the PRD first, then this file, and keep the two in sync.
 Living state (what exists, what is in flight, open questions): [context.md](context.md).
 
-**Status (26 Oct 2026): no application code yet.** The layout and commands below are the target; create each piece as it is built, and correct this file if the real structure differs.
+**Status (26 Oct 2026):** only `apps/api` exists, with the rules data and its loader (`rules/engine.py`). Everything else in the layout below is the target; create each piece as it is built, and correct this file if the real structure differs.
 
 ## Golden rules (read before every task)
 
@@ -36,7 +36,8 @@ apps/
       llm/schemas.py      # Pydantic models for every model output
       harness/            # intake, classify, rewrite, validate, compose, read_reply, appeal
       rules/engine.py     # pure functions: deadlines, fees
-      rules/data/         # central.json, tamil_nadu.json (each rule has source_url, checked_on)
+      rules/data/         # rti_act.json (statute, every jurisdiction) + central.json, tamil_nadu.json
+                          #   each rule: basis, source_url (.gov.in/.nic.in), checked_on, quote (ADR 0001)
       pdf/                # WeasyPrint renderer + templates/*.html.j2
       bot/                # python-telegram-bot handlers
       scheduler.py        # APScheduler 3.x reminder job (every 15 min)
@@ -60,7 +61,8 @@ API (run from `apps/api`; uses `uv`, or `pip install -e ".[dev]"` as a fallback)
 | Run API | `uv run uvicorn unseal.main:app --reload --port 8000` |
 | Run bot locally (polling) | `uv run python -m unseal.bot --polling` |
 | Tests (offline, default) | `uv run pytest -q` |
-| One test | `uv run pytest tests/unit/test_engine.py::test_name -q` (or `-k <expr>`) |
+| One test | `uv run pytest tests/unit/test_rules_data.py::test_name -q` (or `-k <expr>`) |
+| Coverage | `uv run pytest --cov=unseal --cov-report=term-missing` |
 | Live golden eval (real API) | `uv run pytest -m live tests/golden` |
 | Lint and format | `uv run ruff check . --fix && uv run ruff format .` |
 | Types | `uv run mypy src` |
@@ -114,15 +116,15 @@ Jurisdictions in v1: `central` and `tamil_nadu`. Languages: `en`, `hi`, `ta` (Se
 | Rule | Value | Basis |
 | --- | --- | --- |
 | PIO reply | 30 days from receipt | S. 7(1) |
-| Filed via an Assistant PIO | 35 days | S. 5(2) proviso |
+| Filed via an Assistant PIO | 35 days (5 added) | S. 5(2) proviso |
 | Third party involved | 40 days | S. 11(3) |
 | Life or liberty | 48 hours | S. 7(1) proviso |
-| Transfer | within 5 days; new PIO's period runs from its receipt | S. 6(3) |
+| Transfer | within 5 days; Act silent on the new period (DoPT Guide: 30 days from new receipt); first-appeal clock stays on the original receipt until decided | S. 6(3) proviso |
 | No reply in time | deemed refusal | S. 7(2) |
 | First appeal | within 30 days of reply or of due date | S. 19(1) |
 | Appellate authority decision | 30 days, extendable to 45 | S. 19(6) |
-| Second appeal | within 90 days of decision, or of the FAA deadline passing | S. 19(3) |
-| Fee | Rs 10 (central and Tamil Nadu); BPL exempt with proof (S. 7(5)) | RTI Rules 2012; TN Fees Rules 2005 |
+| Second appeal | within 90 days of decision, or of the FAA deadline passing; late allowed for sufficient cause | S. 19(3) |
+| Fee | Rs 10 (central and Tamil Nadu); copies Rs 2 per page, A3 or smaller (central); BPL exempt (S. 7(5)), central needs the BPL certificate copy (r. 5) | RTI Rules 2012 (G.S.R. 603(E)); TN Fees Rules 2005 |
 | Length (central) | ordinarily 500 words or fewer; never rejected for length alone | RTI Rules 2012, r. 3 |
 | Personal information | exempt as a class since 13 Nov 2025; under Supreme Court challenge | S. 8(1)(j) as amended by DPDP Act s. 44(3) |
 

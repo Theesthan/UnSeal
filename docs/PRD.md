@@ -123,24 +123,25 @@ The model handles language; code owns dates, fees and legal grounds. Every model
 
 ### RTI rules engine
 
-All dates and fees come from `rules/*.json`, versioned and unit-tested; the model never computes them. Values below were checked against the sources listed at the end on 26 Oct 2026.
+All dates and fees come from `rules/data/*.json` (the statute once in `rti_act.json`, each jurisdiction's own rules in `central.json` and `tamil_nadu.json`; ADR 0001), versioned and unit-tested; the model never computes them. Values below were checked against the sources listed at the end on 26 Oct 2026.
 
 | Rule | Value | Basis |
 | --- | --- | --- |
 | PIO reply | 30 days from receipt | Section 7(1) |
-| Filed through an Assistant PIO | 35 days | Section 5(2), proviso |
-| Third party involved | 40 days | Section 11(3) |
+| Filed through an Assistant PIO | 35 days (5 days added to the 30) | Section 5(2), proviso |
+| Third party involved | 40 days (to decide on disclosure and notify the third party) | Section 11(3) |
 | Life or liberty at stake | 48 hours | Section 7(1), proviso |
-| Transferred to another authority | Transfer within 5 days; the new PIO's period runs from its receipt | Section 6(3) |
+| Transferred to another authority | Transfer within 5 days. The Act is silent on when the new PIO's period runs; the DoPT Guide (2013) says 30 days from its receipt. Until decided, the user's first-appeal clock stays on the original receipt | Section 6(3), proviso; DoPT Guide 2013 |
 | No reply in time | Deemed refusal | Section 7(2) |
 | First appeal | Within 30 days of the reply or of its due date; a late appeal is at the appellate authority's discretion | Section 19(1) |
 | Appellate authority's decision | 30 days, extendable to 45 | Section 19(6) |
-| Second appeal | Within 90 days of the decision, or of the appellate authority's deadline passing | Section 19(3); CIC guidelines |
-| Fee, central | Rs 10; Rs 2 per A4 or A3 page of copies | RTI Rules 2012, Rules 3 and 4 |
+| Second appeal | Within 90 days of the decision, or of the appellate authority's deadline passing; a late appeal may be admitted for sufficient cause | Section 19(3) and proviso |
+| Fee, central | Rs 10; Rs 2 per page of copies on A3 or smaller paper (larger paper at actual cost) | RTI Rules 2012 (G.S.R. 603(E)), Rules 3 and 4 |
 | Fee, Tamil Nadu | Rs 10 | TN RTI (Fees) Rules 2005, per TNSIC |
-| BPL applicants | No fee, with proof | Section 7(5) |
+| BPL applicants | No fee; central applications attach a copy of the BPL certificate | Section 7(5), proviso; RTI Rules 2012, Rule 5 |
+| Payment modes, central (default) | Cash against receipt, demand draft, banker's cheque, Indian Postal Order, or electronic where the authority has it | RTI Rules 2012, Rule 6 |
 | Length, central | Ordinarily 500 words or fewer; never rejected for length alone | RTI Rules 2012, Rule 3 |
-| Personal information | Exempt as a class since 13 Nov 2025; under Supreme Court challenge | Section 8(1)(j) as amended by DPDP Act Section 44(3) |
+| Personal information | Exempt as a class since 13 Nov 2025; under Supreme Court challenge (Venkatesh Nayak v. Union of India, W.P.(C) 177/2026 and connected matters) | Section 8(1)(j) as amended by DPDP Act Section 44(3); G.S.R. 843(E) |
 | Language | English, Hindi or the official language of the area | Section 6(1) |
 
 **Engine rules:**
@@ -238,13 +239,13 @@ The biggest unknown is Tamil and Hindi quality from `qwen-3.8-27b`, so it is tes
 
 ## Sources
 
-- BharatCode Build League: rules, judging, deadline; entries counted 26 Oct 2026
-- Build with BharatCode: base URL, models, limits, Responses support
-- RTI Rules, 2012: fee and 500-word guidance
-- CIC second appeal guidelines: 90-day window
-- Tamil Nadu RTI fees (TNSIC): Rs 10 application fee
-- Vikaspedia, first appeal when there is no reply: 30, 35 and 48-hour limits; first appeal window
-- Vikaspedia, RTI fees and payment modes: BPL exemption, state fees vary
-- Gandhinagar Police, RTI time limits: 40-day third-party limit
-- DPDP Act Section 44 status: in force from 13 Nov 2025
-- Supreme Court review of Section 44(3): challenge pending
+Primary sources, all opened and quoted on 26 Oct 2026; the verbatim quotes live in `apps/api/src/unseal/rules/data/*.json`.
+
+- RTI Act 2005, DoPT consolidated text "as on 18 Nov 2025", already showing the DPDP amendment to s. 8(1)(j): https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF
+- RTI Rules 2012, G.S.R. 603(E), 31 Jul 2012 (fee, 500 words, copy fee, BPL certificate, payment modes): https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf
+- DPDP Act 2023, s. 44(3) (Gazette, 11 Aug 2023): https://www.meity.gov.in/static/uploads/2024/06/2bf1f0e9f04e6fb4f8fef35e82c42aa5.pdf
+- MeitY G.S.R. 843(E), 13 Nov 2025, bringing s. 44(3) into force: https://www.meity.gov.in/static/uploads/2025/11/c56ceae6c383460ca69577428d36828b.pdf
+- Supreme Court cause list, 7 Aug 2026, item 31 (W.P.(C) 177/2026 and connected matters pending): https://api.sci.gov.in/jonew/cl/2026-08-07/M_J_1.pdf
+- DoPT Guide on the RTI Act, OM 1/32/2013-IR (transfer clock; guidance, not statute): https://rti.dopt.gov.in/Writereaddata/Guide_2013-issue.pdf
+- RTI Online portal (central authorities only): https://rtionline.gov.in/
+- Still to source: BharatCode Build League rules and API docs; Tamil Nadu fee rules (TNSIC).
