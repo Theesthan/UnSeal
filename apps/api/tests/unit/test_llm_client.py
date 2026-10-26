@@ -294,3 +294,21 @@ def test_settings_require_the_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("BHARATCODE_API_KEY", raising=False)
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
+
+
+async def test_structured_call_reports_how_the_answer_was_reached() -> None:
+    clean = await make(FakeBharatCode(reply())).structured_call(
+        Rewrite, instructions="x", input="y"
+    )
+    assert (clean.schema_retries, clean.budget_raised, clean.request_id) == (0, False, "req-ok")
+
+    retried = await make(FakeBharatCode(reply(text="nope"), reply())).structured_call(
+        Rewrite, instructions="x", input="y"
+    )
+    assert retried.schema_retries == 1
+    assert retried.value.records == ["answer script"]
+
+    raised = await make(FakeBharatCode(truncated(), reply())).structured_call(
+        Rewrite, instructions="x", input="y"
+    )
+    assert raised.budget_raised is True

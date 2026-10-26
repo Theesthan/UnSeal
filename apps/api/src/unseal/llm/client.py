@@ -15,13 +15,14 @@ Logs carry the x-request-id only, never a request or response body.
 import asyncio
 import logging
 from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
 from typing import Any, TypeVar
 
 import httpx2
 import openai
 from openai import AsyncOpenAI
 from openai.types.responses import Response, ResponseInputParam
-from openai.types.shared import ReasoningEffort
+from openai.types.shared import ReasoningEffort as ReasoningEffort  # re-exported for callers
 from pydantic import BaseModel, ValidationError
 
 from unseal.config import Settings
@@ -56,6 +57,16 @@ class ModelIncomplete(LLMError):
         super().__init__(f"model output incomplete: {reason}", request_id)
         self.reason = reason
         self.partial_text = partial_text
+
+
+@dataclass(frozen=True)
+class StructuredResult[V: BaseModel]:
+    """A validated answer plus how it was reached (for evals and metrics)."""
+
+    value: V
+    request_id: str | None
+    schema_retries: int
+    budget_raised: bool
 
 
 _NAMED_MAPS = ("properties", "$defs")  # keys here are field or model names, not schema keywords
@@ -99,7 +110,7 @@ class LLMClient:
         self._model = model
         self._sleep = sleep
 
-    async def structured(
+    async def structured_call(
         self,
         output: type[T],
         *,
@@ -107,7 +118,7 @@ class LLMClient:
         input: str | ResponseInputParam,
         max_output_tokens: int = 2048,
         reasoning_effort: ReasoningEffort | None = None,
-    ) -> T:
+    ) -> StructuredResult[T]:
         if not 0 < max_output_tokens <= MAX_OUTPUT_TOKENS_CAP:
             raise ValueError(f"max_output_tokens must be 1..{MAX_OUTPUT_TOKENS_CAP}")
         request: dict[str, Any] = {
@@ -146,7 +157,7 @@ class LLMClient:
                     continue
                 raise ModelIncomplete(reason, response.output_text, request_id)
             try:
-                return output.model_validate_json(response.output_text)
+                value = output.model_validate_json(response.output_text)
             except ValidationError as exc:
                 log.warning(
                     "bharatcode output failed schema %s (%d errors) request_id=%s",
@@ -159,6 +170,26 @@ class LLMClient:
                         f"output failed {output.__name__} twice", request_id
                     ) from None
                 retried_invalid = True
+                continue
+            return StructuredResult(value, request_id, int(retried_invalid), raised_budget)
+
+    async def structured(
+        self,
+        output: type[T],
+        *,
+        instructions: str,
+        input: str | ResponseInputParam,
+        max_output_tokens: int = 2048,
+        reasoning_effort: ReasoningEffort | None = None,
+    ) -> T:
+        result = await self.structured_call(
+            output,
+            instructions=instructions,
+            input=input,
+            max_output_tokens=max_output_tokens,
+            reasoning_effort=reasoning_effort,
+        )
+        return result.value
 
     async def _create(self, request: dict[str, Any], budget: int) -> Response:
         delays = iter(BUSY_BACKOFF_SECONDS)
