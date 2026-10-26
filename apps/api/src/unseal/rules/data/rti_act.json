@@ -1,0 +1,103 @@
+{
+  "languages": {
+    "codes": ["en", "hi"],
+    "plus_area_official_language": true,
+    "basis": "RTI Act 2005, s. 6(1)",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "shall make a request in writing or through electronic means in English or Hindi or in the official language of the area in which the application is being made"
+  },
+  "no_reason_needed": {
+    "applies": true,
+    "basis": "RTI Act 2005, s. 6(2)",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "shall not be required to give any reason for requesting the information"
+  },
+  "transfer": {
+    "days": 5,
+    "basis": "RTI Act 2005, s. 6(3), proviso",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "Provided that the transfer of an application pursuant to this sub-section shall be made as soon as practicable but in no case later than five days from the date of receipt of the application.",
+    "note": "The Act does not say when the new authority's reply period starts. The DoPT Guide on the RTI Act (OM 1/32/2013-IR, 28 Nov 2013, https://rti.dopt.gov.in/Writereaddata/Guide_2013-issue.pdf) says 30 days from receipt by the new authority: guidance, not statute. Conservative for the user: keep the first-appeal clock on the original receipt and show the new authority's date only as the expected reply. Human decision pending."
+  },
+  "apio_extra": {
+    "days": 5,
+    "basis": "RTI Act 2005, s. 5(2), proviso",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "a period of five days shall be added in computing the period for response specified under sub-section (1) of section 7",
+    "note": "Added to the s. 7(1) period; the Act never states 35 days itself."
+  },
+  "pio_reply": {
+    "days": 30,
+    "basis": "RTI Act 2005, s. 7(1)",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "within thirty days of the receipt of the request",
+    "note": "Related, not yet modelled: s. 7(3)(a) excludes the time between a fee intimation and its payment; s. 7(6) makes information free when the s. 7(1) deadline is missed."
+  },
+  "life_liberty_reply": {
+    "hours": 48,
+    "basis": "RTI Act 2005, s. 7(1), proviso",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "the same shall be provided within forty-eight hours of the receipt of the request"
+  },
+  "deemed_refusal": {
+    "applies": true,
+    "basis": "RTI Act 2005, s. 7(2)",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "shall be deemed to have refused the request"
+  },
+  "bpl_fee_exempt": {
+    "applies": true,
+    "basis": "RTI Act 2005, s. 7(5), proviso",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "no such fee shall be charged from the persons who are of below poverty line as may be determined by the appropriate Government"
+  },
+  "personal_information": {
+    "applies": true,
+    "basis": "RTI Act 2005, s. 8(1)(j), as substituted by DPDP Act 2023, s. 44(3)",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "(j) information which relates to personal information; ... Subs. by Act 22 of 2023, s. 44 for clause (j) (w.e.f. 13-11-2025).",
+    "under_challenge": true,
+    "note": "In force 13 Nov 2025 (MeitY G.S.R. 843(E), https://www.meity.gov.in/static/uploads/2025/11/c56ceae6c383460ca69577428d36828b.pdf). Challenge pending: Venkatesh Nayak v. Union of India, W.P.(C) 177/2026, with W.P.(C) 211, 212, 275 and 286 of 2026; listed in the Supreme Court cause list of 7 Aug 2026 (https://api.sci.gov.in/jonew/cl/2026-08-07/M_J_1.pdf, item 31). No order opened: reports of notice, no interim stay and a larger-bench reference are unverified."
+  },
+  "third_party_reply": {
+    "days": 40,
+    "basis": "RTI Act 2005, s. 11(3)",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "within forty days after receipt of the request under section 6",
+    "note": "Strictly the deadline to decide on disclosure and notify the third party, used as the reply deadline when a third party is involved."
+  },
+  "first_appeal": {
+    "days": 30,
+    "late_allowed": true,
+    "basis": "RTI Act 2005, s. 19(1) and proviso",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "may within thirty days from the expiry of such period or from the receipt of such a decision prefer an appeal ... prevented by sufficient cause from filing the appeal in time"
+  },
+  "faa_decision": {
+    "days": 30,
+    "max_days": 45,
+    "basis": "RTI Act 2005, s. 19(6)",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "shall be disposed of within thirty days of the receipt of the appeal or within such extended period not exceeding a total of forty-five days from the date of filing thereof"
+  },
+  "second_appeal": {
+    "days": 90,
+    "late_allowed": true,
+    "basis": "RTI Act 2005, s. 19(3) and proviso",
+    "source_url": "https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF",
+    "checked_on": "2026-10-26",
+    "quote": "shall lie within ninety days from the date on which the decision should have been made or was actually received ... may admit the appeal after the expiry of the period of ninety days if it is satisfied that the appellant was prevented by sufficient cause"
+  }
+}

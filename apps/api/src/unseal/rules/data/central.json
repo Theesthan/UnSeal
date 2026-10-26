@@ -1,0 +1,48 @@
+{
+  "application_fee": {
+    "rupees": 10,
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 3",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "shall be accompanied by a fee of rupees ten"
+  },
+  "copy_fee_per_page": {
+    "rupees": 2,
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 4(a)",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "rupees two for each page in A-3 or smaller size paper",
+    "note": "Larger paper is charged at actual cost (r. 4(b))."
+  },
+  "word_limit": {
+    "words": 500,
+    "blocks_filing": false,
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 3 and proviso",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "shall ordinarily not contain more than five hundred words ... no application shall be rejected only on the ground that it contains more than five hundred words"
+  },
+  "bpl_certificate_required": {
+    "applies": true,
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 5",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "is below poverty line provided a copy of the certificate issued by the appropriate Government in this regard is submitted alongwith the application"
+  },
+  "payment_modes": {
+    "modes": ["cash", "demand_draft", "bankers_cheque", "indian_postal_order", "electronic"],
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 6",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "by demand draft or bankers cheque or Indian Postal Order payable to the Accounts Officer of the public authority; or (c) by electronic means to the Accounts Officer of the public authority, if facility for receiving fees through electronic means is available with the public authority",
+    "note": "Statutory default. Cash is paid against a receipt; electronic only where the authority has the facility. Per-authority modes override this when the authority list exists."
+  },
+  "filing_channels": {
+    "channels": ["rti_online", "post", "in_person"],
+    "basis": "RTI Act 2005, s. 6(1) (in writing or electronic); RTI Online portal (DoPT)",
+    "source_url": "https://rtionline.gov.in/",
+    "checked_on": "2026-10-26",
+    "quote": "This is a portal to file RTI applications/first appeals online along with payment gateway.",
+    "note": "RTI Online covers only the central authorities onboarded to it; post and in person rest on s. 6(1) 'in writing'."
+  }
+}
