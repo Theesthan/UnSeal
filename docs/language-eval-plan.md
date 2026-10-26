@@ -87,8 +87,8 @@ The PRD sets no bar, so this is a proposal. Per language:
 
 ## How it runs
 
-1. **Prerequisites:** `llm/client.py` (Responses API, `store=False`, strict JSON schema, one retry, truncation and 503 handling) and the four draft output schemas in `llm/schemas.py` (rewrite, intake, compose, appeal facts). `BHARATCODE_API_KEY` set in your local `.env` only; never pasted into chat.
-2. **Smoke call:** one English rewrite, to confirm the base URL, model name and structured output work before spending the timebox.
+1. **Prerequisites:** `llm/client.py` is built (Responses API, `store=False`, strict JSON schema, one retry, truncation and 503 handling). Still to do: the four draft output schemas in `llm/schemas.py` (rewrite, intake, compose, appeal facts) and the case runner. `BHARATCODE_API_KEY` goes in the repo-root `.env` only; never pasted into chat.
+2. **Smoke call:** `uv run pytest -m live tests/live` (from `apps/api`) makes one English rewrite, confirming the base URL, model name and structured output before spending the timebox.
 3. **Run:** the cases above as a `live`-marked test under `tests/golden/lang_eval/`, 3 runs per case (sampling varies), `reasoning={"effort": "none"}` on intake. About 20 cases x 3 runs x roughly 1.5k tokens is near 90k tokens, around 1% of the 10M daily cap.
 4. **Record:** outputs are fictional, so they are saved under `tests/fixtures/recorded/lang_eval/` and double as offline fixtures for the harness tests.
 5. **Score:** automated checks run in the test; T and L go in `docs/language-eval-results.md` (one table per language).

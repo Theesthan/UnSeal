@@ -8,7 +8,7 @@ UnSeal turns a citizen's concern into a filing-ready RTI application (English, H
 Product spec: [docs/PRD.md](docs/PRD.md). When scope changes, update the PRD first, then this file, and keep the two in sync.
 Living state (what exists, what is in flight, open questions): [context.md](context.md).
 
-**Status (26 Oct 2026):** only `apps/api` exists, with the rules data and its loader (`rules/engine.py`). Everything else in the layout below is the target; create each piece as it is built, and correct this file if the real structure differs.
+**Status (26 Oct 2026):** only `apps/api` exists, with the rules data and loader (`rules/engine.py`), settings (`config.py`) and the BharatCode client (`llm/client.py`). Everything else in the layout below is the target; create each piece as it is built, and correct this file if the real structure differs.
 
 ## Golden rules (read before every task)
 
@@ -63,6 +63,7 @@ API (run from `apps/api`; uses `uv`, or `pip install -e ".[dev]"` as a fallback)
 | Tests (offline, default) | `uv run pytest -q` |
 | One test | `uv run pytest tests/unit/test_rules_data.py::test_name -q` (or `-k <expr>`) |
 | Coverage | `uv run pytest --cov=unseal --cov-report=term-missing` |
+| Live smoke call (real API, needs key in `.env`) | `uv run pytest -m live tests/live` |
 | Live golden eval (real API) | `uv run pytest -m live tests/golden` |
 | Lint and format | `uv run ruff check . --fix && uv run ruff format .` |
 | Types | `uv run mypy src` |
@@ -99,6 +100,8 @@ Nothing secret may ever use the `NEXT_PUBLIC_` prefix; those values ship to the 
 - Truncation: Responses `status == "incomplete"` with reason `max_output_tokens` (or Chat Completions `finish_reason == "length"`) is a failure even with HTTP 200. Keep the partial text, never run a partial tool call, retry once with a higher `max_output_tokens` (cap 32,000, reasoning included). Never loop on the same budget.
 - `503` means busy: back off 2 s, 4 s, 8 s, then surface a "busy, try again" state. A stream that already started ends with `response.failed`.
 - On errors, log the `x-request-id` response header, never the request or response body.
+- In code: `build_client(settings)` returns an `LLMClient`; call `await llm.structured(OutputModel, instructions=..., input=...)`. It raises `ModelBusy`, `ModelIncomplete` (with `partial_text`) or `ModelOutputInvalid`; harness steps turn those into "busy, try again" or a question to the user. The SDK's own retries are off (`max_retries=0`) so these rules own retrying.
+- Tests fake the API with `httpx2.MockTransport` passed as `build_client(..., http_client=...)`. The `openai` 3.x SDK ships `httpx2`, not `httpx`.
 
 ## Harness pipeline
 

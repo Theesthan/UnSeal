@@ -10,13 +10,17 @@ Repo bootstrapped: `docs/PRD.md`, `CLAUDE.md`, `.claude/` (skills, hooks, settin
 
 ## In progress
 - Branch `feat/central-rules-json`: central rules done; next `tamil_nadu.json` (TNSIC fee rules).
-- Tamil and Hindi eval: plan in `docs/language-eval-plan.md`. Blocked on `llm/client.py` and a
-  local `BHARATCODE_API_KEY`; pass bar to agree before the first call.
+- Tamil and Hindi eval: plan in `docs/language-eval-plan.md`. Client done; next the four draft
+  schemas (`llm/schemas.py`) and the case runner. Needs `BHARATCODE_API_KEY` in the repo-root
+  `.env` (then run the smoke test first); pass bar to agree before the first call.
 
 ## Done
 - 2026-10-26 Product renamed from RTI Saathi to UnSeal (package `unseal`).
 - 2026-10-26 `rules/data/rti_act.json` (13 statute rules) + `central.json` (6 rules), every
   quote verified verbatim against the primary source; loader `rules/engine.py` (100% covered).
+- 2026-10-26 `config.py` + `llm/client.py`: stateless strict Responses calls, 503 backoff 2/4/8 s,
+  one doubled-budget truncation retry, one schema retry, request-id-only logs; 17 tests over a
+  fake transport plus an opt-in live smoke test. BharatCode behaviour not yet seen live.
 
 ## Open
 - `BharatCode.txt` contents unknown: ask the organisers (PRD open questions).
