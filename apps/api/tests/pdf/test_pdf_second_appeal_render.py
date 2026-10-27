@@ -95,10 +95,15 @@ def pdfs() -> dict[str, bytes]:
     return {name: render_second_appeal_pdf(case(name)) for name in NAMES}
 
 
+# A filled TNSIC form (11 appellant rows, parts I to IV, verification) and a Tamil CIC appeal
+# run to three or four pages at a legible size; the cap only catches a runaway layout.
+MAX_PAGES = 4
+
+
 @pytest.mark.parametrize("name", NAMES)
-def test_renders_a_pdf_of_at_most_two_pages(pdfs: dict[str, bytes], name: str) -> None:
+def test_renders_a_pdf_of_at_most_four_pages(pdfs: dict[str, bytes], name: str) -> None:
     assert pdfs[name].startswith(b"%PDF-")
-    assert 1 <= len(page_texts(pdfs[name])) <= 2
+    assert 1 <= len(page_texts(pdfs[name])) <= MAX_PAGES
 
 
 @pytest.mark.parametrize("name", NAMES)
