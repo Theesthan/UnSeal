@@ -14,9 +14,11 @@ from unseal.db.models import Base, Case, Deadline, Document, User
 from unseal.db.session import build_engine, build_session_factory
 from unseal.scheduler import (
     RETENTION_DAYS,
+    Reminder,
     claim_reminders,
     mark_deemed_refusals,
     purge_closed_cases,
+    tick,
 )
 from unseal.services.storage import path_for, save
 
@@ -119,3 +121,69 @@ async def test_two_schedulers_racing_claim_once(
     async with factory() as one, factory() as two:
         claims = await claim_reminders(one, now=NOW) + await claim_reminders(two, now=NOW)
     assert len(claims) == 1
+
+
+async def test_a_tick_runs_every_job_and_sends_each_claimed_reminder(
+    factory: async_sessionmaker[AsyncSession], tmp_path: Path
+) -> None:
+    async with factory() as session:
+        overdue = await add_case(session, "reply_due", due=TODAY - timedelta(days=1))
+        await add_case(session, "closed", closed_on=TODAY - timedelta(days=RETENTION_DAYS + 1))
+        await add_case(session, "reply_due", due=TODAY + timedelta(days=7))
+    sent: list[Reminder] = []
+
+    async def send(reminder: Reminder) -> None:
+        sent.append(reminder)
+
+    await tick(factory, storage_dir=tmp_path, now=NOW, send=send)
+    await tick(factory, storage_dir=tmp_path, now=NOW, send=send)
+    async with factory() as session:
+        found = await statuses(session)
+    assert found[overdue] == "deemed_refused" and len(found) == 2
+    assert [r.window for r in sent] == ["7d"]
+
+
+async def test_without_a_sender_reminders_stay_unclaimed(
+    factory: async_sessionmaker[AsyncSession], tmp_path: Path
+) -> None:
+    async with factory() as session:
+        await add_case(session, "reply_due", due=TODAY)
+    await tick(factory, storage_dir=tmp_path, now=NOW, send=None)
+    async with factory() as session:
+        assert [r.window for r in await claim_reminders(session, now=NOW)] == ["due"]
+
+
+async def test_a_failing_send_is_logged_and_the_rest_still_go_out(
+    factory: async_sessionmaker[AsyncSession], tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    async with factory() as session:
+        await add_case(session, "reply_due", due=TODAY)
+        await add_case(session, "reply_due", due=TODAY + timedelta(days=1))
+    sent: list[str] = []
+
+    async def send(reminder: Reminder) -> None:
+        if reminder.window == "1d":
+            raise RuntimeError("telegram down")
+        sent.append(reminder.window)
+
+    await tick(factory, storage_dir=tmp_path, now=NOW, send=send)
+    assert sent == ["due"]
+    assert "reminder" in caplog.text and "telegram down" in caplog.text
+
+
+async def test_one_failing_job_does_not_stop_the_retention_purge(
+    factory: async_sessionmaker[AsyncSession],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    async def broken(session: AsyncSession, *, today: date) -> int:
+        raise RuntimeError("deemed job broke")
+
+    monkeypatch.setattr("unseal.scheduler.mark_deemed_refusals", broken)
+    async with factory() as session:
+        await add_case(session, "closed", closed_on=TODAY - timedelta(days=RETENTION_DAYS + 1))
+    await tick(factory, storage_dir=tmp_path, now=NOW, send=None)
+    async with factory() as session:
+        assert await statuses(session) == {}
+    assert "deemed job broke" in caplog.text

@@ -5,17 +5,21 @@ Dates come from deadline rows the rules engine computed; nothing here adds days 
 retention period, which is app policy (PRD privacy), not law.
 """
 
+import logging
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from sqlalchemy import and_, or_, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import InstrumentedAttribute
 
 from unseal.db.models import Case, CaseStatus, Deadline, DeadlineKind, Document
 from unseal.rules.deadlines import IST
 from unseal.services.storage import remove_files
+
+logger = logging.getLogger(__name__)
 
 RETENTION_DAYS = 180  # PRD: closed cases are deleted automatically after 180 days
 
@@ -114,3 +118,48 @@ async def _candidates(
         .where(Deadline.due_on == due_on, marker.is_(None), live)
     )
     return list((await session.execute(query)).scalars())
+
+
+Send = Callable[[Reminder], Awaitable[None]]
+
+
+async def _guarded(
+    factory: async_sessionmaker[AsyncSession],
+    name: str,
+    job: Callable[[AsyncSession], Awaitable[object]],
+) -> None:
+    try:
+        async with factory() as session:
+            await job(session)
+    except Exception:
+        logger.exception("scheduler job %s failed", name)
+
+
+async def tick(
+    factory: async_sessionmaker[AsyncSession],
+    *,
+    storage_dir: Path,
+    now: datetime,
+    send: Send | None,
+) -> None:
+    """One scheduler run: every job, each in its own session so one failure stops no other.
+    Without a sender nothing is claimed, so no reminder is lost while the bot is off."""
+    today = now.astimezone(IST).date()
+    await _guarded(factory, "deemed_refusals", lambda s: mark_deemed_refusals(s, today=today))
+    await _guarded(
+        factory,
+        "retention",
+        lambda s: purge_closed_cases(s, storage_dir=storage_dir, today=today),
+    )
+    if send is None:
+        return
+    async with factory() as session:
+        reminders = await claim_reminders(session, now=now)
+    for reminder in reminders:
+        try:
+            await send(reminder)
+        except Exception:  # ponytail: claimed, so a failed send is lost (at most once); retry
+            # queue if delivery failures show up in the logs
+            logger.exception(
+                "reminder %s for deadline %s not sent", reminder.window, reminder.deadline_id
+            )
