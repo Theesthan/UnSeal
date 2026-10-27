@@ -89,7 +89,7 @@ Statuses: `draft`, `filed`, `reply_due`, `replied`, `deemed_refused`, `appealed`
 Flag codes (`validation`): `missing_pio_address`, `missing_applicant_address`, `no_questions` (block); `over_word_limit`, `personal_information`, `opinion_ask` (warn). The UI words them in the user's language.
 
 ## Telegram
-`POST /telegram/webhook` with header `X-Telegram-Bot-Api-Secret-Token` equal to `TELEGRAM_WEBHOOK_SECRET`; anything else is `403`.
+`POST /telegram/webhook` with header `X-Telegram-Bot-Api-Secret-Token` equal to `TELEGRAM_WEBHOOK_SECRET`; anything else is `403`. It is outside the per-IP rate limit (every bot user arrives from Telegram's IPs); the bot limits model calls per chat.
 
 ## Health
 `GET /health` returns `{"status": "ok"}` (no session needed).

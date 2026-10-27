@@ -30,7 +30,6 @@ from telegram.ext import (
 from telegram.warnings import PTBUserWarning
 
 from unseal.bot import finish, flow
-from unseal.bot.account import delete_user
 from unseal.bot.common import (
     Ctx,
     S,
@@ -49,7 +48,7 @@ from unseal.bot.common import (
 from unseal.bot.finish import shown_date
 from unseal.bot.texts import LANGUAGE_BUTTONS, label, language_of, t
 from unseal.services.cases import NotFound, case_summary, list_cases
-from unseal.services.identity import telegram_user
+from unseal.services.identity import delete_user, telegram_user
 
 log = logging.getLogger("unseal.bot")
 

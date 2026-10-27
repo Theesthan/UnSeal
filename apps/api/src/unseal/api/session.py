@@ -6,10 +6,9 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import func, select
 
 from unseal.api.deps import SESSION_COOKIE, Config, CurrentUser, Db, LanguageCode
-from unseal.db.models import Case, Document
+from unseal.db.models import Case
 from unseal.services.cases import export_cases
-from unseal.services.identity import create_web_user, user_for_token
-from unseal.services.storage import remove_files
+from unseal.services.identity import create_web_user, delete_user, user_for_token
 
 router = APIRouter()
 
@@ -63,11 +62,7 @@ async def update_me(body: LanguageBody, user: CurrentUser, session: Db) -> Respo
 @router.delete("/me", status_code=204)
 async def delete_me(user: CurrentUser, session: Db, config: Config) -> Response:
     """FR-8: every row (by cascade) and every stored file of this user."""
-    keys = select(Document.storage_key).join(Case).where(Case.user_id == user.id)
-    storage_keys = list((await session.execute(keys)).scalars())
-    await session.delete(user)
-    await session.commit()
-    remove_files(config.storage_dir, storage_keys)
+    await delete_user(session, user, config.storage_dir)
     response = Response(status_code=204)
     response.delete_cookie(
         SESSION_COOKIE,

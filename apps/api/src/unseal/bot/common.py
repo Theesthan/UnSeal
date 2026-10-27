@@ -10,12 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from unseal.bot.account import find_user
 from unseal.bot.services import BotServices, ChatQuota
 from unseal.bot.texts import Language, language_of, t
 from unseal.db.models import Case, User
 from unseal.llm.client import ModelBusy, ModelIncomplete, ModelOutputInvalid
 from unseal.services.cases import NotFound, get_case
+from unseal.services.identity import find_telegram_user as find_user
 
 log = logging.getLogger("unseal.bot")
 

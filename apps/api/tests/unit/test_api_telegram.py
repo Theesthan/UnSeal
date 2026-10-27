@@ -286,3 +286,12 @@ async def test_a_tick_with_telegram_sends_reminders_through_the_bot(
     [sent] = request.sent("sendMessage")
     assert sent.params["chat_id"] == CHAT_ID
     assert t("kind_first_appeal", "en") in sent.params["text"]
+
+
+async def test_the_webhook_is_not_limited_by_telegrams_shared_ips(tmp_path: Path) -> None:
+    app = await api_app(tmp_path, rate_limit_default="2/minute")
+    async with client(app) as api:
+        statuses = [(await api.post("/telegram/webhook", json={})).status_code for _ in range(4)]
+        other = [(await api.get("/health")).status_code for _ in range(3)]
+    assert 429 not in statuses  # the bot limits model calls per chat instead
+    assert other[-1] == 429  # every other route keeps the per-IP limit

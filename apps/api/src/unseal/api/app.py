@@ -21,6 +21,7 @@ from unseal.api.deps import SESSION_COOKIE
 from unseal.api.ratelimit import RateLimits
 from unseal.config import Settings
 from unseal.db.session import build_engine, build_session_factory
+from unseal.pdf.appeal import render_appeal_pdf
 from unseal.pdf.render import render_application_pdf
 from unseal.privacy.redact import install_redaction
 
@@ -71,6 +72,7 @@ def create_app(
     session_factory: async_sessionmaker[AsyncSession] | None = None,
     llm: Any = None,
     renderer: Any = None,
+    appeal_renderer: Any = None,
     run_scheduler: bool = True,
 ) -> FastAPI:
     factory = session_factory or build_session_factory(
@@ -96,6 +98,7 @@ def create_app(
     app.state.session_factory = factory
     app.state.llm = llm
     app.state.renderer = renderer or render_application_pdf
+    app.state.appeal_renderer = appeal_renderer or render_appeal_pdf
     app.state.rate_limits = RateLimits(settings.rate_limit_default, settings.rate_limit_model)
 
     errors.install(app)
@@ -116,7 +119,10 @@ def create_app(
 
     @app.middleware("http")
     async def rate_limit(request: Request, call_next: Next) -> Response:
-        if request.method != "OPTIONS" and not app.state.rate_limits.allow(request):
+        # Not the webhook: every bot user arrives from Telegram's few IPs, so a per-IP limit
+        # would throttle them all together. The bot limits model calls per chat instead.
+        limited = request.method != "OPTIONS" and request.url.path not in _SECRET_HEADER_PATHS
+        if limited and not app.state.rate_limits.allow(request):
             return errors.error_response(429, "rate_limited")
         return await call_next(request)
 
