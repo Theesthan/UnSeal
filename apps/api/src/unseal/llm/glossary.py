@@ -25,6 +25,8 @@ class LocalTerm(BaseModel):
     term: str
     match: tuple[str, ...] = Field(min_length=1)
     avoid: tuple[str, ...] = ()
+    source: str = Field(min_length=1)  # where the term was checked (statute, glossary, order)
+    confidence: Literal["high", "medium", "low"]  # low: a native reviewer checks it first
 
 
 class Entry(BaseModel):

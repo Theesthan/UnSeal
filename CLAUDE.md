@@ -34,6 +34,7 @@ apps/
       llm/client.py       # the ONLY place that calls BharatCode
       llm/schemas.py      # Pydantic models for every model output (USER_FACING fields per model)
       llm/prompts.py      # loads prompts/<step>.md (front matter `version: N`)
+      llm/glossary.json   # fixed Tamil and Hindi RTI terms (+ known-wrong variants), rendered into prompts
       prompts/            # one versioned prompt file per harness step (inside the package so it ships)
       evals/lang_eval.py  # Tamil and Hindi eval: checks A2 to A4, gates, results sheet
       harness/            # intake, classify, rewrite, validate, compose, read_reply, appeal
@@ -112,7 +113,7 @@ Nothing secret may ever use the `NEXT_PUBLIC_` prefix; those values ship to the 
 
 `intake → classify → rewrite → validate → compose → (track) → read_reply → appeal`
 
-- Each step: one prompt file in `src/unseal/prompts/` (front matter `version: N`, `{language}` is the only placeholder), one Pydantic output schema in `llm/schemas.py`, one function in `harness/`. Prompts never contain section numbers, fees or deadlines (a test enforces it).
+- Each step: one prompt file in `src/unseal/prompts/` (front matter `version: N`; placeholders `{language}` and `{glossary}`), one Pydantic output schema in `llm/schemas.py`, one function in `harness/`. Prompts never contain section numbers, fees or deadlines (a test enforces it).
 - `compose` fills a Jinja template. The model writes only the subject line and the numbered questions; names and addresses come from the DB at render time.
 - Applicant name, address and phone are **never** sent to the model. Reply photos contain personal data: send them only after the user opts in, and keep only the extracted fields.
 - Changing a prompt requires bumping its `version` and passing the live golden eval (at least 27 of 30 cases) before merge.

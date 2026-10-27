@@ -21,18 +21,21 @@ First-call valid: 10 of 10 calls; valid after one retry: 10 of 10; busy (exclude
 Script = lowest share of letters in Hindi script across valid runs (A4, target 80%).
 Reviewers fill T (pass or fail against Expected) and L1 to L3 (0 to 2 each).
 
-| Case | Kind | First-call valid | Invented | Placeholders | Script | T | L1 | L2 | L3 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| HI-1 | rewrite | 1/1 | none | n/a | 100% |  |  |  |  |
-| HI-2 | rewrite | 1/1 | none | n/a | 93% |  |  |  |  |
-| HI-3 | rewrite | 1/1 | none | n/a | 100% |  |  |  |  |
-| HI-4 | rewrite | 1/1 | none | n/a | 100% |  |  |  |  |
-| HI-5 | intake | 1/1 | none | n/a | n/a |  |  |  |  |
-| HI-6 | intake | 1/1 | none | n/a | 100% |  |  |  |  |
-| HI-7 | intake | 1/1 | none | n/a | 100% |  |  |  |  |
-| HI-8 | compose | 1/1 | none | kept | 100% |  |  |  |  |
-| HI-9 | compose | 1/1 | none | kept | 100% |  |  |  |  |
-| HI-10 | appeal_facts | 1/1 | none | n/a | 100% |  |  |  |  |
+Term errors = known-wrong glossary variants used. Missed terms = concepts the case names
+whose preferred glossary term is absent (not counted for intake).
+
+| Case | Kind | First-call valid | Invented | Placeholders | Script | Term errors | Missed terms | T | L1 | L2 | L3 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| HI-1 | rewrite | 1/1 | none | n/a | 100% | none | none |  |  |  |  |
+| HI-2 | rewrite | 1/1 | none | n/a | 93% | none | answer script |  |  |  |  |
+| HI-3 | rewrite | 1/1 | none | n/a | 100% | show-cause notice: दिखाने-कहने | file notings |  |  |  |  |
+| HI-4 | rewrite | 1/1 | none | n/a | 100% | none | none |  |  |  |  |
+| HI-5 | intake | 1/1 | none | n/a | n/a | none | n/a |  |  |  |  |
+| HI-6 | intake | 1/1 | none | n/a | 100% | none | n/a |  |  |  |  |
+| HI-7 | intake | 1/1 | none | n/a | 100% | none | n/a |  |  |  |  |
+| HI-8 | compose | 1/1 | none | kept | 100% | none | file notings |  |  |  |  |
+| HI-9 | compose | 1/1 | none | kept | 100% | none | none |  |  |  |  |
+| HI-10 | appeal_facts | 1/1 | none | n/a | 100% | public authority: जन-संस्था | public authority |  |  |  |  |
 
 ## Outputs
 

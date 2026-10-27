@@ -6,7 +6,7 @@ From apps/api:
     uv run pytest -m live tests/golden/lang_eval -k tamil     # one language
     LANG_EVAL_RUNS=1 uv run pytest -m live tests/golden/lang_eval   # quick pass
 
-Records every run to tests/fixtures/recorded/lang_eval/<case>.json (fictional cases only), writes
+Records every run to tests/fixtures/recorded/lang_eval/v<prompt>/<case>.json (fictional only), writes
 docs/eval/language-eval-results-<lang>.md for the native-speaker review, then fails if an automated
 gate fails. A pass here is necessary, not sufficient: T and L are scored by people.
 """

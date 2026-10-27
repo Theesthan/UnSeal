@@ -21,18 +21,21 @@ First-call valid: 10 of 10 calls; valid after one retry: 10 of 10; busy (exclude
 Script = lowest share of letters in Tamil script across valid runs (A4, target 80%).
 Reviewers fill T (pass or fail against Expected) and L1 to L3 (0 to 2 each).
 
-| Case | Kind | First-call valid | Invented | Placeholders | Script | T | L1 | L2 | L3 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TA-1 | rewrite | 1/1 | none | n/a | 100% |  |  |  |  |
-| TA-2 | rewrite | 1/1 | none | n/a | 100% |  |  |  |  |
-| TA-3 | rewrite | 1/1 | none | n/a | 100% |  |  |  |  |
-| TA-4 | rewrite | 1/1 | none | n/a | 100% |  |  |  |  |
-| TA-5 | intake | 1/1 | none | n/a | 100% |  |  |  |  |
-| TA-6 | intake | 1/1 | none | n/a | 100% |  |  |  |  |
-| TA-7 | intake | 1/1 | none | n/a | 100% |  |  |  |  |
-| TA-8 | compose | 1/1 | none | kept | 100% |  |  |  |  |
-| TA-9 | compose | 1/1 | none | kept | 100% |  |  |  |  |
-| TA-10 | appeal_facts | 1/1 | none | n/a | 100% |  |  |  |  |
+Term errors = known-wrong glossary variants used. Missed terms = concepts the case names
+whose preferred glossary term is absent (not counted for intake).
+
+| Case | Kind | First-call valid | Invented | Placeholders | Script | Term errors | Missed terms | T | L1 | L2 | L3 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| TA-1 | rewrite | 1/1 | none | n/a | 100% | none | answer script |  |  |  |  |
+| TA-2 | rewrite | 1/1 | none | n/a | 100% | file notings: நோடிங் | work order, sanctioned amount, completion certificate, measurement book |  |  |  |  |
+| TA-3 | rewrite | 1/1 | none | n/a | 100% | none | none |  |  |  |  |
+| TA-4 | rewrite | 1/1 | none | n/a | 100% | none | none |  |  |  |  |
+| TA-5 | intake | 1/1 | none | n/a | 100% | none | n/a |  |  |  |  |
+| TA-6 | intake | 1/1 | none | n/a | 100% | none | n/a |  |  |  |  |
+| TA-7 | intake | 1/1 | none | n/a | 100% | none | n/a |  |  |  |  |
+| TA-8 | compose | 1/1 | none | kept | 100% | certified copy: சான்றிதழ் நகல, answer script: பதில் எழுத்துப்பிரதி | certified copy, answer script, revaluation |  |  |  |  |
+| TA-9 | compose | 1/1 | none | kept | 100% | work order: வேலைத்தட்டு, completion certificate: முடிவுச் சான்று, measurement book: அளவிடல் புத்தக | work order, sanctioned amount, completion certificate, measurement book |  |  |  |  |
+| TA-10 | appeal_facts | 1/1 | none | n/a | 100% | public authority: பொது அதிகாரத் | public authority |  |  |  |  |
 
 ## Outputs
 

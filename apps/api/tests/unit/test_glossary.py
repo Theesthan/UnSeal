@@ -12,6 +12,9 @@ def test_every_entry_is_complete_and_self_consistent() -> None:
         assert all(phrase == phrase.lower() for phrase in entry.en)
         for local in (entry.ta, entry.hi):
             assert local.match[0] in local.term  # the main stem comes from the preferred term
+            # Legal terms carry provenance, like the rules data: where it came from, how sure.
+            assert local.source.strip(), entry.concept
+            assert local.confidence in {"high", "medium", "low"}
             for avoided in local.avoid:  # an avoided form never contains an accepted one
                 assert not any(stem in avoided for stem in local.match), (entry.concept, avoided)
 

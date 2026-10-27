@@ -2,91 +2,121 @@
   {
     "concept": "Right to Information Act, 2005",
     "en": ["right to information act", "rti act"],
-    "ta": {"term": "தகவல் அறியும் உரிமைச் சட்டம், 2005", "match": ["தகவல் அறியும் உரிமைச் சட்ட"]},
-    "hi": {"term": "सूचना का अधिकार अधिनियम, 2005", "match": ["सूचना का अधिकार अधिनियम"]}
+    "ta": {"term": "தகவல் பெறும் உரிமைச் சட்டம், 2005", "match": ["தகவல் பெறும் உரிமைச் சட்ட", "தகவல் அறியும் உரிமைச் சட்ட"], "confidence": "high",
+           "source": "Official Tamil Act title, TNSIC https://tnsic.gov.in/pdf/rules/RTI%20Tamil.pdf; TN RTI Online FAQ https://rtionline.tn.gov.in/faqtn.pdf (அறியும் also used by TN departments)"},
+    "hi": {"term": "सूचना का अधिकार अधिनियम, 2005", "match": ["सूचना का अधिकार अधिनियम"], "confidence": "high",
+           "source": "Hindi Act s. 1(1), CIC https://cic.gov.in/sites/default/files/rti-actinhindi.pdf"}
   },
   {
     "concept": "Public Information Officer",
-    "en": ["public information officer", "pio"],
-    "ta": {"term": "பொதுத் தகவல் அலுவலர்", "match": ["பொதுத் தகவல் அலுவலர", "பொது தகவல் அலுவலர"]},
-    "hi": {"term": "लोक सूचना अधिकारी", "match": ["लोक सूचना अधिकारी"]}
+    "en": ["public information officer"],
+    "ta": {"term": "பொதுத் தகவல் அலுவலர்", "match": ["பொதுத் தகவல் அலுவலர", "பொது தகவல் அலுவலர"], "confidence": "high",
+           "source": "Tamil Act s. 5 heading (TNSIC); TN RTI Online FAQ; TN Tamil Development Dept glossary"},
+    "hi": {"term": "लोक सूचना अधिकारी", "match": ["लोक सूचना अधिकारी"], "confidence": "high",
+           "source": "Hindi Act s. 5, CIC https://cic.gov.in/sites/default/files/rti-actinhindi.pdf"}
   },
   {
     "concept": "public authority",
     "en": ["public authority"],
-    "ta": {"term": "பொது அதிகார அமைப்பு", "match": ["பொது அதிகார அமைப்ப"]},
-    "hi": {"term": "लोक प्राधिकारी", "match": ["लोक प्राधिकार"], "avoid": ["जन-संस्था", "जन संस्था"]}
+    "ta": {"term": "பொது அதிகார அமைப்பு", "match": ["பொது அதிகார அமைப்ப"], "avoid": ["பொது அதிகாரம்", "பொது அதிகாரத்"], "confidence": "high",
+           "source": "Tamil Act s. 4 heading (TNSIC); TN RTI Online FAQ Q1. பொது அதிகாரம் means public power, not the body"},
+    "hi": {"term": "लोक प्राधिकारी", "match": ["लोक प्राधिकार", "लोक प्राधिकरण"], "avoid": ["जन-संस्था", "जन संस्था"], "confidence": "high",
+           "source": "Hindi Act s. 2(h) defines लोक प्राधिकारी; the Act also uses लोक प्राधिकरण (ss. 6(1), 19(1)), CIC Hindi Act"}
   },
   {
     "concept": "first appeal",
     "en": ["first appeal"],
-    "ta": {"term": "முதல் மேல்முறையீடு", "match": ["முதல் மேல்முறையீ"]},
-    "hi": {"term": "प्रथम अपील", "match": ["प्रथम अपील"]}
+    "ta": {"term": "முதல் மேல்முறையீடு", "match": ["முதல் மேல்முறையீ"], "confidence": "high",
+           "source": "TN RTI Online FAQ Q6 https://rtionline.tn.gov.in/faqtn.pdf"},
+    "hi": {"term": "प्रथम अपील", "match": ["प्रथम अपील"], "confidence": "high",
+           "source": "DoPT Hindi guidelines for information seekers, OM 1/8/2007-IR"}
   },
   {
     "concept": "appellate authority",
     "en": ["appellate authority"],
-    "ta": {"term": "மேல்முறையீட்டு அலுவலர்", "match": ["மேல்முறையீட்டு அலுவலர"]},
-    "hi": {"term": "अपीलीय प्राधिकारी", "match": ["अपीलीय प्राधिकार"]}
+    "ta": {"term": "மேல்முறையீட்டு அலுவலர்", "match": ["மேல்முறையீட்டு அலுவலர"], "confidence": "high",
+           "source": "TN RTI Online FAQ Q6 (முதலாவது மேல்முறையீட்டு அலுவலர்)"},
+    "hi": {"term": "अपीलीय प्राधिकारी", "match": ["अपीलीय प्राधिकार", "अपील प्राधिकार"], "confidence": "high",
+           "source": "DoPT Hindi guidelines OM 1/8/2007-IR paras 19 and 23; Hindi Act s. 7(8) (अपील प्राधिकारी)"}
   },
   {
     "concept": "certified copy",
     "en": ["certified copy", "certified copies"],
-    "ta": {"term": "சான்றளிக்கப்பட்ட நகல்", "match": ["சான்றளிக்கப்பட்ட நகல"], "avoid": ["சான்றிதழ் நகல"]},
-    "hi": {"term": "प्रमाणित प्रति", "match": ["प्रमाणित प्रति"]}
+    "ta": {"term": "சான்றளிக்கப்பட்ட நகல்", "match": ["சான்றளிக்கப்பட்ட நகல", "சான்றிட்ட நகல", "சான்றிட்ட படி"], "avoid": ["சான்றிதழ் நகல"], "confidence": "medium",
+           "source": "TN TRB RTI FAQ https://www.trb.tn.gov.in/rti-faq.php; TN glossary gives சான்றிட்ட படி / நகல். சான்றிதழ் நகல் means a copy of a certificate"},
+    "hi": {"term": "प्रमाणित प्रति", "match": ["प्रमाणित प्रति"], "confidence": "high",
+           "source": "NACIN and ESIC administrative glossaries; DoPT Hindi guidelines para 3; Hindi Act s. 2(j) uses प्रमाणित प्रतिलिपि"}
   },
   {
     "concept": "file notings",
     "en": ["file noting"],
-    "ta": {"term": "கோப்புக் குறிப்புகள்", "match": ["கோப்புக் குறிப்பு", "கோப்பு குறிப்பு"], "avoid": ["நோடிங்"]},
-    "hi": {"term": "फ़ाइल नोटिंग", "match": ["फ़ाइल नोटिंग"]}
+    "ta": {"term": "கோப்புக் குறிப்புகள்", "match": ["கோப்புக் குறிப்பு", "கோப்பு குறிப்பு"], "avoid": ["நோடிங்"], "confidence": "low",
+           "source": "Built from TN glossary parts (File = கோப்பு, Noting = குறிப்பு); no official source uses the phrase as a set term"},
+    "hi": {"term": "फाइल नोटिंग", "match": ["फाइल नोटिंग", "टिप्पण"], "confidence": "high",
+           "source": "DoPT Hindi OM of 23 Jun 2009 on disclosure of फाइल नोटिंग; formal word टिप्पण (Hindi Act s. 2(j))"}
   },
   {
     "concept": "answer script",
     "en": ["answer script", "answer book"],
-    "ta": {"term": "விடைத்தாள்", "match": ["விடைத்தாள"], "avoid": ["பதில் எழுத்துப்பிரதி"]},
-    "hi": {"term": "उत्तर पुस्तिका", "match": ["उत्तर पुस्तिका"]}
+    "ta": {"term": "விடைத்தாள்", "match": ["விடைத்தாள"], "avoid": ["பதில் எழுத்துப்பிரதி"], "confidence": "high",
+           "source": "TN Directorate of Government Examinations notices (விடைத்தாள் நகல்) https://www.dge.tn.gov.in/ta/function.html"},
+    "hi": {"term": "उत्तर पुस्तिका", "match": ["उत्तर पुस्तिका"], "confidence": "high",
+           "source": "CBSE Hindi examination circulars https://www.cbse.gov.in/cbsenew/examination_Circular_hindi.html; NACIN glossary"}
   },
   {
     "concept": "revaluation",
     "en": ["revaluation"],
-    "ta": {"term": "மறுமதிப்பீடு", "match": ["மறுமதிப்பீ", "மறு மதிப்பீ"]},
-    "hi": {"term": "पुनर्मूल्यांकन", "match": ["पुनर्मूल्यांकन"]}
+    "ta": {"term": "மறுமதிப்பீடு", "match": ["மறுமதிப்பீ", "மறு மதிப்பீ"], "confidence": "high",
+           "source": "TN glossary; DGE notices (distinct from மறுகூட்டல், retotalling)"},
+    "hi": {"term": "पुनर्मूल्यांकन", "match": ["पुनर्मूल्यांकन"], "confidence": "high",
+           "source": "CBSE Hindi examination circulars; NACIN glossary"}
   },
   {
     "concept": "work order",
     "en": ["work order"],
-    "ta": {"term": "பணி ஆணை", "match": ["பணி ஆணை"], "avoid": ["வேலைத்தட்டு"]},
-    "hi": {"term": "कार्य आदेश", "match": ["कार्य आदेश"]}
+    "ta": {"term": "பணி ஆணை", "match": ["பணி ஆணை", "பணியாணை"], "avoid": ["வேலைத்தட்டு"], "confidence": "high",
+           "source": "TN glossary (Work order = பணி ஆணை); in contract context say ஒப்பந்தப் பணிக்கான பணி ஆணை"},
+    "hi": {"term": "कार्य आदेश", "match": ["कार्य आदेश", "कार्यादेश"], "confidence": "medium",
+           "source": "Government tender and assembly usage (for example MP Vidhan Sabha proceedings); not in the NACIN glossary"}
   },
   {
     "concept": "sanctioned amount",
     "en": ["sanctioned amount"],
-    "ta": {"term": "ஒப்பளிக்கப்பட்ட தொகை", "match": ["ஒப்பளிக்கப்பட்ட தொகை"]},
-    "hi": {"term": "स्वीकृत राशि", "match": ["स्वीकृत राशि"]}
+    "ta": {"term": "ஒப்பளிக்கப்பட்ட தொகை", "match": ["ஒப்பளிக்கப்பட்ட தொகை", "ஒப்பளிப்பு"], "confidence": "medium",
+           "source": "Built from TN glossary (Sanction = ஒப்பளிப்பு; Financial sanction = நிதி ஒப்பளிப்பு)"},
+    "hi": {"term": "स्वीकृत राशि", "match": ["स्वीकृत राशि", "संस्वीकृत राशि"], "confidence": "medium",
+           "source": "MP Vidhan Sabha PWD questions; NACIN (Sanction = स्वीकृति)"}
   },
   {
     "concept": "completion certificate",
     "en": ["completion certificate"],
-    "ta": {"term": "பணி நிறைவுச் சான்றிதழ்", "match": ["நிறைவுச் சான்றித"], "avoid": ["முடிவுச் சான்று"]},
-    "hi": {"term": "कार्य पूर्णता प्रमाण पत्र", "match": ["पूर्णता प्रमाण"]}
+    "ta": {"term": "பணி நிறைவுச் சான்றிதழ்", "match": ["நிறைவுச் சான்றித", "நிறைவு சான்றித"], "avoid": ["முடிவுச் சான்று"], "confidence": "low",
+           "source": "Built from TN glossary (Completion = நிறைவு; pattern நிறைவுச் சான்றிதழ்); no PWD source for the exact phrase"},
+    "hi": {"term": "कार्य पूर्णता प्रमाण पत्र", "match": ["पूर्णता प्रमाण", "समापन प्रमाण"], "confidence": "medium",
+           "source": "Chhattisgarh good-governance portal; MP Vidhan Sabha proceedings; NACIN gives समापन प्रमाणपत्र"}
   },
   {
     "concept": "measurement book",
     "en": ["measurement book"],
-    "ta": {"term": "அளவீட்டுப் புத்தகம்", "match": ["அளவீட்டுப் புத்தக"]},
-    "hi": {"term": "मापन पुस्तिका", "match": ["मापन पुस्तिका"]}
+    "ta": {"term": "அளவுக் குறிப்பேடு", "match": ["அளவுக் குறிப்பேட", "அளவு குறிப்பேட", "அளவு புத்தக"], "avoid": ["அளவிடல் புத்தக"], "confidence": "medium",
+           "source": "TN glossary (Measurement book = அளவுக் குறிப்பேடு); field usage அளவு புத்தகம் seen only in a TNPSC answer-key snippet"},
+    "hi": {"term": "मापन पुस्तिका", "match": ["मापन पुस्तिका", "माप पुस्तिका"], "confidence": "medium",
+           "source": "MGNREGA and DDA Hindi documents; state PWD circulars use माप पुस्तिका"}
   },
   {
     "concept": "show-cause notice",
     "en": ["show-cause notice", "show cause notice"],
-    "ta": {"term": "விளக்கம் கோரும் அறிவிப்பு", "match": ["விளக்கம் கோரும்"]},
-    "hi": {"term": "कारण बताओ नोटिस", "match": ["कारण बताओ"], "avoid": ["दिखाने-कहने"]}
+    "ta": {"term": "காரணம் கேட்கும் குறிப்பாணை", "match": ["காரணம் கேட்கும் குறிப்பாணை", "விளக்கம் கேட்கும்", "விளக்கம் கோரும்"], "confidence": "high",
+           "source": "TN glossary (Show Cause Notice = காரணம் கேட்கும் குறிப்பாணை); older printing and TN RD G.O. 349 use விளக்கம் கேட்கும் / கோரும்"},
+    "hi": {"term": "कारण बताओ नोटिस", "match": ["कारण बताओ"], "avoid": ["दिखाने-कहने"], "confidence": "high",
+           "source": "NACIN and ESIC administrative glossaries"}
   },
   {
     "concept": "below poverty line",
     "en": ["below poverty line", "bpl"],
-    "ta": {"term": "வறுமைக் கோட்டுக்குக் கீழ்", "match": ["வறுமைக் கோட்"]},
-    "hi": {"term": "गरीबी रेखा से नीचे", "match": ["गरीबी रेखा"]}
+    "ta": {"term": "வறுமைக் கோட்டிற்குக் கீழ்", "match": ["வறுமைக் கோட்"], "confidence": "high",
+           "source": "TN RTI Online FAQ Q3 https://rtionline.tn.gov.in/faqtn.pdf"},
+    "hi": {"term": "गरीबी रेखा के नीचे", "match": ["गरीबी रेखा", "गरीबी की रेखा"], "confidence": "high",
+           "source": "Hindi Act s. 7(5) proviso (गरीबी की रेखा के नीचे); DoPT Hindi guidelines para 16"}
   }
 ]
