@@ -33,7 +33,6 @@ T = TypeVar("T", bound=BaseModel)
 
 MAX_OUTPUT_TOKENS_CAP = 32_000  # BharatCode's cap, reasoning tokens included
 BUSY_BACKOFF_SECONDS = (2, 4, 8)
-REQUEST_TIMEOUT_SECONDS = 120
 
 
 class LLMError(Exception):
@@ -227,7 +226,7 @@ def build_client(
         api_key=settings.bharatcode_api_key.get_secret_value(),
         base_url=settings.bharatcode_base_url,
         max_retries=0,  # we own retries: the SDK's own backoff would hide 503s from our policy
-        timeout=REQUEST_TIMEOUT_SECONDS,
+        timeout=settings.bharatcode_timeout_seconds,
         http_client=http_client,
     )
     return LLMClient(openai_client, settings.bharatcode_model, sleep)

@@ -83,6 +83,7 @@ Whole stack: `docker compose up --build`.
 BHARATCODE_API_KEY=
 BHARATCODE_BASE_URL=https://bharatcode.ai/api/model/v1
 BHARATCODE_MODEL=qwen-3.8-27b
+BHARATCODE_TIMEOUT_SECONDS=120
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_WEBHOOK_SECRET=
 DATABASE_URL=sqlite:///./dev.db

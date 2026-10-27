@@ -16,3 +16,6 @@ class Settings(BaseSettings):
     bharatcode_api_key: SecretStr
     bharatcode_base_url: str = "https://bharatcode.ai/api/model/v1"
     bharatcode_model: str = "qwen-3.8-27b"
+    # Per request. Short in the app so users see "busy, try again"; the live eval raises it,
+    # because BharatCode's shared GPU queue can take minutes per call.
+    bharatcode_timeout_seconds: float = 120

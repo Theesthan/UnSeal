@@ -312,3 +312,10 @@ async def test_structured_call_reports_how_the_answer_was_reached() -> None:
         Rewrite, instructions="x", input="y"
     )
     assert raised.budget_raised is True
+
+
+def test_request_timeout_comes_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
+    assert Settings(_env_file=None, bharatcode_api_key="k").bharatcode_timeout_seconds == 120
+    monkeypatch.setenv("BHARATCODE_TIMEOUT_SECONDS", "900")  # the live eval waits longer
+    settings = Settings(_env_file=None, bharatcode_api_key="k")
+    assert build_client(settings)._openai.timeout == 900
