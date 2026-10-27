@@ -4,13 +4,14 @@ from datetime import date
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request, Response
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from unseal.api.deps import Config, CurrentUser, Db, LanguageCode
 from unseal.api.ratelimit import ModelQuota
 from unseal.db.models import Case
 from unseal.rules.engine import Jurisdiction
 from unseal.services import cases as svc
+from unseal.services.intake import run_intake
 
 router = APIRouter(prefix="/cases")
 
@@ -61,6 +62,21 @@ async def read(case: OwnedCase) -> dict[str, Any]:
 async def delete(case: OwnedCase, session: Db, config: Config) -> Response:
     await svc.delete_case(session, case, config.storage_dir)
     return Response(status_code=204)
+
+
+class IntakeMessage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    message: str = Field(min_length=1, max_length=4000)
+
+
+@router.post("/{case_id}/intake")
+async def intake(
+    body: IntakeMessage, case: OwnedCase, request: Request, _: ModelQuota
+) -> dict[str, Any]:
+    """FR-1 facts and FR-4 authority candidates; nothing is stored until the user confirms."""
+    llm = request.app.state.llm
+    result = await run_intake(llm, body.message, language=case.language)  # type: ignore[arg-type]
+    return result.model_dump()
 
 
 @router.put("/{case_id}/authority")

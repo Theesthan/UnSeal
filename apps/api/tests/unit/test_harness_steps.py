@@ -80,3 +80,13 @@ def test_english_glossary_lists_the_concepts_themselves() -> None:
     english = glossary_block("en")
     assert "- certified copy: certified copy" in english
     assert len(english.splitlines()) == len(load_glossary())
+
+
+async def test_phone_and_email_are_masked_before_the_model_sees_them() -> None:
+    llm = FakeLLM(INTAKE)
+    await run_step(
+        llm, "intake", language="ta", input="call 98400 12345 or mail a.b@example.com about CBSE"
+    )
+    sent = llm.calls[0]["input"]
+    assert "98400" not in sent and "example.com" not in sent
+    assert sent == "call [phone] or mail [email] about CBSE"
