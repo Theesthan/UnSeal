@@ -27,9 +27,10 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy src
-      # PDF rendering needs Pango, which this runner lacks: those tests skip here and run in the
-      # Docker job below, on the same image the golden PDFs were made with. Live tests are opt-in.
-      - run: uv run pytest -q
+      # PDF rendering runs only in the Docker job below, on the production image the golden PDFs
+      # were made with: this runner's Pango renders Hindi and Tamil, but not byte for byte the same
+      # twice. Live tests are opt-in.
+      - run: uv run pytest -q --ignore=tests/pdf
 
   api-pdf:
     name: api (PDF rendering in Docker)
