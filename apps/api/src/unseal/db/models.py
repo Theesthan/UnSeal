@@ -137,6 +137,10 @@ class User(Base):
     telegram_chat_id: Mapped[str | None] = mapped_column(EncryptedText())
     language: Mapped[str] = mapped_column(String(2))
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
+    # ADR 0003: SHA-256 of the web session token, and HMAC of the Telegram chat id (lookup keys;
+    # the token itself is never stored, the chat id is stored encrypted above).
+    session_token_hash: Mapped[str | None] = mapped_column(String(64), unique=True, index=True)
+    telegram_chat_hash: Mapped[str | None] = mapped_column(String(64), unique=True, index=True)
 
     applicants: Mapped[list["Applicant"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
@@ -226,8 +230,9 @@ class Question(Base):
     )
     # Order of the numbered questions in the application.
     position: Mapped[int] = mapped_column(Integer)
-    original_text: Mapped[str] = mapped_column(Text)
-    rewritten_text: Mapped[str | None] = mapped_column(Text)
+    # Encrypted: questions carry register numbers and grievance details.
+    original_text: Mapped[str] = mapped_column(EncryptedText())
+    rewritten_text: Mapped[str | None] = mapped_column(EncryptedText())
     accepted: Mapped[bool] = mapped_column(Boolean, default=False)
     # Validator flag codes (for example "personal_information"), not free text from the user.
     flags: Mapped[list[Any]] = mapped_column(JSON, default=list)

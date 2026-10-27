@@ -55,3 +55,16 @@ class Settings(DatabaseSettings):
     # Per request. Short in the app so users see "busy, try again"; the live eval raises it,
     # because BharatCode's shared GPU queue can take minutes per call.
     bharatcode_timeout_seconds: float = 120
+
+    app_base_url: str = "http://localhost:3000"  # the only CORS origin and the expected Origin
+    storage_dir: Path = Path("./storage")  # generated PDFs; deleted with the case (FR-8)
+    telegram_bot_token: SecretStr | None = None
+    telegram_webhook_secret: SecretStr | None = None
+    telegram_chat_hash_key: SecretStr | None = None  # ADR 0003: HMAC key for chat lookups
+
+    @field_validator("telegram_bot_token", "telegram_webhook_secret", "telegram_chat_hash_key")
+    @classmethod
+    def _blank_secret_is_missing(cls, value: SecretStr | None) -> SecretStr | None:
+        if value is None or not value.get_secret_value().strip():
+            return None
+        return value

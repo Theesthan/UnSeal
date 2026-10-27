@@ -33,3 +33,7 @@ logs/
 # os
 .DS_Store
 Thumbs.db
+
+# generated application PDFs (personal data)
+storage/
+apps/api/storage/

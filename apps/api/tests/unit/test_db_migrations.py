@@ -58,10 +58,10 @@ def table_names(path: Path) -> set[str]:
 
 def test_there_is_a_single_linear_history_starting_at_0001() -> None:
     script = ScriptDirectory.from_config(alembic_config())
-    assert script.get_heads() == ["0001"]
-    revision = script.get_revision("0001")
-    assert revision is not None
-    assert revision.down_revision is None
+    assert len(script.get_heads()) == 1  # no branches
+    chain = list(script.walk_revisions())  # head first, base last
+    assert chain[-1].revision == "0001" and chain[-1].down_revision is None
+    assert all(isinstance(rev.down_revision, str) for rev in chain[:-1])  # no merge points
 
 
 def test_upgrade_head_creates_every_table(db_file: Path) -> None:
