@@ -15,6 +15,9 @@ The web app talks only to this API (`NEXT_PUBLIC_API_URL`); the Telegram bot cal
 | 422 | `ask_user` | The model could not produce a usable answer twice: ask the user to rephrase |
 | 422 | `incomplete` | The answer was cut off: offer a retry |
 | 409 | `blocked` | Export blocked; `detail.flags` lists the blocking flags |
+| 409 | `wrong_status` | The case's status does not allow this action yet (or any more) |
+| 400 | `invalid_grounds` | An appeal ground that cannot apply (`no_reply` after a reply arrived) |
+| 400 | `invalid_payment_mode` | Not a payment mode the jurisdiction's rules accept |
 | 429 | `rate_limited` | Slow down |
 | 400 | `invalid` | Request body failed validation; `detail` has field errors |
 
@@ -43,6 +46,7 @@ The web app talks only to this API (`NEXT_PUBLIC_API_URL`); the Telegram bot cal
   "authority_name": null, "pio_address": null, "has_applicant": false,
   "via_apio": false, "third_party": false, "life_liberty": false,
   "filing_mode": null, "filed_on": null, "received_on": null, "received_estimated": false,
+  "reply_received_on": null, "appeal_filed_on": null,
   "questions": [{"id": "uuid", "position": 1, "original_text": "...", "rewritten_text": "...",
                  "records_requested": ["..."], "reason": "...", "personal_information": false,
                  "suggestion": null, "accepted": false}],
@@ -67,7 +71,9 @@ Statuses: `draft`, `filed`, `reply_due`, `replied`, `deemed_refused`, `appealed`
 | `GET /cases/{id}/validation` | | `{"flags": [{"code", "severity": "warn" or "block", "question": 0 or null, "basis", "under_challenge"}]}` (FR-3) |
 | `POST /cases/{id}/application` | `{"payment_mode": "cash", "place": "Chennai"}` | `200 application/pdf` (FR-5), or `409 blocked` |
 | `POST /cases/{id}/filing` | `{"filed_on": "2026-10-27", "filing_mode": "post", "received_on": null}` | `Case` with deadlines; status `reply_due` (FR-6, FR-7) |
-| `POST /cases/{id}/reply` | `{"received_on": "2026-11-20"}` | `Case`; status `replied`, first-appeal deadline from the reply |
+| `POST /cases/{id}/reply` | `{"received_on": "2026-11-20"}` | `Case`; status `replied`, `reply_received_on` set, first-appeal deadline from the reply |
+| `POST /cases/{id}/appeal` | `{"grounds": ["no_reply", "incomplete", "refused", "fee_demanded"] (one or more, no repeats), "faa_address": "...", "details": "", "delay_reason": "", "place": ""}` | `200 application/pdf`, the first appeal under S. 19(1) (FR-10). No model call: dates, filing mode and grounds are template text. Allowed once replied or deemed refused (including a `reply_due` case past the PIO's day) and after `appealed` (re-download); else `409 wrong_status`. `409 blocked` without the PIO or applicant address; `400 invalid_grounds` |
+| `POST /cases/{id}/appeal/filing` | `{"filed_on": "2026-11-25", "received_on": null}` | `Case`; status `appealed`, `appeal_filed_on` set, FAA decision (S. 19(6)) and second-appeal (S. 19(3)) deadlines |
 | `POST /cases/{id}/close` | | `Case`; status `closed` |
 
 Flag codes (`validation`): `missing_pio_address`, `missing_applicant_address`, `no_questions` (block); `over_word_limit`, `personal_information`, `opinion_ask` (warn). The UI words them in the user's language.

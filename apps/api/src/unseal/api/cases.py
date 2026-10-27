@@ -10,6 +10,7 @@ from unseal.api.deps import Config, CurrentUser, Db, LanguageCode
 from unseal.api.ratelimit import ModelQuota
 from unseal.db.models import Case
 from unseal.rules.engine import Jurisdiction
+from unseal.services import appeals
 from unseal.services import cases as svc
 from unseal.services.intake import run_intake
 
@@ -176,3 +177,23 @@ async def application(
     )
     disposition = 'attachment; filename="rti-application.pdf"'
     return Response(pdf, media_type="application/pdf", headers={"Content-Disposition": disposition})
+
+
+@router.post("/{case_id}/appeal")
+async def appeal(
+    body: appeals.AppealInput, case: OwnedCase, session: Db, config: Config, request: Request
+) -> Response:
+    """FR-10: the first appeal PDF (no model call, so no model quota)."""
+    pdf = await appeals.build_first_appeal(
+        session, case, request.app.state.appeal_renderer, config.storage_dir, body
+    )
+    disposition = 'attachment; filename="rti-first-appeal.pdf"'
+    return Response(pdf, media_type="application/pdf", headers={"Content-Disposition": disposition})
+
+
+@router.post("/{case_id}/appeal/filing")
+async def appeal_filing(
+    body: appeals.AppealFiling, case: OwnedCase, user: CurrentUser, session: Db
+) -> dict[str, Any]:
+    await appeals.file_first_appeal(session, case, body)
+    return svc.case_view(await svc.get_case(session, user, case.id))

@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from unseal.llm.client import ModelBusy, ModelIncomplete, ModelOutputInvalid
+from unseal.services.appeals import InvalidGrounds
 from unseal.services.cases import Blocked, InvalidPaymentMode, NotFound, WrongStatus
 
 
@@ -74,7 +75,11 @@ def install(app: FastAPI) -> None:
     async def invalid_payment_mode(_: Request, __: Exception) -> JSONResponse:
         return error_response(400, "invalid_payment_mode")
 
+    async def invalid_grounds(_: Request, __: Exception) -> JSONResponse:
+        return error_response(400, "invalid_grounds")
+
     app.add_exception_handler(Blocked, blocked)
+    app.add_exception_handler(InvalidGrounds, invalid_grounds)
     app.add_exception_handler(InvalidPaymentMode, invalid_payment_mode)
     app.add_exception_handler(NotFound, not_found)
     app.add_exception_handler(WrongStatus, wrong_status)

@@ -204,6 +204,10 @@ class Case(Base):
     received_on: Mapped[date | None] = mapped_column(Date)
     # True while received_on is the engine's estimate (filed_on plus the transit buffer).
     received_estimated: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    # The day the PIO's reply arrived: the S. 19(1) window runs from it, and the appeal cites it.
+    reply_received_on: Mapped[date | None] = mapped_column(Date)
+    # The day the first appeal was filed: the FAA's S. 19(6) clock runs from it.
+    appeal_filed_on: Mapped[date | None] = mapped_column(Date)
     # Set when the case is closed; the retention job deletes 180 days later.
     closed_on: Mapped[date | None] = mapped_column(Date)
     # A transfer (S. 6(3)) is an event: the new authority and when it received the application.

@@ -274,7 +274,10 @@ async def file_case(session: AsyncSession, case: Case, data: FilingInput) -> Non
 async def record_reply(session: AsyncSession, case: Case, received_on: date) -> None:
     """The PIO replied: the first-appeal window now runs from the reply (S. 19(1))."""
     allowed = {CaseStatus.REPLY_DUE.value, CaseStatus.DEEMED_REFUSED.value}
-    await _transition(session, case, allowed, status=CaseStatus.REPLIED.value)
+    await _transition(
+        session, case, allowed, status=CaseStatus.REPLIED.value, reply_received_on=received_on
+    )
+    case.reply_received_on = received_on
     pio_reply = _engine_deadlines(case, case.received_on).pio_reply
     appeal = first_appeal_deadline(
         pio_reply,
@@ -348,19 +351,20 @@ async def build_application(
         place=place,
     )
     pdf = await run_in_threadpool(renderer, document)  # WeasyPrint is CPU-bound
-    await _replace_application(session, case, storage_dir, pdf)
+    await _replace_document(session, case, storage_dir, pdf, DocumentKind.APPLICATION)
     return pdf
 
 
-async def _replace_application(
-    session: AsyncSession, case: Case, storage_dir: Path, pdf: bytes
+async def _replace_document(
+    session: AsyncSession, case: Case, storage_dir: Path, pdf: bytes, kind: DocumentKind
 ) -> None:
-    """Keep one application per case: older copies are personal data we no longer need."""
-    old = [d for d in await _documents(session, case) if d.kind == DocumentKind.APPLICATION.value]
+    """Keep one document of each kind per case: older copies are personal data we no longer
+    need."""
+    old = [d for d in await _documents(session, case) if d.kind == kind.value]
     key = save(storage_dir, pdf)
     for document in old:
         await session.delete(document)
-    session.add(Document(case_id=case.id, kind=DocumentKind.APPLICATION.value, storage_key=key))
+    session.add(Document(case_id=case.id, kind=kind.value, storage_key=key))
     await session.commit()
     remove_files(storage_dir, [d.storage_key for d in old])
 
@@ -371,6 +375,10 @@ async def _documents(session: AsyncSession, case: Case) -> list[Document]:
 
 
 # ---------------------------------------------------------------- views
+
+
+def _iso(day: date | None) -> str | None:
+    return day.isoformat() if day else None
 
 
 def question_view(question: Question) -> dict[str, Any]:
@@ -414,6 +422,8 @@ def case_view(case: Case) -> dict[str, Any]:
         "filed_on": case.filed_on.isoformat() if case.filed_on else None,
         "received_on": case.received_on.isoformat() if case.received_on else None,
         "received_estimated": case.received_estimated,
+        "reply_received_on": _iso(case.reply_received_on),
+        "appeal_filed_on": _iso(case.appeal_filed_on),
         "questions": [question_view(q) for q in case.questions],
         "deadlines": [deadline_view(d) for d in sorted(case.deadlines, key=lambda d: d.due_on)],
         "created_at": case.created_at.isoformat(),
