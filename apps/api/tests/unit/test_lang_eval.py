@@ -29,6 +29,7 @@ from unseal.evals.lang_eval import (
     save_recording,
     score,
     script_share,
+    select_cases,
     summarize,
 )
 from unseal.llm.client import (
@@ -89,6 +90,10 @@ def test_case_file_has_ten_cases_per_language_in_the_planned_mix() -> None:
         ("12वीं की परीक्षा", "", []),
         ("a 2nd year student", "", []),
         ("5 செப்டம்பர் வரை", "", ["5"]),  # a bare day number still counts
+        # Inline list markers are not legal values (live v2 TA-2 numbered its records inline):
+        ("தரவும்: (1) பணி ஆணை, (2) ஒப்பளிக்கப்பட்ட தொகை", "", []),
+        ("records: 1) work order 2) completion certificate", "", []),
+        ("धारा 6(1) के अंतर्गत (2) प्रति", "", ["धारा", "6", "1"]),  # 6(1) is still a citation
     ],
 )
 def test_invented_legal_values(output: str, source: str, invented: list[str]) -> None:
@@ -404,3 +409,12 @@ def test_comparison_marks_cases_missing_from_a_version() -> None:
     v2_only = Recording("TA-8", 2, "m", (ok(COMPOSE_TA),))
     report = compare_versions([v1_only, v2_only])
     assert "| TA-8 | compose | n/a | 0 | n/a |" in report
+
+
+def test_select_cases_by_language_and_optional_ids() -> None:
+    cases = load_cases()
+    assert [c.id for c in select_cases(cases, "ta", "")] == [f"TA-{i}" for i in range(1, 11)]
+    assert [c.id for c in select_cases(cases, "ta", " TA-8, TA-9 ")] == ["TA-8", "TA-9"]
+    assert select_cases(cases, "hi", "TA-8,TA-9") == []  # ids from another language select none
+    with pytest.raises(ValueError):
+        select_cases(cases, "ta", "TA-99")  # a typo must not silently run nothing

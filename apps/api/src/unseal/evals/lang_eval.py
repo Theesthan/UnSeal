@@ -39,6 +39,8 @@ ALLOWED_NUMBERS = frozenset({2005})  # the year in the Act's own name may appear
 FIRST_CALL_VALID_PER_TEN = 9  # plan: at least 9 of 10 calls valid on the first try
 
 _LIST_NUMBER = re.compile(r"^\s*\d+[.)]\s+", re.MULTILINE)
+# Inline list markers: "(1) ..." or "1) ..." after a space. "6(1)" stays (a citation's clause).
+_INLINE_ENUM = re.compile(r"(?:(?<=\s)|^)\(?\d{1,2}\)(?=\s)", re.MULTILINE)
 # "1ஆம் ஆண்டு", "12वीं", "2nd": ordinals are never legal values. A bare day ("5 September")
 # still counts. ponytail: an ordinal day of the month ("by the 5th") slips through; the year or
 # ISO date around it is still checked.
@@ -138,7 +140,7 @@ def _numbers(text: str) -> list[int]:
 
 def invented_legal_values(output: str, source: str) -> list[str]:
     """A2: legal markers and numbers in `output` that `source` does not contain."""
-    output = _ORDINAL.sub(" ", _LIST_NUMBER.sub("", output))
+    output = _ORDINAL.sub(" ", _INLINE_ENUM.sub(" ", _LIST_NUMBER.sub("", output)))
     known_markers = set(_markers(source))
     known_numbers = set(_numbers(source)) | ALLOWED_NUMBERS
     markers = [m for m in _unique(_markers(output)) if m not in known_markers]
@@ -473,3 +475,15 @@ def write_comparison(recordings: list[Recording], folder: Path = RESULTS_DIR) ->
     path = folder / "prompt-versions.md"
     path.write_text(compare_versions(recordings), "utf-8")
     return path
+
+
+def select_cases(cases: list[Case], language: str, only: str) -> list[Case]:
+    """Cases for `language`, narrowed to the comma-separated ids in `only` when given."""
+    mine = [c for c in cases if c.language == language]
+    wanted = {part.strip() for part in only.split(",") if part.strip()}
+    if not wanted:
+        return mine
+    unknown = wanted - {c.id for c in cases}
+    if unknown:
+        raise ValueError(f"unknown case ids: {sorted(unknown)}")
+    return [c for c in mine if c.id in wanted]

@@ -5,10 +5,12 @@ From apps/api:
     uv run pytest -m live tests/golden/lang_eval              # both languages, 3 runs per case
     uv run pytest -m live tests/golden/lang_eval -k tamil     # one language
     LANG_EVAL_RUNS=1 uv run pytest -m live tests/golden/lang_eval   # quick pass
+    LANG_EVAL_CASES=TA-8,TA-9 uv run pytest -m live tests/golden/lang_eval -k tamil  # rerun some
 
-Records every run to tests/fixtures/recorded/lang_eval/v<prompt>/<case>.json (fictional), writes
-docs/eval/language-eval-results-<lang>.md for the native-speaker review, then fails if an automated
-gate fails. A pass here is necessary, not sufficient: T and L are scored by people.
+Records every run to tests/fixtures/recorded/lang_eval/v<prompt>/<case>.json (fictional), then
+re-scores every recording (so a partial rerun keeps the full picture), rewrites
+docs/eval/language-eval-results-<lang>.md and prompt-versions.md, and fails if an automated gate
+fails. A pass here is necessary, not sufficient: T and L are scored by people.
 """
 
 import os
@@ -19,11 +21,12 @@ from pydantic import ValidationError
 from unseal.config import Settings
 from unseal.evals.lang_eval import (
     RECORDED_DIR,
+    RESULTS_DIR,
     load_cases,
+    rescore,
     run_case,
     save_recording,
-    summarize,
-    write_results,
+    select_cases,
 )
 from unseal.llm.client import build_client
 
@@ -39,15 +42,15 @@ async def test_lang_eval(language: str) -> None:
     except ValidationError:
         pytest.skip("BHARATCODE_API_KEY is not set")
     runs = int(os.environ.get("LANG_EVAL_RUNS", "3"))
+    cases = select_cases(load_cases(), language, os.environ.get("LANG_EVAL_CASES", ""))
+    if not cases:
+        pytest.skip(f"LANG_EVAL_CASES selects no {language} case")
     llm = build_client(settings)
-    cases = [c for c in load_cases() if c.language == language]
 
-    recordings = []
     for case in cases:  # sequential on purpose: parallel calls invite 503s on a shared GPU pool
-        recording = await run_case(llm, case, runs, settings.bharatcode_model)
-        save_recording(recording, RECORDED_DIR)
-        recordings.append(recording)
+        save_recording(await run_case(llm, case, runs, settings.bharatcode_model), RECORDED_DIR)
 
-    sheet = write_results(language, cases, recordings)
-    failed = [gate for gate, passed in summarize(language, cases, recordings).gates if not passed]
+    summary = next(s for s in rescore() if s.language == language)
+    failed = [gate for gate, passed in summary.gates if not passed]
+    sheet = RESULTS_DIR / f"language-eval-results-{language}.md"
     assert not failed, f"automated gates failed: {failed}; see {sheet}"
