@@ -15,7 +15,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
-Language = Literal["ta", "hi"]
+Language = Literal["en", "ta", "hi"]
 
 _NUKTA = "़"
 
@@ -37,6 +37,10 @@ class Entry(BaseModel):
     hi: LocalTerm
 
     def local(self, language: Language) -> LocalTerm:
+        if language == "en":  # English uses the concept name itself
+            return LocalTerm(
+                term=self.concept, match=(self.concept,), source="concept", confidence="high"
+            )
         return self.ta if language == "ta" else self.hi
 
 

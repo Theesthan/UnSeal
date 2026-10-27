@@ -14,7 +14,6 @@ from pydantic import BaseModel
 from unseal.config import Settings
 from unseal.evals.lang_eval import (
     CASES_PATH,
-    MAX_OUTPUT_TOKENS,
     Case,
     Recording,
     Run,
@@ -32,6 +31,7 @@ from unseal.evals.lang_eval import (
     select_cases,
     summarize,
 )
+from unseal.harness.steps import MAX_OUTPUT_TOKENS
 from unseal.llm.client import (
     ModelBusy,
     ModelIncomplete,

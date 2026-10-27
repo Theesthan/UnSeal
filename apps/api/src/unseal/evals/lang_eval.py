@@ -11,18 +11,14 @@ import unicodedata
 from collections.abc import Iterable, Iterator
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Literal, Protocol, TypeVar
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
-from unseal.llm.client import (
-    ModelBusy,
-    ModelIncomplete,
-    ModelOutputInvalid,
-    ReasoningEffort,
-    StructuredResult,
-)
-from unseal.llm.glossary import glossary_block, missed_terms, term_errors
+from unseal.harness.steps import LANGUAGE_NAMES as STEP_LANGUAGES
+from unseal.harness.steps import StructuredLLM, run_step
+from unseal.llm.client import ModelBusy, ModelIncomplete, ModelOutputInvalid
+from unseal.llm.glossary import missed_terms, term_errors
 from unseal.llm.prompts import load_prompt
 from unseal.llm.schemas import STEP_SCHEMAS, StepOutput
 
@@ -32,9 +28,8 @@ CASES_PATH = _API_DIR / "tests" / "golden" / "lang_eval" / "cases.json"
 RECORDED_DIR = _API_DIR / "tests" / "fixtures" / "recorded" / "lang_eval"
 RESULTS_DIR = _API_DIR.parents[1] / "docs" / "eval"
 
-LANGUAGE_NAMES = {"ta": "Tamil", "hi": "Hindi"}
+LANGUAGE_NAMES = {code: STEP_LANGUAGES[code] for code in ("ta", "hi")}  # what the eval covers
 _SCRIPT_BLOCKS = {"ta": (0x0B80, 0x0BFF), "hi": (0x0900, 0x097F)}
-MAX_OUTPUT_TOKENS = 4096  # Indic scripts cost more tokens per word than English
 ALLOWED_NUMBERS = frozenset({2005})  # the year in the Act's own name may appear
 FIRST_CALL_VALID_PER_TEN = 9  # plan: at least 9 of 10 calls valid on the first try
 
@@ -56,20 +51,7 @@ _LEGAL_MARKER = re.compile(
     re.IGNORECASE,
 )
 
-T = TypeVar("T", bound=BaseModel)
 CaseId = str
-
-
-class StructuredLLM(Protocol):
-    async def structured_call(
-        self,
-        output: type[T],
-        *,
-        instructions: str,
-        input: str,
-        max_output_tokens: int,
-        reasoning_effort: ReasoningEffort | None,
-    ) -> StructuredResult[T]: ...
 
 
 class Case(BaseModel):
@@ -179,23 +161,14 @@ def _strings(value: Any) -> Iterator[str]:
 
 
 async def run_case(llm: StructuredLLM, case: Case, runs: int, model: str) -> Recording:
-    prompt = load_prompt(case.kind)
-    instructions = prompt.render(
-        language=LANGUAGE_NAMES[case.language], glossary=glossary_block(case.language)
-    )
-    attempts = [await _attempt(llm, case, instructions) for _ in range(runs)]
-    return Recording(case.id, prompt.version, model, tuple(attempts))
+    version = load_prompt(case.kind).version
+    attempts = [await _attempt(llm, case) for _ in range(runs)]
+    return Recording(case.id, version, model, tuple(attempts))
 
 
-async def _attempt(llm: StructuredLLM, case: Case, instructions: str) -> Run:
-    try:
-        result = await llm.structured_call(
-            STEP_SCHEMAS[case.kind],
-            instructions=instructions,
-            input=case.input,
-            max_output_tokens=MAX_OUTPUT_TOKENS,
-            reasoning_effort="none" if case.kind == "intake" else None,
-        )
+async def _attempt(llm: StructuredLLM, case: Case) -> Run:
+    try:  # the exact request the app sends (harness.steps)
+        result = await run_step(llm, case.kind, language=case.language, input=case.input)
     except ModelBusy as exc:
         return Run(None, "busy", 0, exc.request_id)
     except ModelOutputInvalid as exc:
