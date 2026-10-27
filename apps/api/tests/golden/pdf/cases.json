@@ -1,0 +1,56 @@
+{
+  "en": {
+    "language": "en",
+    "jurisdiction": "central",
+    "authority_name": "Example Municipal Corporation",
+    "pio_address": "Civic Centre, 1 Example Road\nChennai",
+    "applicant_name": "Test Applicant",
+    "applicant_address": "12 Example Street\nChennai",
+    "subject": "Information about the resurfacing of Example Road, Ward 12",
+    "questions": [
+      "A certified copy of the work order issued for the resurfacing of Example Road, Ward 12, during 2025-26.",
+      "The sanctioned amount and the completion certificate for the same work.",
+      "The measurement book entries for the same work, and the file notings on its approval."
+    ],
+    "bpl": false,
+    "payment_mode": "indian_postal_order",
+    "prepared_on": "2026-10-27",
+    "place": "Chennai"
+  },
+  "hi": {
+    "language": "hi",
+    "jurisdiction": "central",
+    "authority_name": "उदाहरण नगर निगम",
+    "pio_address": "नागरिक केंद्र, 1 उदाहरण मार्ग\nनई दिल्ली",
+    "applicant_name": "परीक्षण आवेदक",
+    "applicant_address": "12 उदाहरण गली\nनई दिल्ली",
+    "subject": "उदाहरण मार्ग, वार्ड 12 के सड़क पुनर्निर्माण कार्य से संबंधित सूचना",
+    "questions": [
+      "उदाहरण मार्ग, वार्ड 12 के सड़क पुनर्निर्माण के लिए वर्ष 2025-26 में जारी कार्य आदेश की प्रमाणित प्रति।",
+      "उक्त कार्य की स्वीकृत राशि और कार्य पूर्णता प्रमाण पत्र।",
+      "उक्त कार्य की मापन पुस्तिका की प्रविष्टियाँ तथा उसकी स्वीकृति से संबंधित फाइल नोटिंग।"
+    ],
+    "bpl": false,
+    "payment_mode": "demand_draft",
+    "prepared_on": "2026-10-27",
+    "place": "नई दिल्ली"
+  },
+  "ta": {
+    "language": "ta",
+    "jurisdiction": "tamil_nadu",
+    "authority_name": "எடுத்துக்காட்டு மாநகராட்சி",
+    "pio_address": "குடிமை மையம், 1 எடுத்துக்காட்டுச் சாலை\nசென்னை",
+    "applicant_name": "சோதனை விண்ணப்பதாரர்",
+    "applicant_address": "12 எடுத்துக்காட்டுத் தெரு\nசென்னை",
+    "subject": "எடுத்துக்காட்டுச் சாலை, வார்டு 12 மறுசீரமைப்புப் பணி தொடர்பான தகவல்",
+    "questions": [
+      "வார்டு 12, எடுத்துக்காட்டுச் சாலையை 2025-26 ஆம் ஆண்டில் மறுசீரமைப்பதற்காக வழங்கப்பட்ட பணி ஆணையின் சான்றளிக்கப்பட்ட நகல்.",
+      "அதே பணிக்கான ஒப்பளிக்கப்பட்ட தொகை மற்றும் பணி நிறைவுச் சான்றிதழ்.",
+      "அதே பணிக்கான அளவுக் குறிப்பேட்டின் பதிவுகள் மற்றும் அதன் ஒப்புதல் தொடர்பான கோப்புக் குறிப்புகள்."
+    ],
+    "bpl": false,
+    "payment_mode": "court_fee_stamp",
+    "prepared_on": "2026-10-27",
+    "place": "சென்னை"
+  }
+}
