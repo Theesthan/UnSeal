@@ -41,3 +41,31 @@ jobs:
       - run: >-
           docker run --rm unseal-api uv run pytest -q tests/pdf
           tests/unit/test_pdf_template.py tests/unit/test_pdf_appeal.py
+
+  api-postgres:
+    name: api (migrations on Postgres)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: ci-throwaway  # a service container that lives for this job only
+          POSTGRES_DB: unseal
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql://postgres:ci-throwaway@localhost:5432/unseal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.13"
+      - run: uv sync --frozen
+      - run: uv run alembic upgrade head
+      - run: uv run alembic check  # the models and the migrations agree on Postgres too
+      - run: uv run alembic downgrade base

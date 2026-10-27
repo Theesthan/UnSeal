@@ -22,6 +22,15 @@ FAKE_FERNET_KEY = "test-key-value-not-a-real-key"
             "postgresql+asyncpg://user:pw@db.example.test/unseal",
             "postgresql+asyncpg://user:pw@db.example.test/unseal",
         ),
+        # Hosts hand out the plain forms; the engine is async, so both get the asyncpg driver.
+        (
+            "postgresql://user:pw@db.example.test/unseal",
+            "postgresql+asyncpg://user:pw@db.example.test/unseal",
+        ),
+        (
+            "postgres://user:pw@db.example.test/unseal",
+            "postgresql+asyncpg://user:pw@db.example.test/unseal",
+        ),
     ],
 )
 def test_normalize_database_url(given: str, expected: str) -> None:
@@ -103,3 +112,10 @@ def test_settings_still_carries_the_database_fields() -> None:
     )
     assert settings.database_url.get_secret_value() == "sqlite+aiosqlite:///x.db"
     assert settings.bharatcode_timeout_seconds == 120
+
+
+def test_a_postgres_engine_can_be_built_without_connecting() -> None:
+    from unseal.db.session import build_engine
+
+    engine = build_engine(normalize_database_url("postgresql://user:pw@db.example.test/unseal"))
+    assert engine.dialect.name == "postgresql" and engine.dialect.driver == "asyncpg"

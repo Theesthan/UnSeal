@@ -12,10 +12,14 @@ _REPO_ENV = Path(__file__).resolve().parents[4] / ".env"
 
 
 def normalize_database_url(url: str) -> str:
-    """Make a SQLite URL async. `.env.example` ships the plain `sqlite:///./dev.db` form, but the
-    engine is async, so it needs the aiosqlite driver. Every other URL passes through unchanged."""
+    """Give a plain URL its async driver. `.env.example` ships `sqlite:///./dev.db` and hosts hand
+    out `postgres://` or `postgresql://`, but the engine is async, so it needs aiosqlite or
+    asyncpg. A URL that already names a driver passes through unchanged."""
     if url.startswith("sqlite:"):
         return "sqlite+aiosqlite:" + url.removeprefix("sqlite:")
+    for plain in ("postgres://", "postgresql://"):
+        if url.startswith(plain):
+            return "postgresql+asyncpg://" + url.removeprefix(plain)
     return url
 
 
