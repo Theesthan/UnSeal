@@ -1,0 +1,92 @@
+[
+  {
+    "concept": "Right to Information Act, 2005",
+    "en": ["right to information act", "rti act"],
+    "ta": {"term": "தகவல் அறியும் உரிமைச் சட்டம், 2005", "match": ["தகவல் அறியும் உரிமைச் சட்ட"]},
+    "hi": {"term": "सूचना का अधिकार अधिनियम, 2005", "match": ["सूचना का अधिकार अधिनियम"]}
+  },
+  {
+    "concept": "Public Information Officer",
+    "en": ["public information officer", "pio"],
+    "ta": {"term": "பொதுத் தகவல் அலுவலர்", "match": ["பொதுத் தகவல் அலுவலர", "பொது தகவல் அலுவலர"]},
+    "hi": {"term": "लोक सूचना अधिकारी", "match": ["लोक सूचना अधिकारी"]}
+  },
+  {
+    "concept": "public authority",
+    "en": ["public authority"],
+    "ta": {"term": "பொது அதிகார அமைப்பு", "match": ["பொது அதிகார அமைப்ப"]},
+    "hi": {"term": "लोक प्राधिकारी", "match": ["लोक प्राधिकार"], "avoid": ["जन-संस्था", "जन संस्था"]}
+  },
+  {
+    "concept": "first appeal",
+    "en": ["first appeal"],
+    "ta": {"term": "முதல் மேல்முறையீடு", "match": ["முதல் மேல்முறையீ"]},
+    "hi": {"term": "प्रथम अपील", "match": ["प्रथम अपील"]}
+  },
+  {
+    "concept": "appellate authority",
+    "en": ["appellate authority"],
+    "ta": {"term": "மேல்முறையீட்டு அலுவலர்", "match": ["மேல்முறையீட்டு அலுவலர"]},
+    "hi": {"term": "अपीलीय प्राधिकारी", "match": ["अपीलीय प्राधिकार"]}
+  },
+  {
+    "concept": "certified copy",
+    "en": ["certified copy", "certified copies"],
+    "ta": {"term": "சான்றளிக்கப்பட்ட நகல்", "match": ["சான்றளிக்கப்பட்ட நகல"], "avoid": ["சான்றிதழ் நகல"]},
+    "hi": {"term": "प्रमाणित प्रति", "match": ["प्रमाणित प्रति"]}
+  },
+  {
+    "concept": "file notings",
+    "en": ["file noting"],
+    "ta": {"term": "கோப்புக் குறிப்புகள்", "match": ["கோப்புக் குறிப்பு", "கோப்பு குறிப்பு"], "avoid": ["நோடிங்"]},
+    "hi": {"term": "फ़ाइल नोटिंग", "match": ["फ़ाइल नोटिंग"]}
+  },
+  {
+    "concept": "answer script",
+    "en": ["answer script", "answer book"],
+    "ta": {"term": "விடைத்தாள்", "match": ["விடைத்தாள"], "avoid": ["பதில் எழுத்துப்பிரதி"]},
+    "hi": {"term": "उत्तर पुस्तिका", "match": ["उत्तर पुस्तिका"]}
+  },
+  {
+    "concept": "revaluation",
+    "en": ["revaluation"],
+    "ta": {"term": "மறுமதிப்பீடு", "match": ["மறுமதிப்பீ", "மறு மதிப்பீ"]},
+    "hi": {"term": "पुनर्मूल्यांकन", "match": ["पुनर्मूल्यांकन"]}
+  },
+  {
+    "concept": "work order",
+    "en": ["work order"],
+    "ta": {"term": "பணி ஆணை", "match": ["பணி ஆணை"], "avoid": ["வேலைத்தட்டு"]},
+    "hi": {"term": "कार्य आदेश", "match": ["कार्य आदेश"]}
+  },
+  {
+    "concept": "sanctioned amount",
+    "en": ["sanctioned amount"],
+    "ta": {"term": "ஒப்பளிக்கப்பட்ட தொகை", "match": ["ஒப்பளிக்கப்பட்ட தொகை"]},
+    "hi": {"term": "स्वीकृत राशि", "match": ["स्वीकृत राशि"]}
+  },
+  {
+    "concept": "completion certificate",
+    "en": ["completion certificate"],
+    "ta": {"term": "பணி நிறைவுச் சான்றிதழ்", "match": ["நிறைவுச் சான்றித"], "avoid": ["முடிவுச் சான்று"]},
+    "hi": {"term": "कार्य पूर्णता प्रमाण पत्र", "match": ["पूर्णता प्रमाण"]}
+  },
+  {
+    "concept": "measurement book",
+    "en": ["measurement book"],
+    "ta": {"term": "அளவீட்டுப் புத்தகம்", "match": ["அளவீட்டுப் புத்தக"]},
+    "hi": {"term": "मापन पुस्तिका", "match": ["मापन पुस्तिका"]}
+  },
+  {
+    "concept": "show-cause notice",
+    "en": ["show-cause notice", "show cause notice"],
+    "ta": {"term": "விளக்கம் கோரும் அறிவிப்பு", "match": ["விளக்கம் கோரும்"]},
+    "hi": {"term": "कारण बताओ नोटिस", "match": ["कारण बताओ"], "avoid": ["दिखाने-कहने"]}
+  },
+  {
+    "concept": "below poverty line",
+    "en": ["below poverty line", "bpl"],
+    "ta": {"term": "வறுமைக் கோட்டுக்குக் கீழ்", "match": ["வறுமைக் கோட்"]},
+    "hi": {"term": "गरीबी रेखा से नीचे", "match": ["गरीबी रेखा"]}
+  }
+]

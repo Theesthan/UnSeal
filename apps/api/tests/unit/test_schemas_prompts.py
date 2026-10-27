@@ -7,6 +7,7 @@ import pytest
 from unseal.evals.lang_eval import invented_legal_values
 from unseal.llm import prompts
 from unseal.llm.client import strict_schema
+from unseal.llm.glossary import glossary_block
 from unseal.llm.prompts import load_prompt
 from unseal.llm.schemas import STEP_SCHEMAS, AppealFacts, Compose, Intake, Rewrite
 
@@ -46,21 +47,26 @@ def test_user_facing_text_joins_fields_and_skips_empty_ones() -> None:
 
 
 @pytest.mark.parametrize("step", STEPS)
-def test_prompts_are_versioned_and_render_the_language(step: str) -> None:
+def test_prompts_are_v2_and_render_language_and_glossary(step: str) -> None:
     prompt = load_prompt(step)
     assert prompt.name == step
-    assert prompt.version >= 1
-    assert "{language}" in prompt.template
-    rendered = prompt.render(language="Tamil")
+    assert prompt.version == 2
+    assert "{language}" in prompt.template and "{glossary}" in prompt.template
+    rendered = prompt.render(language="Tamil", glossary=glossary_block("ta"))
     assert "Tamil" in rendered
+    assert "சான்றளிக்கப்பட்ட நகல்" in rendered
     assert "{" not in rendered
     assert "version:" not in rendered  # front matter is stripped
 
 
 @pytest.mark.parametrize("step", STEPS)
-def test_prompts_carry_no_legal_values(step: str) -> None:
+@pytest.mark.parametrize("language", ["ta", "hi"])
+def test_prompts_carry_no_legal_values(step: str, language: str) -> None:
     # Golden rule 1: section numbers, fees and deadlines come from code, never from a prompt.
-    assert invented_legal_values(load_prompt(step).template, "") == []
+    prompt = load_prompt(step)
+    assert invented_legal_values(prompt.template, "") == []
+    rendered = prompt.render(language="x", glossary=glossary_block(language))
+    assert invented_legal_values(rendered, "") == []
 
 
 def test_unknown_prompt_fails() -> None:

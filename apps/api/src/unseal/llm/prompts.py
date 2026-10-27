@@ -1,7 +1,8 @@
 """Versioned prompt files, one per harness step: src/unseal/prompts/<step>.md.
 
 Each file starts with front matter `---\\nversion: N\\n---`. Changing a prompt means bumping N and
-passing the live golden eval before merge (CLAUDE.md). `{language}` is the only placeholder.
+passing the live golden eval before merge (CLAUDE.md). Placeholders: `{language}` and
+`{glossary}` (from `llm.glossary.glossary_block`).
 """
 
 import re
@@ -19,8 +20,8 @@ class Prompt:
     version: int
     template: str
 
-    def render(self, *, language: str) -> str:
-        return self.template.replace("{language}", language)
+    def render(self, *, language: str, glossary: str) -> str:
+        return self.template.replace("{language}", language).replace("{glossary}", glossary)
 
 
 def load_prompt(name: str) -> Prompt:

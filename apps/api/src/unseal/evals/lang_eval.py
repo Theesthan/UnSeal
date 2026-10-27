@@ -22,6 +22,7 @@ from unseal.llm.client import (
     ReasoningEffort,
     StructuredResult,
 )
+from unseal.llm.glossary import glossary_block, missed_terms, term_errors
 from unseal.llm.prompts import load_prompt
 from unseal.llm.schemas import STEP_SCHEMAS, StepOutput
 
@@ -102,6 +103,8 @@ class RunScore:
     invented: tuple[str, ...]
     placeholders_kept: bool | None
     script_share: float | None
+    term_errors: tuple[str, ...] = ()  # glossary: known-wrong variants used
+    missed_terms: tuple[str, ...] = ()  # glossary: named concepts without the preferred term
 
 
 @dataclass(frozen=True)
@@ -175,7 +178,9 @@ def _strings(value: Any) -> Iterator[str]:
 
 async def run_case(llm: StructuredLLM, case: Case, runs: int, model: str) -> Recording:
     prompt = load_prompt(case.kind)
-    instructions = prompt.render(language=LANGUAGE_NAMES[case.language])
+    instructions = prompt.render(
+        language=LANGUAGE_NAMES[case.language], glossary=glossary_block(case.language)
+    )
     attempts = [await _attempt(llm, case, instructions) for _ in range(runs)]
     return Recording(case.id, prompt.version, model, tuple(attempts))
 
@@ -210,13 +215,22 @@ def _score_run(case: Case, schema: type[StepOutput], run: Run) -> RunScore:
     if run.output is None:
         return RunScore(run.error, False, False, (), None, None)
     everything = "\n".join(_strings(run.output))
+    shown = schema.model_validate(run.output).user_text()
+    # Intake only asks questions, so it is not expected to name the records.
+    missed = (
+        ()
+        if case.kind == "intake"
+        else tuple(missed_terms(shown, case.language, f"{case.input}\n{case.expected}"))
+    )
     return RunScore(
         error=None,
         valid=True,
         valid_first=run.schema_retries == 0,
         invented=tuple(invented_legal_values(everything, case.input)),
         placeholders_kept=placeholders_kept(everything, case.input),
-        script_share=script_share(schema.model_validate(run.output).user_text(), case.language),
+        script_share=script_share(shown, case.language),
+        term_errors=tuple(term_errors(everything, case.language)),
+        missed_terms=missed,
     )
 
 
@@ -268,8 +282,12 @@ def render_results(language: str, cases: list[Case], recordings: list[Recording]
         f"Script = lowest share of letters in {name} script across valid runs (A4, target 80%).",
         "Reviewers fill T (pass or fail against Expected) and L1 to L3 (0 to 2 each).",
         "",
-        "| Case | Kind | First-call valid | Invented | Placeholders | Script | T | L1 | L2 | L3 |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "Term errors = known-wrong glossary variants used. Missed terms = concepts the case names",
+        "whose preferred glossary term is absent (not counted for intake).",
+        "",
+        "| Case | Kind | First-call valid | Invented | Placeholders | Script | Term errors "
+        "| Missed terms | T | L1 | L2 | L3 |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
         *(_case_row(c, score(c, by_case[c.id])) for c in mine),
         "",
         "## Outputs",
@@ -297,8 +315,14 @@ def _case_row(case: Case, scores: list[RunScore]) -> str:
     shares = [s.script_share for s in valid if s.script_share is not None]
     script = f"{min(shares):.0%}" if shares else "n/a"
     first = f"{sum(s.valid_first for s in scores)}/{len(scores)}"
+    errors = ", ".join(_unique(t for s in valid for t in s.term_errors)) or "none"
+    missed = (
+        "n/a"
+        if case.kind == "intake"
+        else ", ".join(_unique(t for s in valid for t in s.missed_terms)) or "none"
+    )
     automated = f"| {case.id} | {case.kind} | {first} | {invented} | {placeholders} | {script} |"
-    return automated + "  |  |  |  |"  # T, L1, L2, L3: left for the reviewer
+    return f"{automated} {errors} | {missed} |  |  |  |  |"  # T, L1 to L3: for the reviewer
 
 
 def _case_outputs(case: Case, recording: Recording) -> list[str]:
@@ -325,6 +349,7 @@ def _case_outputs(case: Case, recording: Recording) -> list[str]:
 def save_recording(recording: Recording, folder: Path) -> Path:
     if not re.fullmatch(r"(TA|HI)-\d+", recording.case_id):
         raise ValueError(f"unexpected case id {recording.case_id!r}")
+    folder = folder / f"v{recording.prompt_version}"  # one folder per prompt version
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{recording.case_id}.json"
     path.write_text(json.dumps(asdict(recording), ensure_ascii=False, indent=2) + "\n", "utf-8")
@@ -349,7 +374,10 @@ def write_results(
 def rescore(recorded: Path = RECORDED_DIR, results: Path = RESULTS_DIR) -> list[Summary]:
     """Re-check saved runs and rewrite the sheets: no API calls, so a checker fix costs nothing."""
     cases = load_cases()
-    recordings = [load_recording(path) for path in sorted(recorded.glob("*.json"))]
+    every = load_recordings(recorded)
+    if every:
+        write_comparison(every, results)
+    recordings = _latest(every)
     summaries = []
     for language in LANGUAGE_NAMES:
         mine = [c for c in cases if c.language == language]
@@ -359,3 +387,86 @@ def rescore(recorded: Path = RECORDED_DIR, results: Path = RESULTS_DIR) -> list[
             write_results(language, mine, theirs, results)
             summaries.append(summarize(language, mine, theirs))
     return summaries
+
+
+def load_recordings(folder: Path = RECORDED_DIR) -> list[Recording]:
+    """Every saved recording, all prompt versions."""
+    return [load_recording(path) for path in sorted(folder.glob("v*/*.json"))]
+
+
+def _latest(recordings: list[Recording]) -> list[Recording]:
+    best: dict[CaseId, Recording] = {}
+    for rec in recordings:
+        if rec.case_id not in best or rec.prompt_version > best[rec.case_id].prompt_version:
+            best[rec.case_id] = rec
+    return list(best.values())
+
+
+# ---------------------------------------------------------------- prompt version comparison
+
+
+def compare_versions(recordings: list[Recording]) -> str:
+    """Validity, term errors and missed terms per language and prompt version."""
+    by_id = {c.id: c for c in load_cases()}
+    scores = {(r.case_id, r.prompt_version): score(by_id[r.case_id], r) for r in recordings}
+    versions = sorted({version for _, version in scores})
+    lines = [
+        "# Prompt versions compared",
+        "",
+        "Generated by `rescore()` from the recordings. Term errors and missed terms use",
+        "`src/unseal/llm/glossary.json`; lower is better. Calls exclude busy ones.",
+        "",
+        "| Language | Prompt | Calls | First-call valid | Term errors | Missed terms | Invented |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for language, name in LANGUAGE_NAMES.items():
+        for version in versions:
+            mine = [
+                s
+                for (case_id, v), runs in scores.items()
+                if v == version and by_id[case_id].language == language
+                for s in runs
+                if s.error != "busy"
+            ]
+            if mine:
+                lines.append(_version_row(name, version, mine))
+    header = [f"Term errors v{v}" for v in versions] + [f"Missed v{v}" for v in versions]
+    lines += [
+        "",
+        "## Per case",
+        "",
+        "| Case | Kind | " + " | ".join(header) + " |",
+        "| --- | --- |" + " --- |" * len(header),
+    ]
+    for case_id in sorted({case_id for case_id, _ in scores}, key=_case_order):
+        cells = [_total(scores.get((case_id, v)), "term_errors") for v in versions]
+        cells += [_total(scores.get((case_id, v)), "missed_terms") for v in versions]
+        lines.append(f"| {case_id} | {by_id[case_id].kind} | " + " | ".join(cells) + " |")
+    return "\n".join(lines) + "\n"
+
+
+def _version_row(name: str, version: int, runs: list[RunScore]) -> str:
+    valid = [s for s in runs if s.valid]
+    return (
+        f"| {name} | v{version} | {len(runs)} | {sum(s.valid_first for s in runs)} | "
+        f"{sum(len(s.term_errors) for s in valid)} | {sum(len(s.missed_terms) for s in valid)} | "
+        f"{sum(bool(s.invented) for s in valid)} |"
+    )
+
+
+def _total(runs: list[RunScore] | None, field: str) -> str:
+    if runs is None:
+        return "n/a"
+    return str(sum(len(getattr(s, field)) for s in runs if s.valid))
+
+
+def _case_order(case_id: CaseId) -> tuple[str, int]:
+    prefix, number = case_id.split("-")
+    return (prefix, int(number))
+
+
+def write_comparison(recordings: list[Recording], folder: Path = RESULTS_DIR) -> Path:
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / "prompt-versions.md"
+    path.write_text(compare_versions(recordings), "utf-8")
+    return path

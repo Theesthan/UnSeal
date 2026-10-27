@@ -18,6 +18,7 @@ from unseal.evals.lang_eval import (
     Case,
     Recording,
     Run,
+    compare_versions,
     invented_legal_values,
     load_cases,
     load_recording,
@@ -144,11 +145,13 @@ async def test_run_case_uses_the_step_prompt_schema_and_language() -> None:
     assert [r.schema_retries for r in recording.runs] == [0, 1, 1]
     assert [r.error for r in recording.runs] == [None, None, "invalid"]
     assert recording.runs[0].output == COMPOSE_TA.model_dump()
-    assert recording.prompt_version >= 1
+    assert recording.prompt_version == 2
     first = llm.calls[0]
     assert first["output"] is Compose
     assert first["input"] == "copy for <REG_NO>"
     assert "Tamil" in first["instructions"]
+    assert "சான்றளிக்கப்பட்ட நகல்" in first["instructions"]  # v2 carries the Tamil glossary
+    assert "प्रमाणित" not in first["instructions"]
     assert first["reasoning_effort"] is None
 
 
@@ -234,7 +237,7 @@ def test_results_sheet_is_ready_for_reviewers() -> None:
     assert "# Tamil eval results" in sheet
     assert "| TA-1 | compose |" in sheet
     assert "A1 schema | PASS" in sheet
-    assert "| T | L1 | L2 | L3 |" in sheet  # blank columns for the native-speaker review
+    assert "| Term errors | Missed terms | T | L1 | L2 | L3 |" in sheet
     assert TAMIL_SUBJECT in sheet  # outputs are shown so reviewers can score them
     assert chr(0x2014) not in sheet  # no em dashes in generated docs (user rule)
 
@@ -243,13 +246,13 @@ def test_recordings_round_trip(tmp_path: Path) -> None:
     c = case()
     recording = recording_for(c, ok(COMPOSE_TA, 1), Run(None, "busy", 0, None))
     path = save_recording(recording, tmp_path)
-    assert path == tmp_path / "TA-8.json"
+    assert path == tmp_path / "v1" / "TA-8.json"  # one folder per prompt version
     assert load_recording(path) == recording
 
 
 def test_recorded_fixtures_still_match_the_schemas() -> None:
     folder = Path(__file__).parents[1] / "fixtures" / "recorded" / "lang_eval"
-    files = sorted(folder.glob("*.json")) if folder.exists() else []
+    files = sorted(folder.glob("v*/*.json")) if folder.exists() else []
     if not files:
         pytest.skip("no recorded lang_eval fixtures yet (run the live eval)")
     by_id = {c.id: c for c in load_cases()}
@@ -334,3 +337,56 @@ def test_rescore_rebuilds_the_sheets_from_recordings(tmp_path: Path) -> None:
     sheet = (results / "language-eval-results-ta.md").read_text("utf-8")
     assert "| TA-8 | compose |" in sheet
     assert (results / "language-eval-results-hi.md").exists()
+
+
+def test_score_counts_term_errors_and_missed_terms() -> None:
+    c = case("TA-9", "compose", "Accepted records: work order; completion certificate for <WARD>")
+    wrong = Compose(subject="<WARD> வேலைத்தட்டு", questions=["<WARD> பணி நிறைவுச் சான்றிதழின் நகல்"])
+    (scored,) = score(c, recording_for(c, ok(wrong)))
+    assert scored.term_errors == ("work order: வேலைத்தட்டு",)
+    assert scored.missed_terms == ("work order",)
+
+    intake = case("TA-5", "intake", "answer script, certified copy")  # intake only asks questions
+    follow_up = Intake(
+        jurisdiction_hint="unknown",
+        authority=None,
+        time_period=None,
+        records_wanted=[],
+        delivery_mode="unknown",
+        bpl="unknown",
+        follow_up_questions=["எந்த அலுவலகம்?"],
+        ready_to_draft=False,
+    )
+    (asked,) = score(intake, recording_for(intake, ok(follow_up)))
+    assert asked.missed_terms == ()
+
+
+def test_rescore_uses_the_latest_prompt_version_per_case(tmp_path: Path) -> None:
+    recorded, results = tmp_path / "recorded", tmp_path / "results"
+    save_recording(Recording("TA-8", 1, "old-model", (ok(COMPOSE_TA),)), recorded)
+    save_recording(Recording("TA-8", 2, "new-model", (ok(COMPOSE_TA),)), recorded)
+    rescore(recorded, results)
+    sheet = (results / "language-eval-results-ta.md").read_text("utf-8")
+    assert "new-model" in sheet and "old-model" not in sheet
+    assert "compose v2" in sheet
+    assert "| Tamil | v1 |" in (results / "prompt-versions.md").read_text("utf-8")
+
+
+def test_comparison_counts_term_errors_per_prompt_version(tmp_path: Path) -> None:
+    v1 = Compose(subject="<WARD> வேலைத்தட்டு", questions=["<WARD> முடிவுச் சான்று"])
+    v2 = Compose(subject="<WARD> பணி ஆணை", questions=["<WARD> பணி நிறைவுச் சான்றிதழ்"])
+    recordings = [Recording("TA-9", 1, "m", (ok(v1),)), Recording("TA-9", 2, "m", (ok(v2),))]
+
+    report = compare_versions(recordings)
+
+    assert "| Tamil | v1 | 1 | 1 | 2 |" in report  # calls, first-call valid, term errors
+    assert "| Tamil | v2 | 1 | 1 | 0 |" in report
+    assert "| TA-9 | compose | 2 | 0 |" in report  # per-case term errors, v1 then v2
+    assert chr(0x2014) not in report
+
+
+def test_comparison_marks_cases_missing_from_a_version() -> None:
+    v1_only = Recording("TA-9", 1, "m", (ok(COMPOSE_TA),))
+    v2_only = Recording("TA-8", 2, "m", (ok(COMPOSE_TA),))
+    report = compare_versions([v1_only, v2_only])
+    assert "| TA-8 | compose | n/a | 0 | n/a |" in report
