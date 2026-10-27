@@ -8,7 +8,7 @@ UnSeal turns a citizen's concern into a filing-ready RTI application (English, H
 Product spec: [docs/PRD.md](docs/PRD.md). When scope changes, update the PRD first, then this file, and keep the two in sync.
 Living state (what exists, what is in flight, open questions): [context.md](context.md).
 
-**Status (26 Oct 2026):** only `apps/api` exists, with the rules data and loader (`rules/engine.py`), settings (`config.py`), the BharatCode client (`llm/client.py`), draft step schemas and prompts (v1), and the Tamil and Hindi eval. Everything else in the layout below is the target; create each piece as it is built, and correct this file if the real structure differs.
+**Status:** what exists and what is in flight lives in [context.md](context.md); the layout below is the real structure.
 
 ## Golden rules (read before every task)
 
@@ -22,15 +22,19 @@ Living state (what exists, what is in flight, open questions): [context.md](cont
 ## Repo layout
 
 ```
-BharatCode.txt            # required by the Build League
-CLAUDE.md  README.md  .env.example  docker-compose.yml
+BharatCode.txt            # required by the Build League (not in the repo yet: get it from the organisers)
+CLAUDE.md  README.md  .env.example  context.md
+.github/workflows/ci.yml  # api lint/types/tests, PDFs in Docker, migrations on Postgres, web gates
 apps/
   api/                    # Python 3.12: FastAPI + AI harness + Telegram bot + PDFs
     pyproject.toml  Dockerfile  alembic/
     src/unseal/
-      api/                # app.py (create_app factory), session.py, cases.py, deps, errors, ratelimit
-      services/           # identity.py (ADR 0003), cases.py (HTTP-agnostic, shared with the bot),
-                          #   storage.py (server-made PDF keys under STORAGE_DIR), intake.py
+      api/                # app.py (create_app: routers, lifespan bot + scheduler), session.py, cases.py,
+                          #   reference.py (/rules, /authorities/search), telegram.py (webhook), deps,
+                          #   errors, ratelimit
+      services/           # identity.py (ADR 0003, delete_user), cases.py (HTTP-agnostic, shared with
+                          #   the bot), intake.py, appeals.py (FR-10, FR-12), reply_reader.py (FR-11),
+                          #   storage.py (server-made PDF keys under STORAGE_DIR)
       config.py           # pydantic-settings; reads env vars
       llm/client.py       # the ONLY place that calls BharatCode
       llm/schemas.py      # Pydantic models for every model output (USER_FACING fields per model)
@@ -42,18 +46,23 @@ apps/
       rules/engine.py     # pure functions: deadlines, fees
       rules/data/         # rti_act.json (statute, every jurisdiction) + central.json, tamil_nadu.json
                           #   each rule: basis, source_url (.gov.in/.nic.in), checked_on, quote (ADR 0001)
-      pdf/                # WeasyPrint renderer, templates/*.html.j2, labels.py, fonts/ (Noto, OFL)
-      bot/                # python-telegram-bot handlers
+      pdf/                # render.py (application), appeal.py, second_appeal.py (CIC or TNSIC format),
+                          #   *labels.py per document, common.py, templates/*.html.j2, fonts/ (Noto, OFL)
+      bot/                # python-telegram-bot: handlers, flow, texts (en/hi/ta), reminders
       scheduler.py        # jobs: deemed refusal, 180-day retention, reminder claims (every 15 min)
       db/                 # SQLAlchemy 2 models, session, crypto.py (Fernet field encryption)
       rules/deadlines.py  # pure deadline functions over the rules data (FR-6)
       privacy/redact.py   # log redaction filters
     tests/
-      unit/               # rules engine, validators, redaction, crypto
+      unit/               # everything offline, fakes for the model and the PDF renderer
+      pdf/                # real PDF rendering (needs Pango: run in Docker)
+      live/               # opt-in real BharatCode calls (-m live)
       golden/             # 30 fictional cases + expected flags and rewrites
       golden/lang_eval/   # cases.json (20 Tamil and Hindi cases) + the live eval runner
       fixtures/recorded/  # recorded model responses for offline tests (lang_eval/<case>.json)
-  web/                    # Next.js App Router + TypeScript (strict) + Tailwind
+      golden/pdf/         # golden PDFs and page-1 previews (fictional applicants)
+  web/                    # Next.js App Router + TypeScript (strict) + Tailwind; /en, /hi, /ta;
+                          #   lib/api.ts is the only API client; /api proxies to API_ORIGIN
 docs/
 ```
 
@@ -77,8 +86,8 @@ API (run from `apps/api`; uses `uv`, or `pip install -e ".[dev]"` as a fallback)
 | Migrate | `uv run alembic upgrade head` |
 | New migration | `uv run alembic revision --autogenerate -m "<what changed>"` |
 
-Web (run from `apps/web`): `npm install`, `npm run dev` (port 3000), `npm run lint`, `npm run build`.
-API image (WeasyPrint needs Pango, so PDF tests run here on Windows): `docker build -t unseal-api apps/api`, then `docker run --rm unseal-api uv run pytest -q tests/pdf tests/unit/test_pdf_template.py`. The `runtime` target (`--target runtime`) is the slim production image.
+Web (run from `apps/web`): `npm install`, `npm run dev` (port 3000), `npm run lint`, `npm test` (vitest), `npm run test:e2e` (Playwright, API mocked), `npm run build`.
+API image (WeasyPrint needs Pango, so PDF tests run here on Windows): `docker build -t unseal-api apps/api`, then `docker run --rm unseal-api sh -c "uv run pytest -q tests/pdf tests/unit/test_pdf_*.py"`. CI runs the same and keeps the goldens as the `golden-pdf` artifact. The `runtime` target (`--target runtime`) is the slim production image.
 
 ## Environment variables (`.env.example`, values empty)
 
@@ -89,10 +98,13 @@ BHARATCODE_MODEL=qwen-3.8-27b
 BHARATCODE_TIMEOUT_SECONDS=120
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_WEBHOOK_SECRET=
-DATABASE_URL=sqlite:///./dev.db
+TELEGRAM_CHAT_HASH_KEY=
+DATABASE_URL=sqlite:///./dev.db   # postgres:// also works (asyncpg)
 FIELD_ENCRYPTION_KEY=
-APP_BASE_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:8000
+STORAGE_DIR=./storage
+APP_BASE_URL=http://localhost:3000   # the web app's exact public origin
+API_ORIGIN=http://localhost:8000     # web only: where /api proxies
+NEXT_PUBLIC_API_URL=                 # leave unset so the cookie stays first-party
 ```
 
 Nothing secret may ever use the `NEXT_PUBLIC_` prefix; those values ship to the browser.
@@ -114,6 +126,9 @@ Nothing secret may ever use the `NEXT_PUBLIC_` prefix; those values ship to the 
 ## Harness pipeline
 
 `intake → classify → rewrite → validate → compose → (track) → read_reply → appeal`
+
+- Model steps today: `intake`, `rewrite`, `compose`, `read_reply` (images, after consent). Appeals make no model call: their dates, filing mode and grounds are code-owned template text (a recorded `appeal_facts` run misstated the filing mode), so `appeal_facts` lives only in the language eval.
+- `harness.steps.run_step` masks phone numbers, emails and ID numbers in text input before every model call; names cannot be detected, so the web and bot ask users not to type them.
 
 - Each step: one prompt file in `src/unseal/prompts/` (front matter `version: N`; placeholders `{language}` and `{glossary}`), one Pydantic output schema in `llm/schemas.py`, one function in `harness/`. Prompts never contain section numbers, fees or deadlines (a test enforces it).
 - `compose` fills a Jinja template. The model writes only the subject line and the numbered questions; names and addresses come from the DB at render time.
