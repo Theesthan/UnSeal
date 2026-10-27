@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: api (lint, types, tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.13"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy src
+      # PDF rendering needs Pango, which this runner lacks: those tests skip here and run in the
+      # Docker job below, on the same image the golden PDFs were made with. Live tests are opt-in.
+      - run: uv run pytest -q
+
+  api-pdf:
+    name: api (PDF rendering in Docker)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t unseal-api apps/api
+      - run: >-
+          docker run --rm unseal-api uv run pytest -q tests/pdf
+          tests/unit/test_pdf_template.py tests/unit/test_pdf_appeal.py
