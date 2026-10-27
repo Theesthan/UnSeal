@@ -2,6 +2,7 @@
 so they never show up in a repr, log line or traceback."""
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -61,6 +62,10 @@ class Settings(DatabaseSettings):
     telegram_bot_token: SecretStr | None = None
     telegram_webhook_secret: SecretStr | None = None
     telegram_chat_hash_key: SecretStr | None = None  # ADR 0003: HMAC key for chat lookups
+    # "none" when the web app and the API are on different sites (Origin checks still guard writes).
+    session_cookie_samesite: Literal["lax", "none"] = "lax"
+    rate_limit_default: str = "120/minute"  # per session (or per IP before one exists)
+    rate_limit_model: str = "20/minute"  # routes that call BharatCode
 
     @field_validator("telegram_bot_token", "telegram_webhook_secret", "telegram_chat_hash_key")
     @classmethod
