@@ -133,8 +133,9 @@ Jurisdictions in v1: `central` and `tamil_nadu`. Languages: `en`, `hi`, `ta` (Se
 | First appeal | within 30 days of reply or of due date | S. 19(1) |
 | Appellate authority decision | 30 days, extendable to 45 | S. 19(6) |
 | Second appeal | within 90 days of decision, or of the FAA deadline passing; late allowed for sufficient cause | S. 19(3) |
-| Fee | Rs 10 (central and Tamil Nadu); copies Rs 2 per page, A3 or smaller (central); BPL exempt (S. 7(5)), central needs the BPL certificate copy (r. 5) | RTI Rules 2012 (G.S.R. 603(E)); TN Fees Rules 2005 |
-| Length (central) | ordinarily 500 words or fewer; never rejected for length alone | RTI Rules 2012, r. 3 |
+| Fee | Rs 10 (central and Tamil Nadu); copies Rs 2 per page, A3 or smaller (central) or A3 or A4 (Tamil Nadu); BPL exempt (S. 7(5)), central needs the BPL certificate copy (r. 5), the Tamil Nadu portal says the same | RTI Rules 2012 (G.S.R. 603(E)); TN Fees Rules 2005, r. 3 |
+| Payment modes (Tamil Nadu default) | Application fee by cash, court fee stamp, postal money order, demand draft or banker's cheque (not Indian Postal Order); further fees by cash, demand draft or banker's cheque | TN Fees Rules 2005, r. 3(a), 3(b) |
+| Length | central: ordinarily 500 words or fewer, never rejected for length alone; Tamil Nadu: no limit found | RTI Rules 2012, r. 3 |
 | Personal information | exempt as a class since 13 Nov 2025; under Supreme Court challenge | S. 8(1)(j) as amended by DPDP Act s. 44(3) |
 
 Date math conventions (implement in `rules/engine.py`, test every one):
