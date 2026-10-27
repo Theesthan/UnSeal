@@ -10,9 +10,15 @@ Repo bootstrapped: `docs/PRD.md`, `CLAUDE.md`, `.claude/` (skills, hooks, settin
 
 ## In progress
 - Branch `feat/central-rules-json`: central rules done; next `tamil_nadu.json` (TNSIC fee rules).
-- Tamil and Hindi eval: built and ready to run (`docs/language-eval-plan.md`, "How it runs").
-  Waiting on `BHARATCODE_API_KEY` in the repo-root `.env`, agreement on the pass bar, and a
-  native-speaker proofread of the case inputs; then smoke test, run, review, ADR 0002.
+- Tamil and Hindi eval, first live run (2026-10-27, 1 run per case): both languages pass every
+  automated gate (`docs/eval/language-eval-results-*.md`). Needs native-speaker T and L scores,
+  then ADR 0002. Claude's non-binding read: structure and tasks mostly right; legal terms often
+  wrong (HI "अनुकृप्य", "दिखाने-कहने का नोटिस", "जन-संस्था"; TA "வேலைத்தட்டு" for work order,
+  "சான்றிதழ் நகல்" for certified copy) and TA-2's reason says officers ARE obliged to explain.
+  Likely fix: prompt v2 with a fixed RTI glossary, or the template-owned-terms fallback.
+- BharatCode latency 2026-10-27: 80 to 100 s per call, some calls over 5 min; models.list 0.3 s.
+  Demo needs cached sample outputs and a "queued" state (PRD risk table).
+- Rotate the BharatCode key: it was pasted into the Claude chat on 2026-10-26.
 
 ## Done
 - 2026-10-26 Product renamed from RTI Saathi to UnSeal (package `unseal`).

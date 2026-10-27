@@ -56,7 +56,7 @@ Inputs were drafted by Claude. **A native speaker proofreads them before the run
 | Check | Rule |
 | --- | --- |
 | A1 Schema | Output parses against its Pydantic schema; count first-call passes and passes after one retry. Busy calls are excluded and reported (they say nothing about the model) |
-| A2 No invented legal values | Every number in the output (Tamil and Devanagari digits included) must appear in the input; 2005, the year in the Act's name, is allowed and list numbering is ignored. A section word (`Section`, `S.`, `பிரிவு`, `धारा`) counts only when a number follows, since பிரிவு and धारा are also everyday words; a currency mark (`Rs`, `rupees`, `₹`, `ரூ.`, `ரூபாய்`, `रु.`, `रुपये`) always counts |
+| A2 No invented legal values | Every number in the output (Tamil and Devanagari digits included) must appear in the input; 2005, the year in the Act's name, is allowed, and list numbering and ordinals ("1ஆம் ஆண்டு", "12वीं", "2nd") are ignored. A section word (`Section`, `S.`, `பிரிவு`, `धारा`) counts only when a number follows, since பிரிவு and धारा are also everyday words; a currency mark (`Rs`, `rupees`, `₹`, `ரூ.`, `ரூபாய்`, `रु.`, `रुपये`) always counts |
 | A3 Placeholders | Every `<PLACEHOLDER>` in the input appears verbatim in the output |
 | A4 Script | At least 80% of letters in user-facing fields (`USER_FACING` on each schema) are in the target script, excluding placeholders and acronyms such as CBSE, EPFO, PF. Reported, not gated: it feeds the reviewer's L score |
 
@@ -94,7 +94,8 @@ Everything below runs from `apps/api`. The pieces: draft schemas in `llm/schemas
 3. **Run:** `uv run pytest -m live tests/golden/lang_eval` runs every case 3 times (sampling varies), sequentially, with a 4,096-token budget and `reasoning={"effort": "none"}` on intake. Add `-k tamil` or `-k hindi` for one language, or `LANG_EVAL_RUNS=1` for a quick pass. Roughly 20 cases x 3 runs x 1.5k tokens is near 90k tokens, around 1% of the 10M daily cap.
 4. **Record:** every run is saved to `tests/fixtures/recorded/lang_eval/<case>.json` (fictional cases, so safe to commit); an offline test keeps those files valid against the schemas, and they double as fixtures for the harness tests.
 5. **Score:** the run writes `docs/eval/language-eval-results-<ta|hi>.md` with the gates, a row per case (first-call valid, invented values, placeholders, script share) and every output, plus blank T and L1 to L3 columns for the reviewers. The test fails if an automated gate fails. Each rerun overwrites the sheet, so copy reviewer scores out first.
-6. **Decide:** write ADR 0002 with the scores, the decision per language, and what would reopen it (a model change, or golden cases failing).
+6. **Re-score without calling the API:** after changing a check, `uv run python -c "from unseal.evals.lang_eval import rescore; rescore()"` re-reads the recordings and rewrites both sheets.
+7. **Decide:** write ADR 0002 with the scores, the decision per language, and what would reopen it (a model change, or golden cases failing).
 
 ## Owners
 
