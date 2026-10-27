@@ -32,7 +32,7 @@ Events that move deadlines but not status: a transfer (S. 6(3)); the appellate a
 
 - Handlers pass anchor dates in and store what `rules/engine.py` returns. Routes, bot handlers and the web app never add days. Appeal anchors (reply date, appeal filing date, decision date) are engine inputs, tested like the rest.
 - Unknown `received_on`: `filed_on` plus the transit buffer (default 7), `estimated=True`, shown as "estimated". When the real date is logged, recompute and clear the flag.
-- Transfer: the case stays `reply due`. Record the new PIO's receipt date and have the engine replace the `pio_reply` row (the new period runs from that receipt). The old row must not stay live or keep reminding.
+- Transfer: the case stays `reply due`. Record the transfer and the new authority's receipt date, but keep the user's `pio_reply` and `first_appeal` deadlines on the ORIGINAL receipt (`rules.deadlines.transfer_deadlines`): the Act is silent on the new clock, so the conservative default protects the appeal window (see the `transfer` note in `rti_act.json`). Show the new authority's expected reply as information only.
 - Life or liberty: the 48-hour track uses UTC timestamps, not the `DATE` logic.
 - A date the model read from a reply photo is a proposal. Validate it with Pydantic and have the user confirm it before it anchors a deadline.
 - A late first appeal is still draftable; show that it is late (the appellate authority has discretion).
