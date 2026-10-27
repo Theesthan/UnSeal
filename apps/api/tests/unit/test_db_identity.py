@@ -73,9 +73,9 @@ async def test_identity_hashes_are_unique_and_optional(
             await session.commit()
 
 
-def test_migration_0002_is_the_head() -> None:
+def test_migration_0003_is_the_head() -> None:
     script = ScriptDirectory.from_config(Config(str(API_DIR / "alembic.ini")))
-    assert script.get_current_head() == "0002"
+    assert script.get_current_head() == "0003"
 
 
 def test_api_settings_have_safe_defaults(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -13,7 +13,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from unseal.api import errors, session
+from unseal.api import cases, errors, session
 from unseal.api.deps import SESSION_COOKIE
 from unseal.api.ratelimit import RateLimits
 from unseal.config import Settings
@@ -55,6 +55,7 @@ def create_app(
 
     errors.install(app)
     app.include_router(session.router)
+    app.include_router(cases.router)
 
     @app.middleware("http")
     async def require_app_origin(request: Request, call_next: Next) -> Response:

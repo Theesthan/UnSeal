@@ -30,6 +30,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    false,
 )
 from sqlalchemy.engine import Dialect
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -161,6 +162,8 @@ class Applicant(Base):
     # Nullable: the validator blocks export while the address is missing, so a draft may lack it.
     address: Mapped[str | None] = mapped_column(EncryptedText())
     phone: Mapped[str | None] = mapped_column(EncryptedText())
+    # Below poverty line (S. 7(5)): no fee; the application states it and attaches proof.
+    bpl: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
     user: Mapped[User] = relationship(back_populates="applicants")
     cases: Mapped[list["Case"]] = relationship(
@@ -181,7 +184,8 @@ class Case(Base):
     user_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
-    applicant_id: Mapped[str] = mapped_column(
+    # Nullable: a case starts as a draft before the applicant's details are entered.
+    applicant_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("applicants.id", ondelete="CASCADE"), index=True
     )
     # "central" or "tamil_nadu" today; validated against the rules data, not constrained here,
@@ -198,6 +202,8 @@ class Case(Base):
     filing_mode: Mapped[str | None] = mapped_column(String(32))
     filed_on: Mapped[date | None] = mapped_column(Date)
     received_on: Mapped[date | None] = mapped_column(Date)
+    # True while received_on is the engine's estimate (filed_on plus the transit buffer).
+    received_estimated: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     # Set when the case is closed; the retention job deletes 180 days later.
     closed_on: Mapped[date | None] = mapped_column(Date)
     # A transfer (S. 6(3)) is an event: the new authority and when it received the application.
@@ -206,7 +212,7 @@ class Case(Base):
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
 
     user: Mapped[User] = relationship(back_populates="cases")
-    applicant: Mapped[Applicant] = relationship(back_populates="cases")
+    applicant: Mapped[Applicant | None] = relationship(back_populates="cases")
     questions: Mapped[list["Question"]] = relationship(
         back_populates="case",
         cascade="all, delete-orphan",
@@ -233,6 +239,12 @@ class Question(Base):
     # Encrypted: questions carry register numbers and grievance details.
     original_text: Mapped[str] = mapped_column(EncryptedText())
     rewritten_text: Mapped[str | None] = mapped_column(EncryptedText())
+    # JSON of the rewrite step's records_requested, reason and suggestion (encrypted: they repeat
+    # the grievance). personal_information is the step's flag, kept plain for the validator.
+    details: Mapped[str | None] = mapped_column(EncryptedText())
+    personal_information: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false()
+    )
     accepted: Mapped[bool] = mapped_column(Boolean, default=False)
     # Validator flag codes (for example "personal_information"), not free text from the user.
     flags: Mapped[list[Any]] = mapped_column(JSON, default=list)

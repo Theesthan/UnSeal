@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from unseal.llm.client import ModelBusy, ModelIncomplete, ModelOutputInvalid
+from unseal.services.cases import NotFound, WrongStatus
 
 
 class ApiError(Exception):
@@ -59,3 +60,12 @@ def install(app: FastAPI) -> None:
         app.add_exception_handler(model_exc, model_error)
     app.add_exception_handler(RequestValidationError, invalid)
     app.add_exception_handler(HTTPException, http_error)
+
+    async def not_found(_: Request, __: Exception) -> JSONResponse:
+        return error_response(404, "not_found")
+
+    async def wrong_status(_: Request, __: Exception) -> JSONResponse:
+        return error_response(409, "wrong_status")
+
+    app.add_exception_handler(NotFound, not_found)
+    app.add_exception_handler(WrongStatus, wrong_status)
