@@ -135,6 +135,7 @@ Jurisdictions in v1: `central` and `tamil_nadu`. Languages: `en`, `hi`, `ta` (Se
 | First appeal | within 30 days of reply or of due date | S. 19(1) |
 | Appellate authority decision | 30 days, extendable to 45 | S. 19(6) |
 | Second appeal | within 90 days of decision, or of the FAA deadline passing; late allowed for sufficient cause | S. 19(3) |
+| Second appeal format | central: Appendix format plus copies of application, reply, first appeal, FAA order, documents relied on, index; Tamil Nadu: TNSIC form with its enclosures (fields UnSeal does not hold stay blank) | RTI Rules 2012, r. 8; TNSIC format |
 | Fee | Rs 10 (central and Tamil Nadu); copies Rs 2 per page, A3 or smaller (central) or A3 or A4 (Tamil Nadu); BPL exempt (S. 7(5)), central needs the BPL certificate copy (r. 5), the Tamil Nadu portal says the same | RTI Rules 2012 (G.S.R. 603(E)); TN Fees Rules 2005, r. 3 |
 | Payment modes (Tamil Nadu default) | Application fee by cash, court fee stamp, postal money order, demand draft or banker's cheque (not Indian Postal Order); further fees by cash, demand draft or banker's cheque | TN Fees Rules 2005, r. 3(a), 3(b) |
 | Length | central: ordinarily 500 words or fewer, never rejected for length alone; Tamil Nadu: no limit found | RTI Rules 2012, r. 3 |

@@ -44,5 +44,14 @@
     "checked_on": "2026-10-26",
     "quote": "This is a portal to file RTI applications/first appeals online along with payment gateway.",
     "note": "RTI Online covers only the central authorities onboarded to it; post and in person rest on s. 6(1) 'in writing'."
+  },
+  "second_appeal_format": {
+    "format": "cic_rule_8",
+    "enclosures": ["application", "pio_reply", "first_appeal", "faa_order", "relied_documents", "index"],
+    "basis": "RTI Rules 2012, rule 8 and Appendix (format of appeal); rule 10(1) proviso",
+    "source_url": "https://cic.gov.in/sites/default/files/RTIRules2012_Eng.pdf",
+    "checked_on": "2026-10-27",
+    "quote": "Any person aggrieved by an order passed by the First Appellate Authority or by non-disposal of his appeal by the First Appellate Authority, may file an appeal to the Commission in the format given in the Appendix and shall be accompanied by the following documents, duly authenticated and verified by the appellant, namely: (i) a copy of the application submitted to the Central Public Information Officer; (ii) a copy of the reply received, if any, from the Central Public Information Officer; (iii) a copy of the appeal made to the First Appellate Authority; (iv) a copy of the Order received, if any, from the First Appellate Authority; (v) copies of other documents relied upon by the appellant and referred to in his appeal; and (vi) an index of the documents referred to in the appeal. ... Provided that no appeal shall be dismissed only on the ground that it has not been made in the specified format if it is accompanied by documents as specified in rule 8.",
+    "note": "DoPT notification of 31 July 2012, as hosted by the CIC. The Appendix lists 11 items: appellant; CPIO addressed; CPIO who replied; FAA who decided; particulars of the application; particulars of the order(s) appealed against; brief facts; prayer or relief; grounds; any other information; verification. Currency: the CIC notifications page (opened 2026-10-27) lists no later amendment to these rules; its 2019 rules entry is the Term of Office and Salaries rules (G.S.R. 810(E)), which do not touch appeals."
   }
 }

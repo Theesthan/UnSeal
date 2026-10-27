@@ -74,6 +74,25 @@ class FilingChannels(Source):
     channels: tuple[str, ...] = Field(min_length=1)
 
 
+Enclosure = Literal[
+    "application",
+    "pio_reply",
+    "transfer_letter",
+    "first_appeal",
+    "faa_order",
+    "relied_documents",
+    "index",
+]
+
+
+class SecondAppealFormat(Source):
+    """The form a second appeal (S. 19(3)) takes before this jurisdiction's commission, and the
+    copies that must go with it. The template for each format lives in pdf/."""
+
+    format: Literal["cic_rule_8", "tnsic_form"]
+    enclosures: tuple[Enclosure, ...] = Field(min_length=1)
+
+
 class ActRules(_Frozen):
     """RTI Act 2005: the same for every jurisdiction."""
 
@@ -101,6 +120,7 @@ class LocalRules(_Frozen):
     bpl_certificate_required: Flag
     payment_modes: PaymentModes
     filing_channels: FilingChannels
+    second_appeal_format: SecondAppealFormat
 
 
 class Rules(_Frozen):

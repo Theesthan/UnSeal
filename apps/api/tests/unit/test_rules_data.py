@@ -121,3 +121,17 @@ def test_stale_rules_boundary(central: Rules) -> None:
     assert stale_rules(central, today=oldest + timedelta(days=RECHECK_AFTER_DAYS)) == []
     stale = stale_rules(central, today=newest + timedelta(days=RECHECK_AFTER_DAYS + 1))
     assert sorted(stale) == sorted(all_sources(central))
+
+
+def test_central_second_appeal_follows_rule_8(central: Rules) -> None:
+    second = central.local.second_appeal_format
+    assert second.format == "cic_rule_8"
+    assert second.enclosures == (
+        "application",
+        "pio_reply",
+        "first_appeal",
+        "faa_order",
+        "relied_documents",
+        "index",
+    )
+    assert "accompanied by the following documents" in second.quote

@@ -38,5 +38,14 @@
     "checked_on": "2026-10-27",
     "quote": "Through this portal RTI application/first appeal can be filed by Indian Citizen only for the Departments/Public Authorities of the Government of Tamil Nadu ... the petitions and Appeals relating to the offices wherein this facility has not yet been implemented may be sent manually to those offices at present",
     "note": "The portal takes applications only for the Tamil Nadu departments and offices where the facility is implemented (Secretariat departments first); the central portal rtionline.gov.in does not take state authorities. Post and in person rest on s. 6(1) 'in writing' and the portal's 'manually'. The portal form holds 3000 characters; longer text goes in a PDF attachment."
+  },
+  "second_appeal_format": {
+    "format": "tnsic_form",
+    "enclosures": ["application", "pio_reply", "transfer_letter", "first_appeal", "faa_order"],
+    "basis": "Tamil Nadu Information Commission, Second Appeal Application Format (English), linked from tnsic.gov.in/second.php",
+    "source_url": "https://tnsic.gov.in/pdf/guidelines/appeal_format/sa_eng.pdf",
+    "checked_on": "2026-10-27",
+    "quote": "Second Appeal - Under Section 19(3) of the Right to Information Act, 2005 with necessary copies enclosed ... Copy of Petition under sec 6(1) to be enclosed ... If yes, copy of the reply to be enclosed ... If yes, copy of the letter to be enclosed ... Copy of appeal petition to be enclosed ... If yes, copy of the reply to be enclosed",
+    "note": "The form marks as mandatory: name, father/husband/guardian name, mobile number, address, the date of the petition, PIO details, the date of the first appeal and FAA details; it also asks for the mode of hearing (virtual or direct) and whether a complaint petition under s. 18(1) was filed. UnSeal leaves the fields it does not hold blank for the appellant to fill by hand. The form cites Rule 3 of the Tamil Nadu Information Commission (Appeal Procedure) Rules; the text of those rules was not opened (OPEN). An older TNSIC format (2016) is superseded by this one on the TNSIC page."
   }
 }

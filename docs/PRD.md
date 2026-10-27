@@ -136,6 +136,8 @@ All dates and fees come from `rules/data/*.json` (the statute once in `rti_act.j
 | First appeal | Within 30 days of the reply or of its due date; a late appeal is at the appellate authority's discretion | Section 19(1) |
 | Appellate authority's decision | 30 days, extendable to 45 | Section 19(6) |
 | Second appeal | Within 90 days of the decision, or of the appellate authority's deadline passing; a late appeal may be admitted for sufficient cause | Section 19(3) and proviso |
+| Second appeal format, central | The Appendix format (11 items) with copies of the application, the PIO's reply if any, the first appeal, the appellate authority's order if any, other documents relied on, and an index; never dismissed for format alone if those copies are there | RTI Rules 2012, Rule 8, Appendix and Rule 10(1) proviso |
+| Second appeal format, Tamil Nadu | The TNSIC Second Appeal Application Format with copies of the petition, the reply if any, the transfer letter if any, the first appeal and the appellate authority's reply if any. It marks guardian name and mobile number mandatory: UnSeal leaves fields it does not hold blank to fill by hand | TNSIC format (sa_eng.pdf), citing Rule 3 of the TN Information Commission (Appeal Procedure) Rules (rules text not yet opened) |
 | Fee, central | Rs 10; Rs 2 per page of copies on A3 or smaller paper (larger paper at actual cost) | RTI Rules 2012 (G.S.R. 603(E)), Rules 3 and 4 |
 | Fee, Tamil Nadu | Rs 10; Rs 2 per page of copies on A3 or A4 paper (larger paper at actual cost) | TN RTI (Fees) Rules 2005 (G.O. Ms. No. 989), Rule 3(a) and 3(b), as amended |
 | BPL applicants | No fee; central applications attach a copy of the BPL certificate; the Tamil Nadu Government's RTI Online portal also says to attach a copy of the certificate (the TN Fees Rules are silent) | Section 7(5), proviso; RTI Rules 2012, Rule 5; RTI Online portal (Tamil Nadu) |
@@ -256,4 +258,6 @@ Primary sources, all opened and quoted on 26 Oct 2026; the verbatim quotes live 
 - TNSIC fee summary: https://www.tnsic.gov.in/pdf/Fees_RTI_English.pdf ; TNSIC note on modes (postal orders not accepted): https://tnsic.gov.in/pdf/rules/RTI_Fees_Rules_2005.pdf
 - TN RTI Online portal (BPL proof, filing scope, online payment): https://www.rtionline.tn.gov.in/
 - Public Dept letter 19963/AR-III/2020-1, 11 Dec 2020 (treasury head of account): https://www.tn.gov.in/rti/par/par_Lr_19963_2020.pdf
+- RTI Rules 2012 as hosted by the CIC (Rule 8, Appendix format of appeal, Rule 10), opened 27 Oct 2026: https://cic.gov.in/sites/default/files/RTIRules2012_Eng.pdf ; CIC notifications list (no later amendment to these rules): https://cic.gov.in/rti-notifications
+- TNSIC Second Appeal Application Format (English), linked from https://tnsic.gov.in/second.php, opened 27 Oct 2026: https://tnsic.gov.in/pdf/guidelines/appeal_format/sa_eng.pdf (Tamil: https://tnsic.gov.in/pdf/guidelines/appeal_format/sa_tam.pdf)
 - Still to source: BharatCode Build League rules and API docs.

@@ -92,13 +92,14 @@ def test_tamil_nadu_rules_are_not_under_challenge(tn: Rules) -> None:
 
 def test_every_tamil_nadu_rule_has_primary_provenance(tn: Rules) -> None:
     found = local_sources(tn)
-    # word_limit is null for Tamil Nadu, so five rules carry a source.
+    # word_limit is null for Tamil Nadu, so six rules carry a source.
     assert sorted(found) == [
         "local.application_fee",
         "local.bpl_certificate_required",
         "local.copy_fee_per_page",
         "local.filing_channels",
         "local.payment_modes",
+        "local.second_appeal_format",
     ]
     for name, src in found.items():
         host = urlparse(str(src.source_url)).hostname or ""
@@ -130,3 +131,16 @@ def test_tamil_nadu_rules_join_the_recheck_warning(tn: Rules) -> None:
     assert [name for name in on_boundary if name.startswith("local.")] == []
     stale = stale_rules(tn, today=newest + timedelta(days=RECHECK_AFTER_DAYS + 1))
     assert set(found) <= set(stale)
+
+
+def test_tamil_nadu_second_appeal_uses_the_tnsic_form(tn: Rules) -> None:
+    second = tn.local.second_appeal_format
+    assert second.format == "tnsic_form"
+    assert second.enclosures == (
+        "application",
+        "pio_reply",
+        "transfer_letter",
+        "first_appeal",
+        "faa_order",
+    )
+    assert str(second.source_url).startswith("https://tnsic.gov.in/")
