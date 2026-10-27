@@ -16,6 +16,12 @@ Repo bootstrapped: `docs/PRD.md`, `CLAUDE.md`, `.claude/` (skills, hooks, settin
   wrong (HI "अनुकृप्य", "दिखाने-कहने का नोटिस", "जन-संस्था"; TA "வேலைத்தட்டு" for work order,
   "சான்றிதழ் நகல்" for certified copy) and TA-2's reason says officers ARE obliged to explain.
   Likely fix: prompt v2 with a fixed RTI glossary, or the template-owned-terms fallback.
+- 2026-10-27 prompt v2 = v1 + verified RTI glossary (`llm/glossary.json`, sources per term).
+  Term errors 7 -> 0 (Tamil), 2 -> 0 (Hindi); missed terms 13 -> 1 to 3, 4 -> 1. New v2 oddities
+  for v3: HI-3 garbled "लोकराधिका", TA-9 stray "சார்பு," prefix, HI-8 typo "नोटिंंग", TA-8
+  dropped "answer script". v2 TA-1 came back empty; value validators now reject that and retry.
+  Three Tamil glossary terms are low confidence (file notings, completion certificate,
+  measurement book field term): native reviewer checks them first.
 - BharatCode latency 2026-10-27: 80 to 100 s per call, some calls over 5 min; models.list 0.3 s.
   Demo needs cached sample outputs and a "queued" state (PRD risk table).
 - Rotate the BharatCode key: it was pasted into the Claude chat on 2026-10-26.

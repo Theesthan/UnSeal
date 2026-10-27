@@ -60,6 +60,13 @@ Inputs were drafted by Claude. **A native speaker proofreads them before the run
 | A3 Placeholders | Every `<PLACEHOLDER>` in the input appears verbatim in the output |
 | A4 Script | At least 80% of letters in user-facing fields (`USER_FACING` on each schema) are in the target script, excluding placeholders and acronyms such as CBSE, EPFO, PF. Reported, not gated: it feeds the reviewer's L score |
 
+**Glossary terms** (every call; reported, not gated): the prompts carry a fixed Tamil and Hindi glossary (`src/unseal/llm/glossary.json`, each term with its source and confidence).
+- *Term errors:* a known-wrong variant was used (for example சான்றிதழ் நகல், दिखाने-कहने का नोटिस).
+- *Missed terms:* a concept the case names in English appears in the output without its preferred term. Not counted for intake, which only asks questions.
+- `docs/eval/prompt-versions.md` compares both across prompt versions.
+
+**Value rules** (part of A1): a rewrite must name records unless it refuses for personal information; compose and appeal-facts outputs must carry text. The client rejects a breach and retries once; stored runs are re-checked when re-scored.
+
 **Task (T)**, pass or fail per case against the Expected column. Any reviewer can score this.
 
 **Language (L)**, 0 to 2 each, by a native speaker, one run per case:
