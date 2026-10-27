@@ -12,20 +12,22 @@ gate fails. A pass here is necessary, not sufficient: T and L are scored by peop
 """
 
 import os
-from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
 from unseal.config import Settings
-from unseal.evals.lang_eval import load_cases, render_results, run_case, save_recording, summarize
+from unseal.evals.lang_eval import (
+    RECORDED_DIR,
+    load_cases,
+    run_case,
+    save_recording,
+    summarize,
+    write_results,
+)
 from unseal.llm.client import build_client
 
 pytestmark = [pytest.mark.live, pytest.mark.anyio]
-
-API_DIR = Path(__file__).resolve().parents[3]
-RECORDED = API_DIR / "tests" / "fixtures" / "recorded" / "lang_eval"
-RESULTS = API_DIR.parents[1] / "docs" / "eval"
 
 
 @pytest.mark.parametrize(
@@ -43,14 +45,9 @@ async def test_lang_eval(language: str) -> None:
     recordings = []
     for case in cases:  # sequential on purpose: parallel calls invite 503s on a shared GPU pool
         recording = await run_case(llm, case, runs, settings.bharatcode_model)
-        save_recording(recording, RECORDED)
+        save_recording(recording, RECORDED_DIR)
         recordings.append(recording)
 
-    sheet = RESULTS / f"language-eval-results-{language}.md"
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    sheet.write_text(render_results(language, cases, recordings), "utf-8")
-
+    sheet = write_results(language, cases, recordings)
     failed = [gate for gate, passed in summarize(language, cases, recordings).gates if not passed]
-    assert not failed, (
-        f"automated gates failed: {failed}; see {sheet.relative_to(API_DIR.parents[1])}"
-    )
+    assert not failed, f"automated gates failed: {failed}; see {sheet}"

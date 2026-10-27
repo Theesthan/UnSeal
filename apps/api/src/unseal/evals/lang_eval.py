@@ -26,7 +26,10 @@ from unseal.llm.prompts import load_prompt
 from unseal.llm.schemas import STEP_SCHEMAS, StepOutput
 
 # apps/api/src/unseal/evals/lang_eval.py -> apps/api; the eval runs from a source checkout only.
-CASES_PATH = Path(__file__).resolve().parents[3] / "tests" / "golden" / "lang_eval" / "cases.json"
+_API_DIR = Path(__file__).resolve().parents[3]
+CASES_PATH = _API_DIR / "tests" / "golden" / "lang_eval" / "cases.json"
+RECORDED_DIR = _API_DIR / "tests" / "fixtures" / "recorded" / "lang_eval"
+RESULTS_DIR = _API_DIR.parents[1] / "docs" / "eval"
 
 LANGUAGE_NAMES = {"ta": "Tamil", "hi": "Hindi"}
 _SCRIPT_BLOCKS = {"ta": (0x0B80, 0x0BFF), "hi": (0x0900, 0x097F)}
@@ -35,6 +38,10 @@ ALLOWED_NUMBERS = frozenset({2005})  # the year in the Act's own name may appear
 FIRST_CALL_VALID_PER_TEN = 9  # plan: at least 9 of 10 calls valid on the first try
 
 _LIST_NUMBER = re.compile(r"^\s*\d+[.)]\s+", re.MULTILINE)
+# "1ஆம் ஆண்டு", "12वीं", "2nd": ordinals are never legal values. A bare day ("5 September")
+# still counts. ponytail: an ordinal day of the month ("by the 5th") slips through; the year or
+# ISO date around it is still checked.
+_ORDINAL = re.compile(r"\d+(?=ஆம்|ஆவது|வது|वीं|वां|वें|वाँ|(?:st|nd|rd|th)\b)")
 _NUMBER = re.compile(r"\d+")  # str patterns match Tamil and Devanagari digits too
 _PLACEHOLDER = re.compile(r"<[A-Z][A-Z0-9_]*>")
 _ACRONYM = re.compile(r"\b[A-Z]{2,}\b")
@@ -128,7 +135,7 @@ def _numbers(text: str) -> list[int]:
 
 def invented_legal_values(output: str, source: str) -> list[str]:
     """A2: legal markers and numbers in `output` that `source` does not contain."""
-    output = _LIST_NUMBER.sub("", output)
+    output = _ORDINAL.sub(" ", _LIST_NUMBER.sub("", output))
     known_markers = set(_markers(source))
     known_numbers = set(_numbers(source)) | ALLOWED_NUMBERS
     markers = [m for m in _unique(_markers(output)) if m not in known_markers]
@@ -328,3 +335,27 @@ def load_recording(path: Path) -> Recording:
     data = json.loads(path.read_text("utf-8"))
     runs = tuple(Run(**run) for run in data["runs"])
     return Recording(data["case_id"], data["prompt_version"], data["model"], runs)
+
+
+def write_results(
+    language: str, cases: list[Case], recordings: list[Recording], folder: Path = RESULTS_DIR
+) -> Path:
+    folder.mkdir(parents=True, exist_ok=True)
+    sheet = folder / f"language-eval-results-{language}.md"
+    sheet.write_text(render_results(language, cases, recordings), "utf-8")
+    return sheet
+
+
+def rescore(recorded: Path = RECORDED_DIR, results: Path = RESULTS_DIR) -> list[Summary]:
+    """Re-check saved runs and rewrite the sheets: no API calls, so a checker fix costs nothing."""
+    cases = load_cases()
+    recordings = [load_recording(path) for path in sorted(recorded.glob("*.json"))]
+    summaries = []
+    for language in LANGUAGE_NAMES:
+        mine = [c for c in cases if c.language == language]
+        ids = {c.id for c in mine}
+        theirs = [r for r in recordings if r.case_id in ids]
+        if theirs:
+            write_results(language, mine, theirs, results)
+            summaries.append(summarize(language, mine, theirs))
+    return summaries

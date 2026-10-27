@@ -23,6 +23,7 @@ from unseal.evals.lang_eval import (
     load_recording,
     placeholders_kept,
     render_results,
+    rescore,
     run_case,
     save_recording,
     score,
@@ -82,6 +83,11 @@ def test_case_file_has_ten_cases_per_language_in_the_planned_mix() -> None:
         ("Do not add section numbers", "", []),  # the word alone is not a citation
         ("கணக்குப் பிரிவு அலுவலர்", "", []),  # பிரிவு also means "division"
         ("பிரிவு 8 இன் கீழ்", "", ["பிரிவு", "8"]),
+        # Ordinals are never legal values (live TA-5 asked "1st or 2nd year?"):
+        ("படிப்பின் நிலை (1ஆம் ஆண்டு/2ஆம் ஆண்டு) எது?", "", []),
+        ("12वीं की परीक्षा", "", []),
+        ("a 2nd year student", "", []),
+        ("5 செப்டம்பர் வரை", "", ["5"]),  # a bare day number still counts
     ],
 )
 def test_invented_legal_values(output: str, source: str, invented: list[str]) -> None:
@@ -313,3 +319,18 @@ def test_a1_fails_at_eight_of_ten_first_call_even_if_all_recover() -> None:
     summary = summarize("ta", cases, recordings)
     assert (summary.first_call_valid, summary.valid, summary.calls) == (8, 10, 10)
     assert dict(summary.gates)["A1 schema"] is False
+
+
+def test_rescore_rebuilds_the_sheets_from_recordings(tmp_path: Path) -> None:
+    recorded, results = tmp_path / "recorded", tmp_path / "results"
+    compose_hi = Compose(subject="उत्तर पुस्तिका <CLAIM_NO>", questions=["प्रमाणित प्रति"])
+    save_recording(Recording("TA-8", 1, "m", (ok(COMPOSE_TA),)), recorded)
+    save_recording(Recording("HI-8", 1, "m", (ok(compose_hi),)), recorded)
+
+    summaries = rescore(recorded, results)
+
+    assert [s.language for s in summaries] == ["ta", "hi"]
+    assert all(passed for s in summaries for _, passed in s.gates)
+    sheet = (results / "language-eval-results-ta.md").read_text("utf-8")
+    assert "| TA-8 | compose |" in sheet
+    assert (results / "language-eval-results-hi.md").exists()
