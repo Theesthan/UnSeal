@@ -1,0 +1,35 @@
+{# Markup shared by the application and the appeal letter. Macros see only their arguments. #}
+
+{# The running footer on every page: English always, plus the document language for hi and ta. #}
+{% macro page_footer(footer_local) %}
+<footer class="page-footer">
+<p lang="en">Prepared with UnSeal. Not legal advice.</p>
+{% if footer_local %}
+<p>{{ footer_local }}</p>
+{% endif %}
+</footer>
+{% endmacro %}
+
+{# Closing, date, place (left out when blank), signature line, the signer's name and address. #}
+{% macro signature_block(l, run, signer, name, address, prepared_on, prepared_text, place) %}
+<section class="closing">
+<p>{{ l.closing }}</p>
+<div class="sign-block">
+<div class="sign-left">
+<dl class="details">
+<div><dt>{{ l.date }}</dt><dd><time datetime="{{ prepared_on.isoformat() }}">{{ prepared_text }}</time></dd></div>
+{% if place.strip() %}
+<div><dt>{{ l.place }}</dt><dd>{{ run(place) }}</dd></div>
+{% endif %}
+</dl>
+</div>
+<div class="sign-right">
+<dl class="details">
+<div class="sign-row"><dt>{{ l.signature }}</dt><dd><span class="signature-line" aria-hidden="true"></span></dd></div>
+<div><dt>{{ signer }}</dt><dd>{{ run(name) }}</dd></div>
+<div><dt>{{ l.address }}</dt><dd class="multiline">{{ run(address) }}</dd></div>
+</dl>
+</div>
+</div>
+</section>
+{% endmacro %}
