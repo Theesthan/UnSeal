@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/*
+ * UnSeal design tokens. Light theme only: every pair below is checked for WCAG AA contrast
+ * (text 4.5:1, controls 3:1). Civic but not official: no tricolour, no emblem, no seal.
+ */
+@theme {
+  --color-ink: #1c1917;
+  --color-muted: #57534e;
+  --color-line: #d6d3d1;
+  --color-canvas: #faf7f2;
+  --color-surface: #ffffff;
+  --color-brand: #0f5c55;
+  --color-brand-strong: #0a433e;
+  --color-brand-soft: #e3f1ef;
+  --color-sun: #f4b740;
+  --color-sun-soft: #fdf3dc;
+  --color-sun-ink: #6b4300;
+  --color-danger: #a1231b;
+  --color-danger-soft: #fdecea;
+  --color-ok: #0f6b45;
+  --color-ok-soft: #e4f5ec;
+
+  --font-sans:
+    var(--font-noto-sans), var(--font-noto-tamil), var(--font-noto-devanagari), ui-sans-serif,
+    system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  line-height: 1.65;
+}
+
+/*
+ * Each script gets its dedicated Noto family first (Noto Sans also ships Devanagari, so without
+ * these rules it would win for Hindi). Indic scripts: never letter-space, and keep generous
+ * leading so vowel signs and conjuncts are not clipped.
+ */
+:lang(hi) {
+  font-family:
+    var(--font-noto-devanagari), var(--font-noto-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: normal;
+  line-height: 1.75;
+}
+:lang(ta) {
+  font-family: var(--font-noto-tamil), var(--font-noto-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: normal;
+  line-height: 1.75;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 3px;
+  border-radius: 0.375rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-base font-semibold break-words transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+    text-align: center;
+  }
+  .btn-primary {
+    @apply bg-brand text-white shadow-sm hover:bg-brand-strong;
+  }
+  .btn-secondary {
+    @apply border-2 border-brand bg-surface text-brand hover:bg-brand-soft;
+  }
+  .btn-quiet {
+    @apply text-brand underline-offset-4 hover:underline;
+  }
+  .btn-danger {
+    @apply bg-danger text-white hover:bg-[#7f1a14];
+  }
+  .card {
+    @apply rounded-2xl border border-line bg-surface p-5 shadow-sm sm:p-6;
+  }
+  .field-label {
+    @apply block text-base font-semibold text-ink;
+  }
+  .field-hint {
+    @apply mt-1 text-sm text-muted;
+  }
+  .field-input {
+    @apply mt-2 block w-full min-w-0 rounded-xl border-2 border-line bg-surface px-4 py-3 text-base text-ink placeholder:text-[#78716c] focus:border-brand aria-[invalid=true]:border-danger;
+  }
+  .field-error {
+    @apply mt-2 text-sm font-semibold text-danger;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-semibold;
+  }
+  .box-warn {
+    @apply rounded-xl border border-[#e8c46a] bg-sun-soft p-4 text-sun-ink;
+  }
+  .box-danger {
+    @apply rounded-xl border border-[#f0b4ae] bg-danger-soft p-4 text-danger;
+  }
+  .box-ok {
+    @apply rounded-xl border border-[#9fd6b9] bg-ok-soft p-4 text-ok;
+  }
+  .box-info {
+    @apply rounded-xl border border-[#a9d3cd] bg-brand-soft p-4 text-brand-strong;
+  }
+  .page {
+    @apply mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12;
+  }
+  .page-title {
+    @apply text-3xl font-bold text-ink sm:text-4xl;
+    line-height: 1.3;
+  }
+}
