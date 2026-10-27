@@ -1,0 +1,28 @@
+{
+  "case_id": "TA-6",
+  "prompt_version": 1,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "tamil_nadu",
+        "authority": null,
+        "time_period": "January 2025",
+        "records_wanted": [
+          "status of the new ration card application",
+          "reason for the delay in issuing the ration card"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "yes",
+        "follow_up_questions": [
+          "எந்த அலுவலகத்தில் (உதாரணமாக: ஊரடிக் காரணம் அல்லது மாவட்ட உணவு அலுவலகம்) விண்ணப்பித்தீர்கள்?",
+          "விண்ணப்ப எண்ணைக் கூற வேண்டுமா?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "f8f6ed0f-cd62-49eb-bbe6-749b2beda14a"
+    }
+  ]
+}

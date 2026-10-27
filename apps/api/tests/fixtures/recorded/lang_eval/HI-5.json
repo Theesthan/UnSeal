@@ -1,0 +1,25 @@
+{
+  "case_id": "HI-5",
+  "prompt_version": 1,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "central",
+        "authority": "EPFO",
+        "time_period": "March 2026 onwards",
+        "records_wanted": [
+          "PF withdrawal claim status",
+          "File noting"
+        ],
+        "delivery_mode": "email",
+        "bpl": "unknown",
+        "follow_up_questions": [],
+        "ready_to_draft": true
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "2a42a8bf-790c-4e91-9b5b-9837ac6509dc"
+    }
+  ]
+}

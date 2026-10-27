@@ -1,0 +1,27 @@
+{
+  "case_id": "TA-5",
+  "prompt_version": 1,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "tamil_nadu",
+        "authority": "சென்னையில் உள்ள ஒரு அரசு கலை கல்லூரி",
+        "time_period": "ஏப்ரல் 2026 பரவா தேர்வு",
+        "records_wanted": [
+          "கணித பாடத்தில் தோல்வி எனும் முடிவு கடிதத்தின் நகல்"
+        ],
+        "delivery_mode": "post",
+        "bpl": "unknown",
+        "follow_up_questions": [
+          "சரியான கல்லூரியின் பெயர் என்ன?",
+          "படிப்பின் நிலை (1ஆம் ஆண்டு/2ஆம் ஆண்டு) எது?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "0d55f0fd-2493-4f77-832d-a56443279208"
+    }
+  ]
+}

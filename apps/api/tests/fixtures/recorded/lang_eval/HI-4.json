@@ -1,0 +1,19 @@
+{
+  "case_id": "HI-4",
+  "prompt_version": 1,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "rewritten": "",
+        "records_requested": [],
+        "reason": "पड़ोसी की आयकर रिटर्न एक व्यक्तिगत जानकारी है, इसलिए उसे प्रतियों के रूप में माँगने से बाहर रखा गया है।",
+        "personal_information": true,
+        "suggestion": "आप अपने क्षेत्र के लिए आयकर भुगतान करने वाले व्यक्तियों की कुल संख्या या कुल आयकर की समग्र/गोपनीयता-सुरक्षित जानकारी माँग सकते हैं।"
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "4b594fa1-db62-4823-8065-65fba7cd74e2"
+    }
+  ]
+}
