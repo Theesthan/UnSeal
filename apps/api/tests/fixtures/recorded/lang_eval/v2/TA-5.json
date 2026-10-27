@@ -1,0 +1,27 @@
+{
+  "case_id": "TA-5",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "tamil_nadu",
+        "authority": "சென்னையில் உள்ள அரசு கலைக் கல்லூரி",
+        "time_period": "ஏப்ரல் 2026 பருவத் தேர்வு",
+        "records_wanted": [
+          "விடைத்தாளின் நகல்"
+        ],
+        "delivery_mode": "post",
+        "bpl": "unknown",
+        "follow_up_questions": [
+          "எந்தக் கல்லூரி என்றும், கணிதப் பாடத்தின் பெயர்/குறியீடு என்ன என்றும் தெரிவிக்க முடியுமா?",
+          "நீங்கள் வறுமைக் கோட்டிற்குக் கீழ் உள்ளவரா?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "d008cbf1-3fe9-48b3-b727-9426654e3303"
+    }
+  ]
+}

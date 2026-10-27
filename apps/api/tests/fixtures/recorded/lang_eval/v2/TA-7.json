@@ -1,0 +1,27 @@
+{
+  "case_id": "TA-7",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "unknown",
+        "authority": null,
+        "time_period": null,
+        "records_wanted": [
+          "கோப்பு நகரவீ"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "unknown",
+        "follow_up_questions": [
+          "எதுவோர் அரசு அலுவலகத்திலிருந்து நீங்கள் இந்தக் கோப்பை விரும்புகிறீர்கள்?",
+          "எந்தக் கால அளவுக்கான கோப்பை நீங்கள் விரும்புகிறீர்கள்?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "c7db8ec1-369a-42f7-9a01-92a81923ed95"
+    }
+  ]
+}

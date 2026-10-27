@@ -1,0 +1,27 @@
+{
+  "case_id": "TA-6",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "tamil_nadu",
+        "authority": null,
+        "time_period": "2025 ஜனவரி",
+        "records_wanted": [
+          "புதிய குடும்ப அட்டை விண்ணப்பம் தொடர்பான கோப்புகள்"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "yes",
+        "follow_up_questions": [
+          "எந்த அலுவலகத்தில் (உணவு வழங்கல் துறை/வட்டாட்சியர் அலுவலகம்) விண்ணப்பித்தீர்கள்?",
+          "விண்ணப்ப எண் அல்லது ரசீது உள்ளதா?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "524e85e6-1bfb-43f3-80cd-cb97b97b9e14"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "case_id": "HI-5",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "central",
+        "authority": "EPFO",
+        "time_period": "मार्च 2026",
+        "records_wanted": [
+          "दावे की स्थिति",
+          "फ़ाइल नोटिंग"
+        ],
+        "delivery_mode": "email",
+        "bpl": "unknown",
+        "follow_up_questions": [
+          "कृपया बताइए, दावे का संदर्भ/क्लेम नंबर क्या है?",
+          "आप गरीबी रेखा के नीचे हैं या नहीं?"
+        ],
+        "ready_to_draft": true
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "714bf91a-e584-428e-baa3-7dee3bc9ebce"
+    }
+  ]
+}
