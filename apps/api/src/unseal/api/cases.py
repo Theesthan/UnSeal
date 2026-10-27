@@ -131,3 +131,32 @@ async def reply(
 async def close(case: OwnedCase, user: CurrentUser, session: Db) -> dict[str, Any]:
     await svc.close_case(session, case)
     return svc.case_view(await svc.get_case(session, user, case.id))
+
+
+class ApplicationInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    payment_mode: str
+    place: str = ""
+
+
+@router.post("/{case_id}/application")
+async def application(
+    body: ApplicationInput,
+    case: OwnedCase,
+    session: Db,
+    config: Config,
+    request: Request,
+    _: ModelQuota,
+) -> Response:
+    """FR-5: the application PDF (409 blocked while mandatory fields are missing)."""
+    pdf = await svc.build_application(
+        session,
+        case,
+        request.app.state.llm,
+        request.app.state.renderer,
+        config.storage_dir,
+        payment_mode=body.payment_mode,
+        place=body.place,
+    )
+    disposition = 'attachment; filename="rti-application.pdf"'
+    return Response(pdf, media_type="application/pdf", headers={"Content-Disposition": disposition})

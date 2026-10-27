@@ -6,6 +6,7 @@ tap or a webhook redelivery cannot apply a transition twice (skill state-machine
 """
 
 import json
+from collections.abc import Callable
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Literal
@@ -14,13 +15,24 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from starlette.concurrency import run_in_threadpool
 
-from unseal.db.models import Applicant, Case, CaseStatus, Deadline, Document, Question, User
-from unseal.harness.steps import StructuredLLM, rewrite
+from unseal.db.models import (
+    Applicant,
+    Case,
+    CaseStatus,
+    Deadline,
+    Document,
+    DocumentKind,
+    Question,
+    User,
+)
+from unseal.harness.steps import StructuredLLM, compose, rewrite
 from unseal.harness.validate import Draft, Flag, validate
+from unseal.pdf.models import ApplicationDocument
 from unseal.rules.deadlines import IST, compute_deadlines, first_appeal_deadline
 from unseal.rules.engine import Jurisdiction, load_rules
-from unseal.services.storage import remove_files
+from unseal.services.storage import remove_files, save
 
 
 class NotFound(Exception):
@@ -29,6 +41,18 @@ class NotFound(Exception):
 
 class WrongStatus(Exception):
     """The case is not in a status that allows this action."""
+
+
+class Blocked(Exception):
+    """Export is blocked by validator flags (FR-3: only missing mandatory fields block)."""
+
+    def __init__(self, flags: list[Flag]) -> None:
+        super().__init__("blocked")
+        self.flags = flags
+
+
+class InvalidPaymentMode(Exception):
+    """The payment mode is not one the jurisdiction's rules accept."""
 
 
 class AuthorityInput(BaseModel):
@@ -275,6 +299,70 @@ async def delete_case(session: AsyncSession, case: Case, storage_dir: Path) -> N
     await session.delete(case)
     await session.commit()
     remove_files(storage_dir, keys)
+
+
+Renderer = Callable[[ApplicationDocument], bytes]
+
+
+async def build_application(
+    session: AsyncSession,
+    case: Case,
+    llm: StructuredLLM,
+    renderer: Renderer,
+    storage_dir: Path,
+    *,
+    payment_mode: str,
+    place: str,
+) -> bytes:
+    """FR-5: compose, render and store the application. The model sees only the records;
+    the applicant's name and address join the document after the model call (golden rule)."""
+    blocking = [flag for flag in check(case) if flag.severity == "block"]
+    records = [
+        q.rewritten_text or q.original_text for q in case.questions if not q.personal_information
+    ]
+    if not records and not blocking:  # every question was refused as personal information
+        blocking = [Flag(code="no_questions", severity="block")]
+    if blocking or case.applicant is None:
+        raise Blocked(blocking)
+    applicant = case.applicant
+    rules = load_rules(case.jurisdiction)
+    if not applicant.bpl and payment_mode not in rules.local.payment_modes.modes:
+        raise InvalidPaymentMode
+    composed = await compose(
+        llm,
+        "Accepted records:\n" + "\n".join(f"- {r}" for r in records),
+        language=case.language,  # type: ignore[arg-type]
+    )
+    document = ApplicationDocument(
+        language=case.language,
+        jurisdiction=case.jurisdiction,
+        authority_name=case.authority_name or "",
+        pio_address=case.pio_address or "",
+        applicant_name=applicant.name,
+        applicant_address=applicant.address or "",
+        subject=composed.subject,
+        questions=composed.questions,
+        bpl=applicant.bpl,
+        payment_mode=None if applicant.bpl else payment_mode,
+        prepared_on=today_ist(),
+        place=place,
+    )
+    pdf = await run_in_threadpool(renderer, document)  # WeasyPrint is CPU-bound
+    await _replace_application(session, case, storage_dir, pdf)
+    return pdf
+
+
+async def _replace_application(
+    session: AsyncSession, case: Case, storage_dir: Path, pdf: bytes
+) -> None:
+    """Keep one application per case: older copies are personal data we no longer need."""
+    old = [d for d in await _documents(session, case) if d.kind == DocumentKind.APPLICATION.value]
+    key = save(storage_dir, pdf)
+    for document in old:
+        await session.delete(document)
+    session.add(Document(case_id=case.id, kind=DocumentKind.APPLICATION.value, storage_key=key))
+    await session.commit()
+    remove_files(storage_dir, [d.storage_key for d in old])
 
 
 async def _documents(session: AsyncSession, case: Case) -> list[Document]:

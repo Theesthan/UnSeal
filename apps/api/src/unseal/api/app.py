@@ -18,6 +18,7 @@ from unseal.api.deps import SESSION_COOKIE
 from unseal.api.ratelimit import RateLimits
 from unseal.config import Settings
 from unseal.db.session import build_engine, build_session_factory
+from unseal.pdf.render import render_application_pdf
 from unseal.privacy.redact import install_redaction
 
 __all__ = ["SESSION_COOKIE", "create_app"]
@@ -50,7 +51,7 @@ def create_app(
     app.state.settings = settings
     app.state.session_factory = factory
     app.state.llm = llm
-    app.state.renderer = renderer
+    app.state.renderer = renderer or render_application_pdf
     app.state.rate_limits = RateLimits(settings.rate_limit_default, settings.rate_limit_model)
 
     errors.install(app)

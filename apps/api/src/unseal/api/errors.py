@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from unseal.llm.client import ModelBusy, ModelIncomplete, ModelOutputInvalid
-from unseal.services.cases import NotFound, WrongStatus
+from unseal.services.cases import Blocked, InvalidPaymentMode, NotFound, WrongStatus
 
 
 class ApiError(Exception):
@@ -67,5 +67,14 @@ def install(app: FastAPI) -> None:
     async def wrong_status(_: Request, __: Exception) -> JSONResponse:
         return error_response(409, "wrong_status")
 
+    async def blocked(_: Request, exc: Exception) -> JSONResponse:
+        assert isinstance(exc, Blocked)
+        return error_response(409, "blocked", {"flags": [f.model_dump() for f in exc.flags]})
+
+    async def invalid_payment_mode(_: Request, __: Exception) -> JSONResponse:
+        return error_response(400, "invalid_payment_mode")
+
+    app.add_exception_handler(Blocked, blocked)
+    app.add_exception_handler(InvalidPaymentMode, invalid_payment_mode)
     app.add_exception_handler(NotFound, not_found)
     app.add_exception_handler(WrongStatus, wrong_status)
