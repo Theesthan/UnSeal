@@ -5,6 +5,7 @@ from datetime import date
 from typing import Any, get_args
 
 from fastapi import APIRouter
+from pydantic import BaseModel, ConfigDict, Field
 
 from unseal.api.deps import CurrentUser
 from unseal.api.errors import ApiError
@@ -42,11 +43,17 @@ async def rules(jurisdiction: str, _: CurrentUser) -> dict[str, Any]:
     }
 
 
-@router.get("/authorities")
-async def authorities(
-    _: CurrentUser, q: str = "", jurisdiction: Jurisdiction | None = None
-) -> list[dict[str, Any]]:
+class AuthoritySearch(BaseModel):
+    """In the body, not the URL: users type more than office names into the search box."""
+
+    model_config = ConfigDict(extra="forbid")
+    q: str = Field(max_length=200)
+    jurisdiction: Jurisdiction | None = None
+
+
+@router.post("/authorities/search")
+async def authorities(body: AuthoritySearch, _: CurrentUser) -> list[dict[str, Any]]:
     return [
         AuthorityCandidate.of(authority).model_dump()
-        for authority in lookup_authority(q, jurisdiction)
+        for authority in lookup_authority(body.q, body.jurisdiction)
     ]

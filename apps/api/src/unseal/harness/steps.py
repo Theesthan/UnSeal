@@ -5,6 +5,7 @@ Each step is a versioned prompt (`src/unseal/prompts/<step>.md`) plus a Pydantic
 glossary) and calls the model, so the app and the language eval send exactly the same request.
 """
 
+import base64
 from typing import Literal, Protocol, TypeVar
 
 from pydantic import BaseModel
@@ -12,7 +13,15 @@ from pydantic import BaseModel
 from unseal.llm.client import ReasoningEffort, StructuredResult
 from unseal.llm.glossary import Language, glossary_block
 from unseal.llm.prompts import load_prompt
-from unseal.llm.schemas import STEP_SCHEMAS, AppealFacts, Compose, Intake, Rewrite, StepOutput
+from unseal.llm.schemas import (
+    STEP_SCHEMAS,
+    AppealFacts,
+    Compose,
+    Intake,
+    ReplyRead,
+    Rewrite,
+    StepOutput,
+)
 from unseal.privacy.redact import redact
 
 Step = Literal["rewrite", "intake", "compose", "appeal_facts"]
@@ -76,3 +85,29 @@ async def compose(llm: StructuredLLM, records: str, *, language: Language) -> Co
 
 async def appeal_facts(llm: StructuredLLM, facts: str, *, language: Language) -> AppealFacts:
     return await _typed(llm, "appeal_facts", AppealFacts, language=language, input=facts)
+
+
+async def read_reply(llm: StructuredLLM, pages: list[bytes], *, language: Language) -> ReplyRead:
+    """FR-11: read a PIO reply from its page images (JPEG, metadata already stripped). The
+    images hold personal data: callers send them only after the user opted in."""
+    prompt = load_prompt("read_reply")
+    instructions = prompt.render(
+        language=LANGUAGE_NAMES[language], glossary=glossary_block(language)
+    )
+    images = [
+        {
+            "type": "input_image",
+            "image_url": "data:image/jpeg;base64," + base64.b64encode(page).decode("ascii"),
+            "detail": "high",
+        }
+        for page in pages
+    ]
+    text = {"type": "input_text", "text": "The reply letter, page by page."}
+    result = await llm.structured_call(
+        ReplyRead,
+        instructions=instructions,
+        input=[{"role": "user", "content": [text, *images]}],  # type: ignore[arg-type]
+        max_output_tokens=MAX_OUTPUT_TOKENS,
+        reasoning_effort=None,
+    )
+    return result.value

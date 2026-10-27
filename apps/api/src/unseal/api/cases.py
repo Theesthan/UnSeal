@@ -7,10 +7,11 @@ from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from unseal.api.deps import Config, CurrentUser, Db, LanguageCode
+from unseal.api.errors import ApiError
 from unseal.api.ratelimit import ModelQuota
 from unseal.db.models import Case
 from unseal.rules.engine import Jurisdiction
-from unseal.services import appeals
+from unseal.services import appeals, reply_reader
 from unseal.services import cases as svc
 from unseal.services.intake import run_intake
 
@@ -131,6 +132,21 @@ async def filing(
     return svc.case_view(await svc.get_case(session, user, case.id))
 
 
+class ReceiptInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    received_on: date
+
+
+@router.put("/{case_id}/receipt")
+async def receipt(
+    body: ReceiptInput, case: OwnedCase, user: CurrentUser, session: Db
+) -> dict[str, Any]:
+    """The actual day the authority received the application (from the postal tracking or the
+    acknowledgement): deadlines restart from it and stop being estimates."""
+    await svc.set_receipt(session, case, body.received_on)
+    return svc.case_view(await svc.get_case(session, user, case.id))
+
+
 class ReplyInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     received_on: date
@@ -197,3 +213,38 @@ async def appeal_filing(
 ) -> dict[str, Any]:
     await appeals.file_first_appeal(session, case, body)
     return svc.case_view(await svc.get_case(session, user, case.id))
+
+
+async def _upload(request: Request) -> bytes:
+    """The `file` of a multipart form with `consent=true`. The size is checked from the
+    Content-Length header before the body is parsed, so an oversized upload is never spooled."""
+    length = request.headers.get("content-length")
+    if length is None or not length.isdigit():
+        raise ApiError(411, "length_required")
+    if int(length) > reply_reader.MAX_UPLOAD_BYTES + 64 * 1024:  # room for the form framing
+        raise ApiError(413, "too_large")
+    async with request.form(max_files=1, max_fields=2) as form:
+        if form.get("consent") != "true":
+            raise ApiError(400, "consent_required")
+        upload = form.get("file")
+        if upload is None or isinstance(upload, str):
+            raise ApiError(400, "invalid")
+        data = await upload.read(reply_reader.MAX_UPLOAD_BYTES + 1)
+    if len(data) > reply_reader.MAX_UPLOAD_BYTES:
+        raise ApiError(413, "too_large")
+    return data
+
+
+@router.post("/{case_id}/reply/read")
+async def read_reply(case: OwnedCase, request: Request, _: ModelQuota) -> dict[str, Any]:
+    """FR-11: read a photo or PDF of the PIO's reply (multipart `file`, `consent=true`).
+    Nothing is stored: the user confirms the date through POST /reply."""
+    reply_reader.ensure_readable(case)
+    found = await reply_reader.read_case_reply(request.app.state.llm, case, await _upload(request))
+    return {
+        "letter_date": found.letter_date.isoformat() if found.letter_date else None,
+        "items": [item.model_dump() for item in found.reading.items],
+        "fee_demanded": found.reading.fee_demanded,
+        "transferred_to": found.reading.transferred_to,
+        "suggested_grounds": found.suggested_grounds,
+    }

@@ -138,14 +138,17 @@ async def test_rules_route_serves_values_with_their_sources(tmp_path: Path) -> N
 async def test_authorities_route_searches_the_curated_list(tmp_path: Path) -> None:
     app = await make_app(tmp_path)
     async with signed_in(app) as api:
-        passport = (await api.get("/authorities", params={"q": "passport"})).json()
+        search = "/authorities/search"
+        passport = (await api.post(search, json={"q": "passport"})).json()
         tn_only = (
-            await api.get("/authorities", params={"q": "chennai", "jurisdiction": "tamil_nadu"})
+            await api.post(search, json={"q": "chennai", "jurisdiction": "tamil_nadu"})
         ).json()
-        empty = (await api.get("/authorities", params={"q": " "})).json()
+        empty = (await api.post(search, json={"q": " "})).json()
+        in_url = await api.get("/authorities", params={"q": "passport"})
     assert passport[0]["id"] == "passport-regional-office-chennai"
     assert tn_only and all(a["jurisdiction"] == "tamil_nadu" for a in tn_only)
     assert empty == []
+    assert in_url.status_code in (404, 405)  # search text never travels in a URL
 
 
 async def test_reference_routes_need_a_session(tmp_path: Path) -> None:
@@ -153,7 +156,8 @@ async def test_reference_routes_need_a_session(tmp_path: Path) -> None:
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="https://api.test") as api:
         assert (await api.get("/rules/central")).status_code == 401
-        assert (await api.get("/authorities", params={"q": "cbse"})).status_code == 401
+        search = await api.post("/authorities/search", json={"q": "cbse"}, headers={"Origin": WEB})
+        assert search.status_code == 401
 
 
 async def test_an_empty_intake_message_never_reaches_the_model(tmp_path: Path) -> None:

@@ -288,3 +288,44 @@ async def test_export_includes_case_details(app: FastAPI) -> None:
         "bpl": True,
     }
     assert case["questions"][0]["original_text"] == "why?"
+
+
+async def test_the_case_list_shows_the_next_deadline_with_its_time(app: FastAPI) -> None:
+    async with signed_in(app) as api:
+        cid = (await new_case(api))["id"]
+        await api.post(
+            f"/cases/{cid}/filing", json={"filed_on": "2026-10-27", "filing_mode": "post"}
+        )
+        [listed] = (await api.get("/cases")).json()
+    assert set(listed["next_deadline"]) == {"kind", "due_on", "due_at", "estimated"}
+    assert listed["next_deadline"]["kind"] == "pio_reply"
+
+
+async def test_the_actual_receipt_date_replaces_the_estimate(app: FastAPI) -> None:
+    async with signed_in(app) as api:
+        cid = (await new_case(api))["id"]
+        early = await api.put(f"/cases/{cid}/receipt", json={"received_on": "2026-10-30"})
+        await api.post(
+            f"/cases/{cid}/filing", json={"filed_on": "2026-10-27", "filing_mode": "post"}
+        )
+        case = (await api.put(f"/cases/{cid}/receipt", json={"received_on": "2026-10-30"})).json()
+        before_filing = await api.put(f"/cases/{cid}/receipt", json={"received_on": "2026-10-26"})
+    expected = compute_deadlines(
+        filed_on=date(2026, 10, 27),
+        received_on=date(2026, 10, 30),
+        via_apio=False,
+        third_party=False,
+        life_liberty=False,
+        rules=load_rules("central"),
+    )
+    by_kind = {d["kind"]: d for d in case["deadlines"]}
+    assert (early.status_code, early.json()["error"]) == (409, "wrong_status")
+    assert case["received_on"] == "2026-10-30" and case["received_estimated"] is False
+    assert by_kind["pio_reply"] == {
+        "kind": "pio_reply",
+        "due_on": expected.pio_reply.due_on.isoformat(),
+        "due_at": None,
+        "estimated": False,
+    }
+    assert by_kind["first_appeal"]["due_on"] == expected.first_appeal.due_on.isoformat()
+    assert (before_filing.status_code, before_filing.json()["error"]) == (400, "invalid")

@@ -51,6 +51,10 @@ class Blocked(Exception):
         self.flags = flags
 
 
+class InvalidDate(Exception):
+    """A date that contradicts the case (for example a receipt before the filing)."""
+
+
 class InvalidPaymentMode(Exception):
     """The payment mode is not one the jurisdiction's rules accept."""
 
@@ -271,6 +275,26 @@ async def file_case(session: AsyncSession, case: Case, data: FilingInput) -> Non
     await session.commit()
 
 
+async def set_receipt(session: AsyncSession, case: Case, received_on: date) -> None:
+    """The authority's actual receipt date replaces the estimate: the clocks restart from it."""
+    if case.filed_on is not None and received_on < case.filed_on:
+        raise InvalidDate
+    await _transition(
+        session,
+        case,
+        {CaseStatus.REPLY_DUE.value},
+        received_on=received_on,
+        received_estimated=False,
+    )
+    computed = _engine_deadlines(case, received_on)
+    case.received_on, case.received_estimated = computed.received_on, computed.received_estimated
+    for deadline in (computed.pio_reply, computed.first_appeal):
+        _put_deadline(
+            session, case, deadline.kind, deadline.due_on, deadline.estimated, deadline.due_at
+        )
+    await session.commit()
+
+
 async def record_reply(session: AsyncSession, case: Case, received_on: date) -> None:
     """The PIO replied: the first-appeal window now runs from the reply (S. 19(1))."""
     allowed = {CaseStatus.REPLY_DUE.value, CaseStatus.DEEMED_REFUSED.value}
@@ -438,7 +462,12 @@ def case_summary(case: Case) -> dict[str, Any]:
         "status": case.status,
         "authority_name": case.authority_name,
         "next_deadline": (
-            {"kind": nxt.kind, "due_on": nxt.due_on.isoformat(), "estimated": nxt.estimated}
+            {
+                "kind": nxt.kind,
+                "due_on": nxt.due_on.isoformat(),
+                "due_at": nxt.due_at.isoformat() if nxt.due_at else None,
+                "estimated": nxt.estimated,
+            }
             if nxt
             else None
         ),

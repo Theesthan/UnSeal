@@ -13,7 +13,14 @@ from starlette.exceptions import HTTPException
 
 from unseal.llm.client import ModelBusy, ModelIncomplete, ModelOutputInvalid
 from unseal.services.appeals import InvalidGrounds
-from unseal.services.cases import Blocked, InvalidPaymentMode, NotFound, WrongStatus
+from unseal.services.cases import (
+    Blocked,
+    InvalidDate,
+    InvalidPaymentMode,
+    NotFound,
+    WrongStatus,
+)
+from unseal.services.reply_reader import TooManyPages, UnreadableUpload
 
 
 class ApiError(Exception):
@@ -78,6 +85,18 @@ def install(app: FastAPI) -> None:
     async def invalid_grounds(_: Request, __: Exception) -> JSONResponse:
         return error_response(400, "invalid_grounds")
 
+    async def unreadable_file(_: Request, __: Exception) -> JSONResponse:
+        return error_response(400, "unreadable_file")
+
+    async def too_many_pages(_: Request, __: Exception) -> JSONResponse:
+        return error_response(400, "too_many_pages")
+
+    async def invalid_date(_: Request, __: Exception) -> JSONResponse:
+        return error_response(400, "invalid", [{"loc": ["body", "received_on"], "msg": "date"}])
+
+    app.add_exception_handler(InvalidDate, invalid_date)
+    app.add_exception_handler(UnreadableUpload, unreadable_file)
+    app.add_exception_handler(TooManyPages, too_many_pages)
     app.add_exception_handler(Blocked, blocked)
     app.add_exception_handler(InvalidGrounds, invalid_grounds)
     app.add_exception_handler(InvalidPaymentMode, invalid_payment_mode)

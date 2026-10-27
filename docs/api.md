@@ -18,6 +18,11 @@ The web app talks only to this API (`NEXT_PUBLIC_API_URL`); the Telegram bot cal
 | 409 | `wrong_status` | The case's status does not allow this action yet (or any more) |
 | 400 | `invalid_grounds` | An appeal ground that cannot apply (`no_reply` after a reply arrived) |
 | 400 | `invalid_payment_mode` | Not a payment mode the jurisdiction's rules accept |
+| 400 | `consent_required` | Reply upload without `consent=true` |
+| 400 | `unreadable_file` | The upload is not a PDF or an image we can open |
+| 400 | `too_many_pages` | A PDF with more than 4 pages |
+| 411 | `length_required` | Upload without a `Content-Length` |
+| 413 | `too_large` | Upload over 10 MB |
 | 429 | `rate_limited` | Slow down |
 | 400 | `invalid` | Request body failed validation; `detail` has field errors |
 
@@ -36,7 +41,7 @@ The web app talks only to this API (`NEXT_PUBLIC_API_URL`); the Telegram bot cal
 | Route | Response |
 | --- | --- |
 | `GET /rules/{jurisdiction}` | `{"application_fee": 10, "copy_fee_per_page": 2, "word_limit": 500 or null, "payment_modes": [...], "filing_channels": [...], "bpl_certificate_required": true, "sources": [{"rule": "...", "basis": "...", "source_url": "...", "checked_on": "...", "recheck": false}]}` |
-| `GET /authorities?q=cbse&jurisdiction=central` | `[{"id": "...", "name": "...", "name_ta": ..., "name_hi": ..., "jurisdiction": "...", "pio_designation": "...", "pio_address": "...", "rti_online": true}]` |
+| `POST /authorities/search` with `{"q": "cbse", "jurisdiction": "central" or null}` (in the body: search text never goes in a URL) | `[{"id": "...", "name": "...", "name_ta": ..., "name_hi": ..., "jurisdiction": "...", "pio_designation": "...", "pio_address": "...", "rti_online": true}]` |
 
 ## Cases
 `Case` object:
@@ -59,10 +64,10 @@ Statuses: `draft`, `filed`, `reply_due`, `replied`, `deemed_refused`, `appealed`
 | Route | Body | Response |
 | --- | --- | --- |
 | `POST /cases` | `{"language": "ta", "jurisdiction": "tamil_nadu"}` (jurisdiction optional until intake) | `201 Case` |
-| `GET /cases` | | `[{"id", "status", "authority_name", "next_deadline": {"kind", "due_on", "estimated"} or null, "created_at"}]` |
+| `GET /cases` | | `[{"id", "status", "authority_name", "next_deadline": {"kind", "due_on", "due_at", "estimated"} or null, "created_at"}]` |
 | `GET /cases/{id}` | | `Case` |
 | `DELETE /cases/{id}` | | `204`; rows and files gone (FR-8) |
-| `POST /cases/{id}/intake` | `{"message": "free text in en, hi or ta"}` | `{"intake": {jurisdiction_hint, authority, time_period, records_wanted, delivery_mode, bpl, follow_up_questions, ready_to_draft}, "authorities": [candidates]}` (FR-1, FR-4) |
+| `POST /cases/{id}/intake` | `{"message": "free text in en, hi or ta"}`. The server keeps no intake history: on each follow-up, send the whole conversation so far in `message` (the first description, then each follow-up question and the user's answer, one per line; 4000 characters at most). Nothing is stored until the user confirms an authority | `{"intake": {jurisdiction_hint, authority, time_period, records_wanted, delivery_mode, bpl, follow_up_questions, ready_to_draft}, "authorities": [candidates]}` (FR-1, FR-4) |
 | `PUT /cases/{id}/authority` | `{"jurisdiction", "authority_name", "pio_address", "via_apio", "third_party", "life_liberty"}` | `Case` (the user confirms authority and address, FR-4) |
 | `PUT /cases/{id}/applicant` | `{"name", "address", "phone": null, "bpl": false}` | `204` (stored encrypted; never echoed back except in `/me/export`) |
 | `POST /cases/{id}/questions` | `{"text": "why ..."}` | `201 Question` (runs the rewrite step, FR-2) |
@@ -71,6 +76,8 @@ Statuses: `draft`, `filed`, `reply_due`, `replied`, `deemed_refused`, `appealed`
 | `GET /cases/{id}/validation` | | `{"flags": [{"code", "severity": "warn" or "block", "question": 0 or null, "basis", "under_challenge"}]}` (FR-3) |
 | `POST /cases/{id}/application` | `{"payment_mode": "cash", "place": "Chennai"}` | `200 application/pdf` (FR-5), or `409 blocked` |
 | `POST /cases/{id}/filing` | `{"filed_on": "2026-10-27", "filing_mode": "post", "received_on": null}` | `Case` with deadlines; status `reply_due` (FR-6, FR-7) |
+| `PUT /cases/{id}/receipt` | `{"received_on": "2026-10-30"}` | `Case`; the actual receipt replaces the estimate and the PIO and first-appeal deadlines restart from it. Only while `reply_due`; a date before the filing is `400 invalid` |
+| `POST /cases/{id}/reply/read` | multipart: `file` (photo or PDF of the PIO's reply, 10 MB and 4 pages at most), `consent=true` | `{"letter_date": "2026-09-01" or null, "items": [{"number": 1, "status": "given" or "refused" or "partial" or "transferred" or "unclear", "section_cited": "8(1)(j)" or null}], "fee_demanded": false, "transferred_to": null, "suggested_grounds": ["refused", "incomplete", "fee_demanded"]}` (FR-11). Nothing is stored; `letter_date` is null when unreadable or impossible, and it is the letter's date, not the day the user received it: ask, then `POST /reply`. Allowed while `reply_due`, `deemed_refused` or `replied` |
 | `POST /cases/{id}/reply` | `{"received_on": "2026-11-20"}` | `Case`; status `replied`, `reply_received_on` set, first-appeal deadline from the reply |
 | `POST /cases/{id}/appeal` | `{"grounds": ["no_reply", "incomplete", "refused", "fee_demanded"] (one or more, no repeats), "faa_address": "...", "details": "", "delay_reason": "", "place": ""}` | `200 application/pdf`, the first appeal under S. 19(1) (FR-10). No model call: dates, filing mode and grounds are template text. Allowed once replied or deemed refused (including a `reply_due` case past the PIO's day) and after `appealed` (re-download); else `409 wrong_status`. `409 blocked` without the PIO or applicant address; `400 invalid_grounds` |
 | `POST /cases/{id}/appeal/filing` | `{"filed_on": "2026-11-25", "received_on": null}` | `Case`; status `appealed`, `appeal_filed_on` set, FAA decision (S. 19(6)) and second-appeal (S. 19(3)) deadlines |

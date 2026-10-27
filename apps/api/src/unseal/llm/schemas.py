@@ -7,9 +7,10 @@ Value rules the JSON schema cannot express (for example "records unless refused"
 validators: the client's validation rejects a breach and retries once, like any schema failure.
 """
 
+from datetime import date
 from typing import ClassVar, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class StepOutput(BaseModel):
@@ -90,6 +91,34 @@ class AppealFacts(StepOutput):
     def _has_content(self) -> Self:
         if not _filled(self.facts_paragraph):
             raise ValueError("facts_paragraph is empty")
+        return self
+
+
+class ReplyItem(BaseModel):
+    """One numbered point of the application, as the PIO's reply answers it."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    number: int = Field(ge=1)
+    status: Literal["given", "refused", "partial", "transferred", "unclear"]
+    section_cited: str | None = Field(max_length=40)  # as printed, for example "8(1)(j)"
+
+
+class ReplyRead(StepOutput):
+    """What a PIO's reply letter says, read from its photo (FR-11). Only these fields are kept:
+    nothing else on the letter (names, addresses, signatures) is asked for or stored."""
+
+    letter_date: str | None  # YYYY-MM-DD as printed on the letter; None when there is none
+    items: list[ReplyItem]
+    fee_demanded: bool
+    transferred_to: str | None = Field(max_length=200)
+
+    @model_validator(mode="after")
+    def _well_formed(self) -> Self:
+        if self.letter_date is not None:
+            date.fromisoformat(self.letter_date)  # ValueError: not YYYY-MM-DD
+        numbers = [item.number for item in self.items]
+        if len(set(numbers)) != len(numbers):
+            raise ValueError("an item number is repeated")
         return self
 
 
