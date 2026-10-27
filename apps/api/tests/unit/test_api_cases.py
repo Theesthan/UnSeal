@@ -329,3 +329,23 @@ async def test_the_actual_receipt_date_replaces_the_estimate(app: FastAPI) -> No
     }
     assert by_kind["first_appeal"]["due_on"] == expected.first_appeal.due_on.isoformat()
     assert (before_filing.status_code, before_filing.json()["error"]) == (400, "invalid")
+
+
+@pytest.mark.parametrize(
+    ("method", "path", "body"),
+    [
+        ("post", "intake", {"message": "x"}),
+        ("put", "receipt", {"received_on": "2026-10-30"}),
+        ("post", "appeal", {"grounds": ["no_reply"], "faa_address": "FAA"}),
+        ("post", "appeal/filing", {"filed_on": "2026-10-30"}),
+        ("post", "appeal/decision", {"received_on": "2026-10-30"}),
+        ("post", "second-appeal", {"grounds": ["no_decision"], "faa_address": "FAA"}),
+    ],
+)
+async def test_another_users_case_is_not_found_on_every_new_route(
+    app: FastAPI, method: str, path: str, body: dict[str, Any]
+) -> None:
+    async with signed_in(app) as owner, signed_in(app, "en") as stranger:
+        cid = (await new_case(owner))["id"]
+        response = await getattr(stranger, method)(f"/cases/{cid}/{path}", json=body)
+    assert (response.status_code, response.json()) == (404, {"error": "not_found"})
