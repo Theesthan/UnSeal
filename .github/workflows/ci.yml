@@ -78,3 +78,24 @@ jobs:
       - run: uv run alembic upgrade head
       - run: uv run alembic check  # the models and the migrations agree on Postgres too
       - run: uv run alembic downgrade base
+
+  web:
+    name: web (lint, unit, build, e2e)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      # The specs mock the API (e2e/support), so no API or model is needed here.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
