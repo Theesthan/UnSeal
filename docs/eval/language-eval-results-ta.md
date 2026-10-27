@@ -9,12 +9,12 @@ Model: `qwen-3.8-27b`. Runs per case: 1. Prompts: appeal_facts v2, compose v2, i
 
 | Gate | Result |
 | --- | --- |
-| A1 schema | PASS |
+| A1 schema | FAIL |
 | A2 no invented legal values | PASS |
 | A3 placeholders kept | PASS |
 | Run complete (no busy calls) | PASS |
 
-First-call valid: 10 of 10 calls; valid after one retry: 10 of 10; busy (excluded): 0.
+First-call valid: 9 of 10 calls; valid after one retry: 9 of 10; busy (excluded): 0.
 
 ## Cases
 
@@ -26,7 +26,7 @@ whose preferred glossary term is absent (not counted for intake).
 
 | Case | Kind | First-call valid | Invented | Placeholders | Script | Term errors | Missed terms | T | L1 | L2 | L3 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TA-1 | rewrite | 1/1 | none | n/a | n/a | none | certified copy, answer script |  |  |  |  |
+| TA-1 | rewrite | 0/1 | none | n/a | n/a | none | none |  |  |  |  |
 | TA-2 | rewrite | 1/1 | none | n/a | 100% | none | none |  |  |  |  |
 | TA-3 | rewrite | 1/1 | none | n/a | 100% | none | none |  |  |  |  |
 | TA-4 | rewrite | 1/1 | none | n/a | 100% | none | none |  |  |  |  |

@@ -38,7 +38,7 @@ from unseal.llm.client import (
     StructuredResult,
     build_client,
 )
-from unseal.llm.schemas import AppealFacts, Compose, Intake, Rewrite
+from unseal.llm.schemas import STEP_SCHEMAS, Compose, Intake
 
 pytestmark = pytest.mark.anyio
 
@@ -250,7 +250,9 @@ def test_recordings_round_trip(tmp_path: Path) -> None:
     assert load_recording(path) == recording
 
 
-def test_recorded_fixtures_still_match_the_schemas() -> None:
+def test_recorded_fixtures_keep_the_schema_shape() -> None:
+    """Stored runs may fail newer value rules (they then score as invalid), but their fields must
+    still match the schema, or the recordings have drifted."""
     folder = Path(__file__).parents[1] / "fixtures" / "recorded" / "lang_eval"
     files = sorted(folder.glob("v*/*.json")) if folder.exists() else []
     if not files:
@@ -258,12 +260,24 @@ def test_recorded_fixtures_still_match_the_schemas() -> None:
     by_id = {c.id: c for c in load_cases()}
     for path in files:
         recording = load_recording(path)
-        schema = {"rewrite": Rewrite, "intake": Intake, "compose": Compose}.get(
-            by_id[recording.case_id].kind, AppealFacts
-        )
+        schema = STEP_SCHEMAS[by_id[recording.case_id].kind]
         for run in recording.runs:
             if run.output is not None:
-                schema.model_validate(run.output)
+                assert set(run.output) == set(schema.model_fields), path.name
+        score(by_id[recording.case_id], recording)  # never raises on a stored run
+
+
+def test_stored_output_that_breaks_a_value_rule_scores_as_invalid() -> None:
+    c = case("TA-1", "rewrite", "why was my mark low?")
+    empty = {
+        "rewritten": "",
+        "records_requested": [],
+        "reason": "",
+        "personal_information": False,
+        "suggestion": None,
+    }
+    (scored,) = score(c, recording_for(c, Run(empty, None, 0, "r")))
+    assert (scored.valid, scored.valid_first, scored.error) == (False, False, "invalid")
 
 
 async def test_truncated_output_is_recorded_as_incomplete() -> None:

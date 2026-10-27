@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from unseal.evals.lang_eval import invented_legal_values
 from unseal.llm import prompts
@@ -81,3 +82,48 @@ def test_prompt_without_front_matter_is_rejected(
     monkeypatch.setattr(prompts, "_DIR", tmp_path)
     with pytest.raises(ValueError):
         prompts.load_prompt("bare")
+
+
+def test_rewrite_must_name_records_unless_it_refuses() -> None:
+    with pytest.raises(ValidationError):  # the live v2 TA-1 answer: valid JSON, says nothing
+        Rewrite(
+            rewritten="",
+            records_requested=[],
+            reason="",
+            personal_information=False,
+            suggestion=None,
+        )
+    with pytest.raises(ValidationError):  # a reason alone is not a rewrite
+        Rewrite(
+            rewritten="",
+            records_requested=[],
+            reason="Asked for records instead of reasons",
+            personal_information=False,
+            suggestion=None,
+        )
+    with pytest.raises(ValidationError):  # a refusal must not request the person's data
+        Rewrite(
+            rewritten="Copy of the neighbour's tax return",
+            records_requested=["tax return"],
+            reason="Personal information",
+            personal_information=True,
+            suggestion=None,
+        )
+    Rewrite(
+        rewritten="",
+        records_requested=[],
+        reason="Personal information of another person",
+        personal_information=True,
+        suggestion="Ask for aggregate figures",
+    )
+
+
+def test_compose_and_appeal_facts_need_content() -> None:
+    with pytest.raises(ValidationError):
+        Compose(subject="  ", questions=["A question"])
+    with pytest.raises(ValidationError):
+        Compose(subject="Subject", questions=[])
+    with pytest.raises(ValidationError):
+        Compose(subject="Subject", questions=["A question", " "])
+    with pytest.raises(ValidationError):
+        AppealFacts(facts_paragraph="")

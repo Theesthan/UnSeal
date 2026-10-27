@@ -13,7 +13,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Literal, Protocol, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
 from unseal.llm.client import (
     ModelBusy,
@@ -214,8 +214,11 @@ def score(case: Case, recording: Recording) -> list[RunScore]:
 def _score_run(case: Case, schema: type[StepOutput], run: Run) -> RunScore:
     if run.output is None:
         return RunScore(run.error, False, False, (), None, None)
+    try:  # stored runs are re-checked, so a newer value rule applies to old outputs too
+        shown = schema.model_validate(run.output).user_text()
+    except ValidationError:
+        return RunScore("invalid", False, False, (), None, None)
     everything = "\n".join(_strings(run.output))
-    shown = schema.model_validate(run.output).user_text()
     # Intake only asks questions, so it is not expected to name the records.
     missed = (
         ()
