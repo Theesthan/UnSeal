@@ -7,6 +7,7 @@ import pytest
 from unseal.llm.client import LLMClient
 from unseal.pdf.appeal import render_appeal_pdf
 from unseal.pdf.render import render_application_pdf
+from unseal.pdf.second_appeal import render_second_appeal_pdf
 
 
 def test_entry_point_builds_the_app_with_real_dependencies(
@@ -28,3 +29,4 @@ def test_the_app_renders_appeals_with_the_real_renderer(monkeypatch: pytest.Monk
 
     app = importlib.reload(main).app
     assert app.state.appeal_renderer is render_appeal_pdf
+    assert app.state.second_appeal_renderer is render_second_appeal_pdf

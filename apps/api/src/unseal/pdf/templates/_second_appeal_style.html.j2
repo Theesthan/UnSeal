@@ -1,0 +1,37 @@
+{# CSS both second appeal formats add after _style.html.j2. #}
+/* A second appeal carries many parts: set a little tighter than the letters. */
+html { font-size: 10.5pt; line-height: 1.45; }
+h1 { font-size: 13pt; margin: 0 0 5mm; }
+h2 { font-size: 11pt; font-weight: 700; line-height: 1.45; margin: 4mm 0 1.5mm; break-after: avoid; }
+.before { text-align: center; font-weight: 700; margin: 0 0 2mm; }
+p { margin: 0 0 1.5mm; }
+
+/* A line left blank for the appellant to fill by hand. */
+.blank { display: inline-block; width: 45mm; height: 1.2em; border-bottom: 0.6pt solid #111; vertical-align: text-bottom; }
+td > .blank { width: 95%; }
+.blank.wide { display: block; width: 100%; height: 14mm; }
+
+/* Tick boxes: an X in Noto Sans so every language draws the same mark. */
+.option { white-space: nowrap; margin-right: 3mm; }
+.box {
+  display: inline-block;
+  width: 3.4mm;
+  height: 3.4mm;
+  margin-right: 1mm;
+  border: 0.6pt solid #111;
+  font-family: "Noto Sans", sans-serif;
+  font-size: 8pt;
+  font-weight: 400;
+  line-height: 3.4mm;
+  text-align: center;
+  vertical-align: -0.6mm;
+}
+
+/* The signature block is shared with the letters; a verification ends in it without a closing. */
+.closing { margin-top: 3mm; }
+.closing > p:empty { display: none; }
+
+.enclosures { break-inside: avoid; }
+ol.annex { margin: 0; padding-left: 7mm; }
+ol.annex li { margin-bottom: 0.8mm; }
+.tail { break-inside: avoid; }

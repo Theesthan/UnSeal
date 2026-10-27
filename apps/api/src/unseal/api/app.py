@@ -23,6 +23,7 @@ from unseal.config import Settings
 from unseal.db.session import build_engine, build_session_factory
 from unseal.pdf.appeal import render_appeal_pdf
 from unseal.pdf.render import render_application_pdf
+from unseal.pdf.second_appeal import render_second_appeal_pdf
 from unseal.privacy.redact import install_redaction
 
 __all__ = ["SESSION_COOKIE", "create_app"]
@@ -73,6 +74,7 @@ def create_app(
     llm: Any = None,
     renderer: Any = None,
     appeal_renderer: Any = None,
+    second_appeal_renderer: Any = None,
     run_scheduler: bool = True,
 ) -> FastAPI:
     factory = session_factory or build_session_factory(
@@ -99,6 +101,7 @@ def create_app(
     app.state.llm = llm
     app.state.renderer = renderer or render_application_pdf
     app.state.appeal_renderer = appeal_renderer or render_appeal_pdf
+    app.state.second_appeal_renderer = second_appeal_renderer or render_second_appeal_pdf
     app.state.rate_limits = RateLimits(settings.rate_limit_default, settings.rate_limit_model)
 
     errors.install(app)

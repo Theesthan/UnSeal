@@ -1,0 +1,126 @@
+{% import "_parts.html.j2" as parts %}
+{% import "_second_appeal_parts.html.j2" as form %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<meta name="generator" content="UnSeal">
+<meta name="dcterms.created" content="{{ doc.prepared_on.isoformat() }}">
+<meta name="dcterms.modified" content="{{ doc.prepared_on.isoformat() }}">
+<style>
+{% include "_style.html.j2" %}
+{% include "_second_appeal_style.html.j2" %}
+
+/* The 11 items of the Appendix, numbered as the rules number them. */
+ol.items { margin: 0; padding-left: 7mm; }
+li.item { margin: 0 0 3mm; padding-left: 1mm; }
+li.item::marker { font-weight: 700; }
+li.item h2.item-label { margin: 0 0 1mm; }
+li.item p { margin: 0 0 1mm; }
+/* Item 10 never ends a page without item 11, so the verification is not alone on a page. */
+li.item:nth-child(10) { break-inside: avoid; break-after: avoid; }
+li.item:nth-child(11) { break-inside: avoid; }
+
+dl.facts { display: table; width: 100%; margin: 0; }
+dl.facts > div { display: table-row; }
+dl.facts dt, dl.facts dd { display: table-cell; margin: 0; padding: 0.3mm 0; vertical-align: top; }
+dl.facts dt { width: 50%; padding-right: 5mm; font-weight: 400; }
+ol.grounds { margin: 0; padding-left: 6mm; }
+ol.grounds li { margin-bottom: 0.8mm; }
+</style>
+</head>
+<body>
+{{ parts.page_footer(l.footer_local) }}
+
+<main class="cic">
+<p class="before">{{ t.before }}</p>
+<h1>{{ title }}</h1>
+
+<section class="appendix">
+<ol class="items">
+<li class="item"><h2 class="item-label">{{ t.item1 }}</h2>
+<p>{{ run(doc.appellant_name) }}</p>
+<p class="multiline">{{ run(doc.appellant_address) }}</p>
+{% if phone %}
+<p>{{ t.phone }}: {{ run(phone) }}</p>
+{% endif %}
+</li>
+<li class="item"><h2 class="item-label">{{ t.item2 }}</h2>
+{{ form.office(t.cpio, run(doc.authority_name), run(doc.pio_address)) }}
+</li>
+<li class="item"><h2 class="item-label">{{ t.item3 }}</h2>
+{% if doc.reply_received_on %}
+{{ form.office(t.cpio, run(doc.authority_name), run(doc.pio_address)) }}
+{% else %}
+<p>{{ t.no_reply_item }}</p>
+{% endif %}
+</li>
+<li class="item"><h2 class="item-label">{{ t.item4 }}</h2>
+{{ form.office(t.faa, run(doc.authority_name), run(doc.faa_address)) }}
+</li>
+<li class="item"><h2 class="item-label">{{ t.item5 }}</h2>
+<dl class="facts">
+<div><dt>{{ t.filed_on }}</dt><dd>{{ day(doc.filed_on) }}</dd></div>
+<div><dt>{{ t.filing_mode }}</dt><dd>{{ filing_mode }}</dd></div>
+<div><dt>{{ t.received_on }}</dt><dd>{{ received }}</dd></div>
+<div><dt>{{ t.reply_due_on }}</dt><dd>{{ day(doc.reply_due_on) }}</dd></div>
+{% if transferred %}
+<div><dt>{{ t.transferred }}</dt><dd>{{ run(doc.transferred_to) }}</dd></div>
+{% endif %}
+</dl>
+</li>
+<li class="item"><h2 class="item-label">{{ t.item6 }}</h2>
+<dl class="facts">
+<div><dt>{{ t.order_reply }}</dt><dd>{% if doc.reply_received_on %}{{ dated("received_on_date", doc.reply_received_on) }}{% else %}{{ t.no_reply }}{% endif %}</dd></div>
+<div><dt>{{ t.order_appeal }}</dt><dd>{{ day(doc.appeal_filed_on) }}</dd></div>
+<div><dt>{{ t.order_faa }}</dt><dd>{% if doc.faa_decision_received_on %}{{ dated("received_on_date", doc.faa_decision_received_on) }}{% else %}{{ t.no_order }}{% endif %}</dd></div>
+{% if doc.faa_decision_received_on %}
+<div><dt>{{ t.order_number }}</dt><dd>{{ form.blank() }}</dd></div>
+{% endif %}
+</dl>
+</li>
+<li class="item"><h2 class="item-label">{{ t.item7 }}</h2>
+<p>{{ facts | join(" ") }}</p>
+{% if details %}
+<p class="multiline">{{ run(details) }}</p>
+{% endif %}
+</li>
+<li class="item"><h2 class="item-label">{{ t.item8 }}</h2>
+<p>{{ t.prayer }}</p>
+</li>
+<li class="item"><h2 class="item-label">{{ t.item9 }}</h2>
+<ol class="grounds">
+{% for sentence in grounds %}
+<li>{{ sentence }}</li>
+{% endfor %}
+</ol>
+</li>
+<li class="item"><h2 class="item-label">{{ t.item10 }}</h2>
+{% if doc.late %}
+<p>{{ t.delay }}</p>
+{% if delay_reason %}
+<p class="multiline">{{ run(delay_reason) }}</p>
+{% endif %}
+{% else %}
+<p>{{ t.none }}</p>
+{% endif %}
+</li>
+<li class="item"><h2 class="item-label">{{ t.item11 }}</h2>
+<p>{{ declaration }}</p>
+{{ parts.signature_block(sign, run, sign.signer, doc.appellant_name, doc.appellant_address, doc.prepared_on, date_text, doc.place) }}
+</li>
+</ol>
+</section>
+
+<section class="enclosures">
+<h2>{{ t.enclosures_heading }}</h2>
+<ol class="annex">
+{% for line in enclosures %}
+<li>{{ line }}</li>
+{% endfor %}
+</ol>
+</section>
+</main>
+</body>
+</html>
