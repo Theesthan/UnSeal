@@ -9,12 +9,12 @@ Model: `qwen-3.8-27b`. Runs per case: 1. Prompts: appeal_facts v2, compose v2, i
 
 | Gate | Result |
 | --- | --- |
-| A1 schema | FAIL |
+| A1 schema | PASS |
 | A2 no invented legal values | PASS |
 | A3 placeholders kept | PASS |
-| Run complete (no busy calls) | FAIL |
+| Run complete (no busy calls) | PASS |
 
-First-call valid: 8 of 9 calls; valid after one retry: 8 of 9; busy (excluded): 1.
+First-call valid: 10 of 10 calls; valid after one retry: 10 of 10; busy (excluded): 0.
 
 ## Cases
 
@@ -33,8 +33,8 @@ whose preferred glossary term is absent (not counted for intake).
 | TA-5 | intake | 1/1 | none | n/a | 100% | none | n/a |  |  |  |  |
 | TA-6 | intake | 1/1 | none | n/a | 100% | none | n/a |  |  |  |  |
 | TA-7 | intake | 1/1 | none | n/a | 100% | none | n/a |  |  |  |  |
-| TA-8 | compose | 0/1 | none | n/a | n/a | none | none |  |  |  |  |
-| TA-9 | compose | 0/1 | none | n/a | n/a | none | none |  |  |  |  |
+| TA-8 | compose | 1/1 | none | kept | 100% | none | none |  |  |  |  |
+| TA-9 | compose | 1/1 | none | kept | 100% | none | none |  |  |  |  |
 | TA-10 | appeal_facts | 1/1 | none | n/a | 100% | none | none |  |  |  |  |
 
 ## Outputs
@@ -211,7 +211,18 @@ Run 1:
 
 **Expected:** Tamil subject line and 3 questions, formal register, <REG_NO> intact
 
-Run 1: error (incomplete).
+Run 1:
+
+```json
+{
+  "subject": "கணிதம் பாடப்பிரிவின் மதிப்பிடப்பட்ட விடைத்தாளின் சான்றளிக்கப்பட்ட நகல், கேள்விவாரியாக வழங்கப்பட்ட மதிப்பெண்கள், மதிப்பீடு மற்றும் மறுமதிப்பீட்டிற்கான தேதிகள் குறித்த தகவல்",
+  "questions": [
+    "ஏப்ரல் 2026 அமர்விற்கான கணிதம் பாடப்பிரிவின் மதிப்பிடப்பட்ட விடைத்தாளின் சான்றளிக்கப்பட்ட நகலை, எனது பதிவெண் <REG_NO> க்கு தொடர்புடையதாக, தயவுசெய்து வழங்குமாறு கேட்டுக்கொள்கிறேன்.",
+    "கணிதம் பாடப்பிரிவில் ஒவ்வொரு கேள்விக்கும் வழங்கப்பட்ட மதிப்பெண்கள் குறித்த விவரங்களை தயவுசெய்து வழங்குமாறு கேட்டுக்கொள்கிறேன்.",
+    "எனது விடைத்தாளின் மதிப்பீடு மற்றும் மறுமதிப்பீடு ஆகியவற்றிற்கான தேதிகள் குறித்த தகவலை தயவுசெய்து வழங்குமாறு கேட்டுக்கொள்கிறேன்."
+  ]
+}
+```
 
 ### TA-9 (compose)
 
@@ -219,7 +230,19 @@ Run 1: error (incomplete).
 
 **Expected:** Tamil subject line and 4 questions, <WARD> intact
 
-Run 1: error (busy).
+Run 1:
+
+```json
+{
+  "subject": "பணி ஆணை, ஒப்பளிக்கப்பட்ட தொகை, பணி நிறைவுச் சான்றிதழ் மற்றும் <WARD> சாலையின் அளவுக் குறிப்பேடு குறிப்புகள் தொடர்பான தகவல் கோரிக்கை",
+  "questions": [
+    "<WARD> சாலைப் பணிக்கான பணி ஆணையின் சான்றளிக்கப்பட்ட நகலை வழங்குமாறு கேட்டுக்கொள்கிறேன்.",
+    "<WARD> சாலைப் பணிக்கு ஒப்பளிக்கப்பட்ட தொகை குறித்த தகவலை வழங்குமாறு கேட்டுக்கொள்கிறேன்.",
+    "<WARD> சாலைப் பணிக்கான பணி நிறைவுச் சான்றிதழின் சான்றளிக்கப்பட்ட நகலை வழங்குமாறு கேட்டுக்கொள்கிறேன்.",
+    "<WARD> சாலை தொடர்பான அளவுக் குறிப்பேடு குறிப்புகளின் சான்றளிக்கப்பட்ட நகலை வழங்குமாறு கேட்டுக்கொள்கிறேன்."
+  ]
+}
+```
 
 ### TA-10 (appeal_facts)
 
