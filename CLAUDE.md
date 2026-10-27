@@ -27,9 +27,10 @@ CLAUDE.md  README.md  .env.example  docker-compose.yml
 apps/
   api/                    # Python 3.12: FastAPI + AI harness + Telegram bot + PDFs
     pyproject.toml  Dockerfile  alembic/
-    fonts/                # Noto Sans, Noto Sans Tamil, Noto Sans Devanagari (OFL)
     src/unseal/
-      main.py             # FastAPI app and routes (no business logic here)
+      api/                # app.py (create_app factory), session.py, cases.py, deps, errors, ratelimit
+      services/           # identity.py (ADR 0003), cases.py (HTTP-agnostic, shared with the bot),
+                          #   storage.py (server-made PDF keys under STORAGE_DIR), intake.py
       config.py           # pydantic-settings; reads env vars
       llm/client.py       # the ONLY place that calls BharatCode
       llm/schemas.py      # Pydantic models for every model output (USER_FACING fields per model)
@@ -37,14 +38,15 @@ apps/
       llm/glossary.json   # fixed Tamil and Hindi RTI terms (+ known-wrong variants), rendered into prompts
       prompts/            # one versioned prompt file per harness step (inside the package so it ships)
       evals/lang_eval.py  # Tamil and Hindi eval: checks A2 to A4, gates, results sheet
-      harness/            # intake, classify, rewrite, validate, compose, read_reply, appeal
+      harness/            # steps.py (run_step + typed steps), validate.py (FR-3)
       rules/engine.py     # pure functions: deadlines, fees
       rules/data/         # rti_act.json (statute, every jurisdiction) + central.json, tamil_nadu.json
                           #   each rule: basis, source_url (.gov.in/.nic.in), checked_on, quote (ADR 0001)
-      pdf/                # WeasyPrint renderer + templates/*.html.j2
+      pdf/                # WeasyPrint renderer, templates/*.html.j2, labels.py, fonts/ (Noto, OFL)
       bot/                # python-telegram-bot handlers
-      scheduler.py        # APScheduler 3.x reminder job (every 15 min)
+      scheduler.py        # jobs: deemed refusal, 180-day retention, reminder claims (every 15 min)
       db/                 # SQLAlchemy 2 models, session, crypto.py (Fernet field encryption)
+      rules/deadlines.py  # pure deadline functions over the rules data (FR-6)
       privacy/redact.py   # log redaction filters
     tests/
       unit/               # rules engine, validators, redaction, crypto
@@ -76,7 +78,7 @@ API (run from `apps/api`; uses `uv`, or `pip install -e ".[dev]"` as a fallback)
 | New migration | `uv run alembic revision --autogenerate -m "<what changed>"` |
 
 Web (run from `apps/web`): `npm install`, `npm run dev` (port 3000), `npm run lint`, `npm run build`.
-Whole stack: `docker compose up --build`.
+API image (WeasyPrint needs Pango, so PDF tests run here on Windows): `docker build -t unseal-api apps/api`, then `docker run --rm unseal-api uv run pytest -q tests/pdf tests/unit/test_pdf_template.py`. The `runtime` target (`--target runtime`) is the slim production image.
 
 ## Environment variables (`.env.example`, values empty)
 
@@ -173,7 +175,7 @@ Every generated document ends with: "Prepared with UnSeal. Not legal advice."
 - Before any commit, check `git diff --cached` for keys, tokens and real personal data.
 - Applicant fields are encrypted with Fernet via `db/crypto.py`; never store plaintext copies or cache them.
 - The Telegram webhook must check the `X-Telegram-Bot-Api-Secret-Token` header against `TELEGRAM_WEBHOOK_SECRET`.
-- Rate-limit per user (slowapi). CORS allows only `APP_BASE_URL`.
+- Rate-limit per session (`api/ratelimit.py` on the `limits` library; slowapi's middleware silently exempted FastAPI routes). Routes that call BharatCode also take the `ModelQuota` dependency. CORS allows only `APP_BASE_URL`; writes need `Origin` equal to it (ADR 0003).
 - `DELETE /me` and `DELETE /cases/{id}` remove rows and stored files; closed cases auto-delete after 180 days.
 - Log redaction (`privacy/redact.py`) masks phone numbers, emails and 12-digit ID-like numbers.
 
