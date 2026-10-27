@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from unseal.llm.client import ModelBusy, ModelIncomplete, ModelOutputInvalid
-from unseal.services.appeals import InvalidGrounds
+from unseal.services.appeals import InvalidGrounds, TooEarly
 from unseal.services.cases import (
     Blocked,
     InvalidDate,
@@ -98,7 +98,13 @@ def install(app: FastAPI) -> None:
     app.add_exception_handler(UnreadableUpload, unreadable_file)
     app.add_exception_handler(TooManyPages, too_many_pages)
     app.add_exception_handler(Blocked, blocked)
+
+    async def too_early(_: Request, exc: Exception) -> JSONResponse:
+        assert isinstance(exc, TooEarly)
+        return error_response(409, "too_early", {"earliest": exc.earliest.isoformat()})
+
     app.add_exception_handler(InvalidGrounds, invalid_grounds)
+    app.add_exception_handler(TooEarly, too_early)
     app.add_exception_handler(InvalidPaymentMode, invalid_payment_mode)
     app.add_exception_handler(NotFound, not_found)
     app.add_exception_handler(WrongStatus, wrong_status)

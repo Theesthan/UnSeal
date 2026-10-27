@@ -448,6 +448,7 @@ def case_view(case: Case) -> dict[str, Any]:
         "received_estimated": case.received_estimated,
         "reply_received_on": _iso(case.reply_received_on),
         "appeal_filed_on": _iso(case.appeal_filed_on),
+        "faa_decision_received_on": _iso(case.faa_decision_received_on),
         "questions": [question_view(q) for q in case.questions],
         "deadlines": [deadline_view(d) for d in sorted(case.deadlines, key=lambda d: d.due_on)],
         "created_at": case.created_at.isoformat(),

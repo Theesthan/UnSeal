@@ -215,6 +215,31 @@ async def appeal_filing(
     return svc.case_view(await svc.get_case(session, user, case.id))
 
 
+@router.post("/{case_id}/appeal/decision")
+async def appeal_decision(
+    body: appeals.DecisionInput, case: OwnedCase, user: CurrentUser, session: Db
+) -> dict[str, Any]:
+    """The appellate authority's order arrived: the second-appeal deadline runs from it."""
+    await appeals.record_decision(session, case, body)
+    return svc.case_view(await svc.get_case(session, user, case.id))
+
+
+@router.post("/{case_id}/second-appeal")
+async def second_appeal(
+    body: appeals.SecondAppealInput,
+    case: OwnedCase,
+    session: Db,
+    config: Config,
+    request: Request,
+) -> Response:
+    """FR-12: the second appeal PDF in the jurisdiction's format (no model call)."""
+    pdf = await appeals.build_second_appeal(
+        session, case, request.app.state.second_appeal_renderer, config.storage_dir, body
+    )
+    disposition = 'attachment; filename="rti-second-appeal.pdf"'
+    return Response(pdf, media_type="application/pdf", headers={"Content-Disposition": disposition})
+
+
 async def _upload(request: Request) -> bytes:
     """The `file` of a multipart form with `consent=true`. The size is checked from the
     Content-Length header before the body is parsed, so an oversized upload is never spooled."""
