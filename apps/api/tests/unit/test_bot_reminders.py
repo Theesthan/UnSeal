@@ -21,8 +21,8 @@ from test_bot_fakes import (
     reminder_for,
     use_test_key,
 )
-from unseal.bot.reminders import reminder_sender
 
+from unseal.bot.reminders import reminder_sender
 from unseal.bot.texts import format_date, t
 from unseal.db.models import Case
 

@@ -8,6 +8,10 @@ import pypdfium2 as pdfium
 import pytest
 from PIL import Image
 from pydantic import ValidationError
+
+from unseal.harness.steps import read_reply
+from unseal.llm.client import StructuredResult
+from unseal.llm.schemas import ReplyItem, ReplyRead
 from unseal.services.reply_reader import (
     MAX_PAGES,
     MAX_SIDE,
@@ -16,10 +20,6 @@ from unseal.services.reply_reader import (
     findings,
     page_images,
 )
-
-from unseal.harness.steps import read_reply
-from unseal.llm.client import StructuredResult
-from unseal.llm.schemas import ReplyItem, ReplyRead
 
 pytestmark = pytest.mark.anyio
 
