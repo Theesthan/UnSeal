@@ -4,6 +4,8 @@ terms filled in, and the writing rules (no em dash)."""
 from datetime import date
 from string import Formatter
 
+import pytest
+
 from unseal.bot.texts import TEXTS, format_date, t
 
 LANGUAGES = {"en", "hi", "ta"}
@@ -51,3 +53,15 @@ def test_dates_use_the_month_names_of_the_language() -> None:
     assert format_date(day, "en") == "2 January 2027"
     assert format_date(day, "hi") == "2 जनवरी 2027"
     assert format_date(day, "ta") == "2 ஜனவரி 2027"
+
+
+@pytest.mark.parametrize(
+    ("language", "name", "address"),
+    [("en", "name", "address"), ("hi", "नाम", "पता"), ("ta", "பெயர்", "முகவரி")],
+)
+def test_the_describe_step_asks_for_no_name_or_address(
+    language: str, name: str, address: str
+) -> None:
+    """Free text goes to the model and names cannot be detected in it, so the bot asks first."""
+    text = t("describe", language)  # type: ignore[arg-type]
+    assert name in text and address in text

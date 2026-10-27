@@ -80,15 +80,22 @@ TEXTS: dict[str, dict[str, str]] = {
         ),
     },
     "agree": {"en": "I agree", "hi": "मैं सहमत हूँ", "ta": "நான் ஒப்புக்கொள்கிறேன்"},
+    # The description goes to the model and names cannot be detected in free text, so ask.
     "describe": {
         "en": (
             "Thank you. Describe your problem in your own words: what happened, which office, "
-            "and roughly when."
+            "and roughly when. Do not write your name, address or phone number here: you give "
+            "those later, and they are never sent to the AI."
         ),
-        "hi": "धन्यवाद। अपनी समस्या अपने शब्दों में बताइए: क्या हुआ, कौन-सा कार्यालय, और लगभग कब।",
+        "hi": (
+            "धन्यवाद। अपनी समस्या अपने शब्दों में बताइए: क्या हुआ, कौन-सा कार्यालय, और लगभग कब। "
+            "यहाँ अपना नाम, पता या फ़ोन नंबर न लिखें: ये बाद में लिए जाते हैं और AI को कभी नहीं "
+            "भेजे जाते।"
+        ),
         "ta": (
             "நன்றி. உங்கள் பிரச்சினையை உங்கள் சொந்த வார்த்தைகளில் விவரியுங்கள்: என்ன நடந்தது, "
-            "எந்த அலுவலகம், ஏறக்குறைய எப்போது."
+            "எந்த அலுவலகம், ஏறக்குறைய எப்போது. உங்கள் பெயர், முகவரி அல்லது தொலைபேசி எண்ணை "
+            "இங்கே எழுத வேண்டாம்: அவை பின்னர் கேட்கப்படும், AI-க்கு ஒருபோதும் அனுப்பப்படாது."
         ),
     },
     "working": {
