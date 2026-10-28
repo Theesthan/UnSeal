@@ -1,0 +1,65 @@
+{% import "_parts.html.j2" as parts %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<title>{{ l.title }}</title>
+<meta name="generator" content="UnSeal">
+<meta name="dcterms.created" content="{{ doc.prepared_on.isoformat() }}">
+<meta name="dcterms.modified" content="{{ doc.prepared_on.isoformat() }}">
+<style>
+{% include "_style.html.j2" %}
+
+.subject { margin-top: 6mm; }
+.subject strong { font-weight: 700; }
+.request { margin-top: 4mm; break-after: avoid; }
+
+ol.questions { margin: 0 0 5mm; padding-left: 9mm; }
+ol.questions li { margin-bottom: 2.5mm; padding-left: 1mm; break-inside: avoid; }
+ol.questions li:last-child { break-after: avoid; }
+
+.note { margin: 2mm 0 0; }
+</style>
+</head>
+<body>
+{{ parts.page_footer(l.footer_local) }}
+
+<main>
+<h1>{{ l.title }}</h1>
+
+<section class="to">
+<p class="to-label">{{ l.to }}</p>
+<address>
+<p>{{ l.officer }},</p>
+<p>{{ run(doc.authority_name) }}</p>
+<p class="multiline">{{ run(doc.pio_address) }}</p>
+</address>
+</section>
+
+<p class="subject"><strong>{{ l.subject }}:</strong> {{ run(doc.subject) }}</p>
+
+<p class="request">{{ l.salutation }}</p>
+<p class="request">{{ l.request }}</p>
+
+<ol class="questions">
+{% for question in doc.questions %}
+<li class="multiline">{{ run(question) }}</li>
+{% endfor %}
+</ol>
+
+<section class="tail">
+<dl class="details fee">
+<div><dt>{{ l.fee }}</dt><dd>{{ fee_text }}</dd></div>
+{% if payment_text %}
+<div><dt>{{ l.payment_mode }}</dt><dd>{{ run(payment_text) }}</dd></div>
+{% endif %}
+</dl>
+{% if show_certificate_note %}
+<p class="note">{{ l.bpl_note }}</p>
+{% endif %}
+
+{{ parts.signature_block(l, run, l.applicant, doc.applicant_name, doc.applicant_address, doc.prepared_on, date_text, doc.place) }}
+</section>
+</main>
+</body>
+</html>

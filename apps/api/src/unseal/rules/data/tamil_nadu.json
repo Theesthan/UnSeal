@@ -1,0 +1,51 @@
+{
+  "application_fee": {
+    "rupees": 10,
+    "basis": "Tamil Nadu Right to Information (Fees) Rules, 2005 (G.O. Ms. No. 989, Public (Estt. I & Leg.) Dept, 7 Oct 2005), r. 3(a), as amended; consolidated text corrected up to Nov 2018",
+    "source_url": "https://www.tn.gov.in/rti/public/TN_RTI_Fees_Rules_2005.pdf",
+    "checked_on": "2026-10-27",
+    "quote": "shall be accompanied by an application fee of rupees ten",
+    "note": "The Oct 2005 notification said rupees fifty. TNSIC annual reports list the amending orders (G.O. Ms. No. 1012 of 20 Sep 2006, G.O. Ms. No. 72 P&AR of 20 Mar 2007, G.O. Ms. No. 12 P&AR of Jan 2011) and show rupees ten; the amending orders themselves were not found online, so the consolidated text is the source. No fee for a first or second appeal (TNSIC FAQ)."
+  },
+  "copy_fee_per_page": {
+    "rupees": 2,
+    "basis": "Tamil Nadu Right to Information (Fees) Rules, 2005, r. 3(b)(i), as amended; consolidated text corrected up to Nov 2018",
+    "source_url": "https://www.tn.gov.in/rti/public/TN_RTI_Fees_Rules_2005.pdf",
+    "checked_on": "2026-10-27",
+    "quote": "rupees two for each page (in A-4 or A-3 size paper) created or copied",
+    "note": "Larger paper is charged at actual cost (r. 3(b)(ii)). Inspection: no fee for the first hour, rupees five for every hour or fraction after (r. 3(b)(iv)). Further fees are paid by cash against receipt, demand draft or banker's cheque only (r. 3(b))."
+  },
+  "bpl_certificate_required": {
+    "applies": true,
+    "basis": "Government of Tamil Nadu RTI Online portal, FAQ on payment of the RTI fee (the exemption itself is RTI Act s. 7(5), proviso: see rti_act.json)",
+    "source_url": "https://www.rtionline.tn.gov.in/",
+    "checked_on": "2026-10-27",
+    "quote": "no RTI fee is required to be paid by a citizen who is below poverty line ... the BPL applicant must attach a copy of the certificate issued by the appropriate government in this regard, along with the application",
+    "note": "The Tamil Nadu Fees Rules, 2005 do not mention BPL, and no Tamil Nadu rule or G.O. on the proof was found, so this rests on the Government's own portal help text, which is not a rule. It mirrors central r. 5. The stricter reading (attach a copy of the certificate) is kept. A human should confirm it with the Public Department."
+  },
+  "payment_modes": {
+    "modes": ["cash", "court_fee_stamp", "postal_money_order", "demand_draft", "bankers_cheque"],
+    "basis": "Tamil Nadu Right to Information (Fees) Rules, 2005, r. 3(a), as amended; consolidated text corrected up to Nov 2018",
+    "source_url": "https://www.tn.gov.in/rti/public/TN_RTI_Fees_Rules_2005.pdf",
+    "checked_on": "2026-10-27",
+    "quote": "by cash or by affixing court fee stamp or by postal money order or by demand draft or bankers cheque payable in the head of account, as may be specified by the Public Authority",
+    "note": "Statutory default for the application fee. The rule names a postal money order, not an Indian Postal Order (TNSIC says applications with postal orders were returned), and has no electronic mode. Further fees under s. 7(1) are cash, demand draft or banker's cheque only (r. 3(b)); court fee stamp and postal money order apply to the application fee alone. Not in r. 3(a): the Government also instructs payment into the State Treasury head of account against a challan (letter 19963/AR-III/2020-1 of 11 Dec 2020), and the online portal takes internet banking and debit card. The Madras High Court and the Legislative Assembly Secretariat have their own fee rules. Per-authority modes override this when the authority list exists."
+  },
+  "filing_channels": {
+    "channels": ["rti_online", "post", "in_person"],
+    "basis": "Government of Tamil Nadu RTI Online portal (rtionline.tn.gov.in); RTI Act 2005, s. 6(1) (in writing or electronic)",
+    "source_url": "https://www.rtionline.tn.gov.in/",
+    "checked_on": "2026-10-27",
+    "quote": "Through this portal RTI application/first appeal can be filed by Indian Citizen only for the Departments/Public Authorities of the Government of Tamil Nadu ... the petitions and Appeals relating to the offices wherein this facility has not yet been implemented may be sent manually to those offices at present",
+    "note": "The portal takes applications only for the Tamil Nadu departments and offices where the facility is implemented (Secretariat departments first); the central portal rtionline.gov.in does not take state authorities. Post and in person rest on s. 6(1) 'in writing' and the portal's 'manually'. The portal form holds 3000 characters; longer text goes in a PDF attachment."
+  },
+  "second_appeal_format": {
+    "format": "tnsic_form",
+    "enclosures": ["application", "pio_reply", "transfer_letter", "first_appeal", "faa_order"],
+    "basis": "Tamil Nadu Information Commission, Second Appeal Application Format (English), linked from tnsic.gov.in/second.php",
+    "source_url": "https://tnsic.gov.in/pdf/guidelines/appeal_format/sa_eng.pdf",
+    "checked_on": "2026-10-27",
+    "quote": "Second Appeal - Under Section 19(3) of the Right to Information Act, 2005 with necessary copies enclosed ... Copy of Petition under sec 6(1) to be enclosed ... If yes, copy of the reply to be enclosed ... If yes, copy of the letter to be enclosed ... Copy of appeal petition to be enclosed ... If yes, copy of the reply to be enclosed",
+    "note": "The form marks as mandatory: name, father/husband/guardian name, mobile number, address, the date of the petition, PIO details, the date of the first appeal and FAA details; it also asks for the mode of hearing (virtual or direct) and whether a complaint petition under s. 18(1) was filed. UnSeal leaves the fields it does not hold blank for the appellant to fill by hand. The form cites Rule 3 of the Tamil Nadu Information Commission (Appeal Procedure) Rules; the text of those rules was not opened (OPEN). An older TNSIC format (2016) is superseded by this one on the TNSIC page."
+  }
+}

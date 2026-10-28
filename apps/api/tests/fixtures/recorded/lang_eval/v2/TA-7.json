@@ -1,0 +1,27 @@
+{
+  "case_id": "TA-7",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "unknown",
+        "authority": null,
+        "time_period": null,
+        "records_wanted": [
+          "என் கோப்பு நகல் / கோப்பு நிலவரம்"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "unknown",
+        "follow_up_questions": [
+          "எந்த அரசு அலுவலகத்தில் உங்கள் கோப்பு உள்ளது?",
+          "கோப்பு எந்தக் காலக்கட்டத்தைச் சேர்ந்தது, என்ன ஆவணங்கள் வேண்டும்?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "b4da867c-5cd6-49ee-a109-a7d420100b5c"
+    }
+  ]
+}

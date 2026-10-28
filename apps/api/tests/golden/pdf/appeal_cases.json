@@ -1,0 +1,72 @@
+{
+  "en": {
+    "language": "en",
+    "jurisdiction": "central",
+    "authority_name": "Example Municipal Corporation",
+    "pio_address": "Civic Centre, 1 Example Road\nChennai",
+    "faa_address": "Deputy Commissioner (Works)\nCivic Centre, 1 Example Road\nChennai",
+    "appellant_name": "Test Appellant",
+    "appellant_address": "12 Example Street\nChennai",
+    "filed_on": "2026-08-25",
+    "filing_mode": "post",
+    "received_on": "2026-09-01",
+    "received_estimated": true,
+    "reply_due_on": "2026-10-01",
+    "reply_received_on": null,
+    "grounds": [
+      "no_reply"
+    ],
+    "details": "I sent the application by registered post with the fee and have the postal receipt.\nNo reply or transfer notice has reached me.",
+    "late": false,
+    "delay_reason": "",
+    "prepared_on": "2026-10-27",
+    "place": "Chennai"
+  },
+  "hi": {
+    "language": "hi",
+    "jurisdiction": "central",
+    "authority_name": "उदाहरण नगर निगम",
+    "pio_address": "नागरिक केंद्र, 1 उदाहरण मार्ग\nनई दिल्ली",
+    "faa_address": "उपायुक्त (निर्माण)\nनागरिक केंद्र, 1 उदाहरण मार्ग\nनई दिल्ली",
+    "appellant_name": "परीक्षण अपीलार्थी",
+    "appellant_address": "12 उदाहरण गली\nनई दिल्ली",
+    "filed_on": "2026-08-20",
+    "filing_mode": "rti_online",
+    "received_on": "2026-08-20",
+    "received_estimated": false,
+    "reply_due_on": "2026-09-19",
+    "reply_received_on": "2026-09-10",
+    "grounds": [
+      "incomplete",
+      "fee_demanded"
+    ],
+    "details": "",
+    "late": true,
+    "delay_reason": "उत्तर मिलने के बाद अस्पताल में उपचार के कारण अपील समय पर प्रस्तुत नहीं की जा सकी।",
+    "prepared_on": "2026-10-27",
+    "place": "नई दिल्ली"
+  },
+  "ta": {
+    "language": "ta",
+    "jurisdiction": "tamil_nadu",
+    "authority_name": "எடுத்துக்காட்டு மாநகராட்சி",
+    "pio_address": "குடிமை மையம், 1 எடுத்துக்காட்டுச் சாலை\nசென்னை",
+    "faa_address": "துணை ஆணையர் (பணிகள்)\nகுடிமை மையம், 1 எடுத்துக்காட்டுச் சாலை\nசென்னை",
+    "appellant_name": "சோதனை மேல்முறையீட்டாளர்",
+    "appellant_address": "12 எடுத்துக்காட்டுத் தெரு\nசென்னை",
+    "filed_on": "2026-09-01",
+    "filing_mode": "in_person",
+    "received_on": "2026-09-01",
+    "received_estimated": false,
+    "reply_due_on": "2026-10-01",
+    "reply_received_on": "2026-09-28",
+    "grounds": [
+      "refused"
+    ],
+    "details": "பணி ஆணையின் நகல் கேட்டேன்; எந்தக் காரணமும் குறிப்பிடாமல் மறுக்கப்பட்டது.",
+    "late": false,
+    "delay_reason": "",
+    "prepared_on": "2026-10-27",
+    "place": "சென்னை"
+  }
+}

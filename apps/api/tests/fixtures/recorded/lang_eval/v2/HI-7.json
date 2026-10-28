@@ -1,0 +1,27 @@
+{
+  "case_id": "HI-7",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "unknown",
+        "authority": null,
+        "time_period": null,
+        "records_wanted": [
+          "फ़ाइल की वर्तमान स्थिति और आगे न बढ़ने के कारण संबंधी अभिलेख"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "unknown",
+        "follow_up_questions": [
+          "कौन सा सरकारी दफ़्तर और कौन सा विभाग है?",
+          "आपकी फ़ाइल किस अवधि से संबंधित है और उसमें क्या मांग दर्ज है?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "4257195d-0bd7-4e38-b2af-3ece3cf5633d"
+    }
+  ]
+}

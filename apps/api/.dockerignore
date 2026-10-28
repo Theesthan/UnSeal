@@ -1,0 +1,23 @@
+# Secrets and local state never enter the build context.
+.env
+.env.*
+**/.env
+**/.env.*
+*.db
+*.sqlite3
+
+# Local tooling output.
+.venv
+**/__pycache__
+**/*.pyc
+.mypy_cache
+.ruff_cache
+.pytest_cache
+.coverage
+htmlcov
+.git
+.gitignore
+
+# Golden PDF outputs are written by the tests; they are not needed to build.
+tests/golden/pdf/*.pdf
+tests/golden/pdf/*.png

@@ -1,0 +1,19 @@
+{# Form pieces of the second appeal. Macros see only their arguments. #}
+
+{# A line left blank to fill by hand; `wide` gives a few lines' room. #}
+{% macro blank(wide=false) %}<span class="blank{{ ' wide' if wide else '' }}"></span>{% endmacro %}
+
+{# A tick box and its label; the X is the tick. #}
+{% macro option(label, on) %}<span class="option{{ ' ticked' if on else '' }}"><span class="box" aria-hidden="true">{{ 'X' if on else '' }}</span> {{ label }}</span>{% endmacro %}
+
+{# Yes and No boxes: `value` true, false, or none to leave both for the appellant. #}
+{% macro yes_no(t, value) %}{{ option(t.yes, value is sameas true) }} {{ option(t.no, value is sameas false) }}{% endmacro %}
+
+{# "Enclosed" when the copy is in the list of copies, else "Not applicable". #}
+{% macro copy(t, present) %}{{ t.enclosed if present else t.not_applicable }}{% endmacro %}
+
+{# An office: the officer's title and the authority on one line, then its address. #}
+{% macro office(title, name, address) %}
+<p>{{ title }}, {{ name }}</p>
+<p class="multiline">{{ address }}</p>
+{% endmacro %}

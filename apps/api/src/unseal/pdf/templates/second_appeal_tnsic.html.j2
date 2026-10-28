@@ -1,0 +1,146 @@
+{% import "_parts.html.j2" as parts %}
+{% import "_second_appeal_parts.html.j2" as form %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<meta name="generator" content="UnSeal">
+<meta name="dcterms.created" content="{{ doc.prepared_on.isoformat() }}">
+<meta name="dcterms.modified" content="{{ doc.prepared_on.isoformat() }}">
+<style>
+{% include "_style.html.j2" %}
+{% include "_second_appeal_style.html.j2" %}
+
+/* The form's tables: plain thin rules, nothing that imitates the Commission's own print. */
+table.form { width: 100%; border-collapse: collapse; margin: 0; }
+table.form th, table.form td { border: 0.5pt solid #888; padding: 1mm 1.6mm; text-align: left; vertical-align: top; font-weight: 400; }
+table.form th { width: 46%; }
+table.form td.num { width: 5mm; text-align: right; }
+table.form tr { break-inside: avoid; }
+table.form td p { margin: 0; }
+ol.reasons { margin: 0; padding-left: 5mm; }
+ol.reasons .option { white-space: normal; }
+.reasons-from { margin: 0 0 0.5mm; }
+.note { font-size: 9.5pt; margin: 1mm 0 0; }
+</style>
+</head>
+<body>
+{{ parts.page_footer(l.footer_local) }}
+
+<main class="tnsic">
+<p class="before">{{ t.before }}</p>
+<h1>{{ title }}</h1>
+
+<section class="part" id="appellant">
+<h2>{{ t.appellant }}</h2>
+<table class="form">
+<tr><th>{{ t.name }}</th><td>{{ run(doc.appellant_name) }}</td></tr>
+<tr><th>{{ t.guardian }}</th><td>{{ form.blank() }}</td></tr>
+<tr><th>{{ t.mobile }}</th><td>{% if phone %}{{ run(phone) }}{% else %}{{ form.blank() }}{% endif %}</td></tr>
+<tr><th>{{ t.email }}</th><td>{{ form.blank() }}</td></tr>
+<tr><th>{{ t.gender }}</th><td>{{ form.blank() }}</td></tr>
+<tr><th>{{ t.dob }}</th><td>{{ form.blank() }}</td></tr>
+<tr><th>{{ t.country }}</th><td>{{ form.blank() }}</td></tr>
+<tr><th>{{ t.state }}</th><td>{{ form.blank() }}</td></tr>
+<tr><th>{{ t.district }}</th><td>{{ form.blank() }}</td></tr>
+<tr><th>{{ t.address }}</th><td class="multiline">{{ run(doc.appellant_address) }}</td></tr>
+<tr><th>{{ t.pin }}</th><td>{{ form.blank() }}</td></tr>
+</table>
+<p class="note">{{ t.mandatory }}</p>
+</section>
+
+<section class="part" id="part-1">
+<h2>{{ t.part1 }}</h2>
+<table class="form">
+<tr><td class="num">1</td><th>{{ t.p1_1 }}</th><td>{{ day(doc.filed_on) }}</td></tr>
+<tr><td class="num">2</td><th>{{ t.p1_2 }}</th><td>{{ form.office(t.pio, run(doc.authority_name), run(doc.pio_address)) }}</td></tr>
+<tr><td class="num">3</td><th>{{ t.p1_3 }}</th><td>{{ form.copy(t, "application" in codes) }}</td></tr>
+<tr><td class="num">4</td><th>{{ t.p1_4 }}</th><td>{{ form.yes_no(t, doc.reply_received_on is not none) }}{% if doc.reply_received_on %} {{ dated("received_note", doc.reply_received_on) }}{% endif %}</td></tr>
+<tr><td class="num">5</td><th>{{ t.p1_5 }}</th><td>{{ form.copy(t, "pio_reply" in codes) }}</td></tr>
+<tr><td class="num">6</td><th>{{ t.p1_6 }}</th><td>{{ form.yes_no(t, transferred) }}</td></tr>
+<tr><td class="num">7</td><th>{{ t.p1_7 }}</th><td>{{ form.copy(t, "transfer_letter" in codes) }}</td></tr>
+<tr><td class="num">8</td><th>{{ t.p1_8 }}</th><td>{% if transferred %}{{ run(doc.transferred_to) }}{% else %}{{ t.not_applicable }}{% endif %}</td></tr>
+{# Who answered after a transfer is not on record: the appellant fills rows 9 and 10. #}
+<tr><td class="num">9</td><th>{{ t.p1_9 }}</th><td>{% if transferred %}{{ form.yes_no(t, none) }}{% else %}{{ t.not_applicable }}{% endif %}</td></tr>
+<tr><td class="num">10</td><th>{{ t.p1_10 }}</th><td>{% if transferred %}{{ form.blank() }}{% else %}{{ t.not_applicable }}{% endif %}</td></tr>
+</table>
+</section>
+
+<section class="part" id="part-2">
+<h2>{{ t.part2 }}</h2>
+<table class="form">
+<tr><td class="num">1</td><th>{{ t.p2_1 }}</th><td>{{ day(doc.appeal_filed_on) }}</td></tr>
+<tr><td class="num">2</td><th>{{ t.p2_2 }}</th><td>{{ form.office(t.faa, run(doc.authority_name), run(doc.faa_address)) }}</td></tr>
+<tr><td class="num">3</td><th>{{ t.p2_3 }}</th><td>{{ form.copy(t, "first_appeal" in codes) }}</td></tr>
+<tr><td class="num">4</td><th>{{ t.p2_4 }}</th><td>
+{% if t.reasons1_from %}
+<p class="reasons-from">{{ t.reasons1_from }}</p>
+{% endif %}
+<ol class="reasons">
+{% for label, on in first_reasons %}
+<li>{{ form.option(label, on) }}</li>
+{% endfor %}
+</ol></td></tr>
+<tr><td class="num">5</td><th>{{ t.p2_5 }}</th><td>{{ form.yes_no(t, doc.faa_decision_received_on is not none) }}{% if doc.faa_decision_received_on %} {{ dated("received_note", doc.faa_decision_received_on) }}{% endif %}</td></tr>
+<tr><td class="num">6</td><th>{{ t.p2_6 }}</th><td>{{ form.copy(t, "faa_order" in codes) }}</td></tr>
+</table>
+</section>
+
+<section class="part" id="part-3">
+<h2>{{ t.part3 }}</h2>
+<table class="form">
+<tr><td class="num">1</td><th>{{ t.p3_1 }}</th><td>
+{% if t.reasons3_from %}
+<p class="reasons-from">{{ t.reasons3_from }}</p>
+{% endif %}
+<ol class="reasons">
+{% for label, on in second_reasons %}
+<li>{{ form.option(label, on) }}</li>
+{% endfor %}
+</ol></td></tr>
+<tr><td class="num">2</td><th>{{ t.p3_2 }}</th><td>
+{% if details %}
+<p class="multiline">{{ run(details) }}</p>
+{% endif %}
+{% if doc.late %}
+<p>{{ t.delay }}</p>
+{% if delay_reason %}
+<p class="multiline">{{ run(delay_reason) }}</p>
+{% endif %}
+{% endif %}
+{% if not details and not doc.late %}
+{{ form.blank(true) }}
+{% endif %}
+</td></tr>
+<tr><td class="num">3</td><th>{{ t.p3_3 }}</th><td>{{ form.yes_no(t, none) }}<br>{{ form.blank() }}</td></tr>
+</table>
+</section>
+
+<div class="tail">
+<section class="part" id="part-4">
+<h2>{{ t.hearing }}</h2>
+<table class="form">
+<tr><td class="num">1</td><th>{{ t.p4_1 }}</th><td>{{ form.option(t.virtual, doc.hearing_mode == "virtual") }} {{ form.option(t.direct, doc.hearing_mode == "direct") }}</td></tr>
+</table>
+</section>
+
+<section class="part" id="verification">
+<h2>{{ t.verification }}</h2>
+<p>{{ declaration1 }}</p>
+<p>{{ t.declaration2 }}</p>
+{{ parts.signature_block(sign, run, sign.signer, doc.appellant_name, doc.appellant_address, doc.prepared_on, date_text, doc.place) }}
+</section>
+</div>
+
+<section class="enclosures">
+<h2>{{ t.enclosures_heading }}</h2>
+<ol class="annex">
+{% for line in enclosures %}
+<li>{{ line }}</li>
+{% endfor %}
+</ol>
+</section>
+</main>
+</body>
+</html>

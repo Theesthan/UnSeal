@@ -1,0 +1,28 @@
+{
+  "case_id": "TA-6",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "tamil_nadu",
+        "authority": null,
+        "time_period": "2025 ஜனவரி",
+        "records_wanted": [
+          "புதிய குடும்ப அட்டை விண்ணப்பம் மற்றும் அதன் நிலை",
+          "குடும்ப அட்டை விண்ணப்பக் கோப்புகள்"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "yes",
+        "follow_up_questions": [
+          "எந்த அலுவலகத்தில் (வட்ட வழங்கல் அலுவலர் / குடிமைப்பொருள் கிடங்கு) விண்ணப்பித்தீர்கள்?",
+          "குறிப்பிட்ட காலக்கெடு அல்லது விண்ணப்ப எண் ஏதேனும் உள்ளதா?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "d768db55-7c88-493f-aaac-a277980c6efb"
+    }
+  ]
+}

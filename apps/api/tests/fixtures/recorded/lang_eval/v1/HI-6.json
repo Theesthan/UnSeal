@@ -1,0 +1,27 @@
+{
+  "case_id": "HI-6",
+  "prompt_version": 1,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "unknown",
+        "authority": null,
+        "time_period": "January 2026 onwards",
+        "records_wanted": [
+          "Details regarding father's pension disbandment"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "yes",
+        "follow_up_questions": [
+          "कृपया बताएं कि पेंशन किस विभाग या कार्यालय से प्राप्त होती थी?",
+          "क्या आपकी यात्रा के लिए पंजीयन किया जा सकता है या आप व्यक्तिगत रूप से कार्यालय जाएंगे?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "06c5ece5-889c-465e-96c7-e46e9d959fee"
+    }
+  ]
+}

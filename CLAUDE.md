@@ -8,7 +8,7 @@ UnSeal turns a citizen's concern into a filing-ready RTI application (English, H
 Product spec: [docs/PRD.md](docs/PRD.md). When scope changes, update the PRD first, then this file, and keep the two in sync.
 Living state (what exists, what is in flight, open questions): [context.md](context.md).
 
-**Status (26 Oct 2026): no application code yet.** The layout and commands below are the target; create each piece as it is built, and correct this file if the real structure differs.
+**Status:** what exists and what is in flight lives in [context.md](context.md); the layout below is the real structure.
 
 ## Golden rules (read before every task)
 
@@ -22,31 +22,47 @@ Living state (what exists, what is in flight, open questions): [context.md](cont
 ## Repo layout
 
 ```
-BharatCode.txt            # required by the Build League
-CLAUDE.md  README.md  .env.example  docker-compose.yml
+BharatCode.txt            # required by the Build League (not in the repo yet: get it from the organisers)
+CLAUDE.md  README.md  .env.example  context.md
+.github/workflows/ci.yml  # api lint/types/tests, PDFs in Docker, migrations on Postgres, web gates
 apps/
   api/                    # Python 3.12: FastAPI + AI harness + Telegram bot + PDFs
     pyproject.toml  Dockerfile  alembic/
-    prompts/              # one versioned prompt file per harness step
-    fonts/                # Noto Sans, Noto Sans Tamil, Noto Sans Devanagari (OFL)
     src/unseal/
-      main.py             # FastAPI app and routes (no business logic here)
+      api/                # app.py (create_app: routers, lifespan bot + scheduler), session.py, cases.py,
+                          #   reference.py (/rules, /authorities/search), telegram.py (webhook), deps,
+                          #   errors, ratelimit
+      services/           # identity.py (ADR 0003, delete_user), cases.py (HTTP-agnostic, shared with
+                          #   the bot), intake.py, appeals.py (FR-10, FR-12), reply_reader.py (FR-11),
+                          #   storage.py (server-made PDF keys under STORAGE_DIR)
       config.py           # pydantic-settings; reads env vars
       llm/client.py       # the ONLY place that calls BharatCode
-      llm/schemas.py      # Pydantic models for every model output
-      harness/            # intake, classify, rewrite, validate, compose, read_reply, appeal
+      llm/schemas.py      # Pydantic models for every model output (USER_FACING fields per model)
+      llm/prompts.py      # loads prompts/<step>.md (front matter `version: N`)
+      llm/glossary.json   # fixed Tamil and Hindi RTI terms (+ known-wrong variants), rendered into prompts
+      prompts/            # one versioned prompt file per harness step (inside the package so it ships)
+      evals/lang_eval.py  # Tamil and Hindi eval: checks A2 to A4, gates, results sheet
+      harness/            # steps.py (run_step + typed steps), validate.py (FR-3)
       rules/engine.py     # pure functions: deadlines, fees
-      rules/data/         # central.json, tamil_nadu.json (each rule has source_url, checked_on)
-      pdf/                # WeasyPrint renderer + templates/*.html.j2
-      bot/                # python-telegram-bot handlers
-      scheduler.py        # APScheduler 3.x reminder job (every 15 min)
+      rules/data/         # rti_act.json (statute, every jurisdiction) + central.json, tamil_nadu.json
+                          #   each rule: basis, source_url (.gov.in/.nic.in), checked_on, quote (ADR 0001)
+      pdf/                # render.py (application), appeal.py, second_appeal.py (CIC or TNSIC format),
+                          #   *labels.py per document, common.py, templates/*.html.j2, fonts/ (Noto, OFL)
+      bot/                # python-telegram-bot: handlers, flow, texts (en/hi/ta), reminders
+      scheduler.py        # jobs: deemed refusal, 180-day retention, reminder claims (every 15 min)
       db/                 # SQLAlchemy 2 models, session, crypto.py (Fernet field encryption)
+      rules/deadlines.py  # pure deadline functions over the rules data (FR-6)
       privacy/redact.py   # log redaction filters
     tests/
-      unit/               # rules engine, validators, redaction, crypto
+      unit/               # everything offline, fakes for the model and the PDF renderer
+      pdf/                # real PDF rendering (needs Pango: run in Docker)
+      live/               # opt-in real BharatCode calls (-m live)
       golden/             # 30 fictional cases + expected flags and rewrites
-      fixtures/recorded/  # recorded model responses for offline tests
-  web/                    # Next.js App Router + TypeScript (strict) + Tailwind
+      golden/lang_eval/   # cases.json (20 Tamil and Hindi cases) + the live eval runner
+      fixtures/recorded/  # recorded model responses for offline tests (lang_eval/<case>.json)
+      golden/pdf/         # golden PDFs and page-1 previews (fictional applicants)
+  web/                    # Next.js App Router + TypeScript (strict) + Tailwind; /en, /hi, /ta;
+                          #   lib/api.ts is the only API client; /api proxies to API_ORIGIN
 docs/
 ```
 
@@ -60,15 +76,18 @@ API (run from `apps/api`; uses `uv`, or `pip install -e ".[dev]"` as a fallback)
 | Run API | `uv run uvicorn unseal.main:app --reload --port 8000` |
 | Run bot locally (polling) | `uv run python -m unseal.bot --polling` |
 | Tests (offline, default) | `uv run pytest -q` |
-| One test | `uv run pytest tests/unit/test_engine.py::test_name -q` (or `-k <expr>`) |
+| One test | `uv run pytest tests/unit/test_rules_data.py::test_name -q` (or `-k <expr>`) |
+| Coverage | `uv run pytest --cov=unseal --cov-report=term-missing` |
+| Live smoke call (real API, needs key in `.env`) | `uv run pytest -m live tests/live` |
+| Live Tamil and Hindi eval | `uv run pytest -m live tests/golden/lang_eval` (`-k tamil`, `LANG_EVAL_RUNS=1`) |
 | Live golden eval (real API) | `uv run pytest -m live tests/golden` |
 | Lint and format | `uv run ruff check . --fix && uv run ruff format .` |
 | Types | `uv run mypy src` |
 | Migrate | `uv run alembic upgrade head` |
 | New migration | `uv run alembic revision --autogenerate -m "<what changed>"` |
 
-Web (run from `apps/web`): `npm install`, `npm run dev` (port 3000), `npm run lint`, `npm run build`.
-Whole stack: `docker compose up --build`.
+Web (run from `apps/web`): `npm install`, `npm run dev` (port 3000), `npm run lint`, `npm test` (vitest), `npm run test:e2e` (Playwright, API mocked), `npm run build`.
+API image (WeasyPrint needs Pango, so PDF tests run here on Windows): `docker build -t unseal-api apps/api`, then `docker run --rm unseal-api sh -c "uv run pytest -q tests/pdf tests/unit/test_pdf_*.py"`. CI runs the same and keeps the goldens as the `golden-pdf` artifact. The `runtime` target (`--target runtime`) is the slim production image.
 
 ## Environment variables (`.env.example`, values empty)
 
@@ -76,12 +95,16 @@ Whole stack: `docker compose up --build`.
 BHARATCODE_API_KEY=
 BHARATCODE_BASE_URL=https://bharatcode.ai/api/model/v1
 BHARATCODE_MODEL=qwen-3.8-27b
+BHARATCODE_TIMEOUT_SECONDS=120
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_WEBHOOK_SECRET=
-DATABASE_URL=sqlite:///./dev.db
+TELEGRAM_CHAT_HASH_KEY=
+DATABASE_URL=sqlite:///./dev.db   # postgres:// also works (asyncpg)
 FIELD_ENCRYPTION_KEY=
-APP_BASE_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:8000
+STORAGE_DIR=./storage
+APP_BASE_URL=http://localhost:3000   # the web app's exact public origin
+API_ORIGIN=http://localhost:8000     # web only: where /api proxies
+NEXT_PUBLIC_API_URL=                 # leave unset so the cookie stays first-party
 ```
 
 Nothing secret may ever use the `NEXT_PUBLIC_` prefix; those values ship to the browser.
@@ -97,12 +120,17 @@ Nothing secret may ever use the `NEXT_PUBLIC_` prefix; those values ship to the 
 - Truncation: Responses `status == "incomplete"` with reason `max_output_tokens` (or Chat Completions `finish_reason == "length"`) is a failure even with HTTP 200. Keep the partial text, never run a partial tool call, retry once with a higher `max_output_tokens` (cap 32,000, reasoning included). Never loop on the same budget.
 - `503` means busy: back off 2 s, 4 s, 8 s, then surface a "busy, try again" state. A stream that already started ends with `response.failed`.
 - On errors, log the `x-request-id` response header, never the request or response body.
+- In code: `build_client(settings)` returns an `LLMClient`; call `await llm.structured(OutputModel, instructions=..., input=...)`. It raises `ModelBusy`, `ModelIncomplete` (with `partial_text`) or `ModelOutputInvalid`; harness steps turn those into "busy, try again" or a question to the user. The SDK's own retries are off (`max_retries=0`) so these rules own retrying.
+- Tests fake the API with `httpx2.MockTransport` passed as `build_client(..., http_client=...)`. The `openai` 3.x SDK ships `httpx2`, not `httpx`.
 
 ## Harness pipeline
 
 `intake → classify → rewrite → validate → compose → (track) → read_reply → appeal`
 
-- Each step: one prompt file in `prompts/` (front matter `version: N`), one Pydantic output schema, one function in `harness/`.
+- Model steps today: `intake`, `rewrite`, `compose`, `read_reply` (images, after consent). Appeals make no model call: their dates, filing mode and grounds are code-owned template text (a recorded `appeal_facts` run misstated the filing mode), so `appeal_facts` lives only in the language eval.
+- `harness.steps.run_step` masks phone numbers, emails and ID numbers in text input before every model call; names cannot be detected, so the web and bot ask users not to type them.
+
+- Each step: one prompt file in `src/unseal/prompts/` (front matter `version: N`; placeholders `{language}` and `{glossary}`), one Pydantic output schema in `llm/schemas.py`, one function in `harness/`. Prompts never contain section numbers, fees or deadlines (a test enforces it).
 - `compose` fills a Jinja template. The model writes only the subject line and the numbered questions; names and addresses come from the DB at render time.
 - Applicant name, address and phone are **never** sent to the model. Reply photos contain personal data: send them only after the user opts in, and keep only the extracted fields.
 - Changing a prompt requires bumping its `version` and passing the live golden eval (at least 27 of 30 cases) before merge.
@@ -114,16 +142,18 @@ Jurisdictions in v1: `central` and `tamil_nadu`. Languages: `en`, `hi`, `ta` (Se
 | Rule | Value | Basis |
 | --- | --- | --- |
 | PIO reply | 30 days from receipt | S. 7(1) |
-| Filed via an Assistant PIO | 35 days | S. 5(2) proviso |
+| Filed via an Assistant PIO | 35 days (5 added) | S. 5(2) proviso |
 | Third party involved | 40 days | S. 11(3) |
 | Life or liberty | 48 hours | S. 7(1) proviso |
-| Transfer | within 5 days; new PIO's period runs from its receipt | S. 6(3) |
+| Transfer | within 5 days; Act silent on the new period (DoPT Guide: 30 days from new receipt); first-appeal clock stays on the original receipt until decided | S. 6(3) proviso |
 | No reply in time | deemed refusal | S. 7(2) |
 | First appeal | within 30 days of reply or of due date | S. 19(1) |
 | Appellate authority decision | 30 days, extendable to 45 | S. 19(6) |
-| Second appeal | within 90 days of decision, or of the FAA deadline passing | S. 19(3) |
-| Fee | Rs 10 (central and Tamil Nadu); BPL exempt with proof (S. 7(5)) | RTI Rules 2012; TN Fees Rules 2005 |
-| Length (central) | ordinarily 500 words or fewer; never rejected for length alone | RTI Rules 2012, r. 3 |
+| Second appeal | within 90 days of decision, or of the FAA deadline passing; late allowed for sufficient cause | S. 19(3) |
+| Second appeal format | central: Appendix format plus copies of application, reply, first appeal, FAA order, documents relied on, index; Tamil Nadu: TNSIC form with its enclosures (fields UnSeal does not hold stay blank) | RTI Rules 2012, r. 8; TNSIC format |
+| Fee | Rs 10 (central and Tamil Nadu); copies Rs 2 per page, A3 or smaller (central) or A3 or A4 (Tamil Nadu); BPL exempt (S. 7(5)), central needs the BPL certificate copy (r. 5), the Tamil Nadu portal says the same | RTI Rules 2012 (G.S.R. 603(E)); TN Fees Rules 2005, r. 3 |
+| Payment modes (Tamil Nadu default) | Application fee by cash, court fee stamp, postal money order, demand draft or banker's cheque (not Indian Postal Order); further fees by cash, demand draft or banker's cheque | TN Fees Rules 2005, r. 3(a), 3(b) |
+| Length | central: ordinarily 500 words or fewer, never rejected for length alone; Tamil Nadu: no limit found | RTI Rules 2012, r. 3 |
 | Personal information | exempt as a class since 13 Nov 2025; under Supreme Court challenge | S. 8(1)(j) as amended by DPDP Act s. 44(3) |
 
 Date math conventions (implement in `rules/engine.py`, test every one):
@@ -161,7 +191,7 @@ Every generated document ends with: "Prepared with UnSeal. Not legal advice."
 - Before any commit, check `git diff --cached` for keys, tokens and real personal data.
 - Applicant fields are encrypted with Fernet via `db/crypto.py`; never store plaintext copies or cache them.
 - The Telegram webhook must check the `X-Telegram-Bot-Api-Secret-Token` header against `TELEGRAM_WEBHOOK_SECRET`.
-- Rate-limit per user (slowapi). CORS allows only `APP_BASE_URL`.
+- Rate-limit per session (`api/ratelimit.py` on the `limits` library; slowapi's middleware silently exempted FastAPI routes). Routes that call BharatCode also take the `ModelQuota` dependency. CORS allows only `APP_BASE_URL`; writes need `Origin` equal to it (ADR 0003).
 - `DELETE /me` and `DELETE /cases/{id}` remove rows and stored files; closed cases auto-delete after 180 days.
 - Log redaction (`privacy/redact.py`) masks phone numbers, emails and 12-digit ID-like numbers.
 

@@ -1,0 +1,27 @@
+{
+  "case_id": "HI-6",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "unknown",
+        "authority": null,
+        "time_period": "जनवरी 2026 से",
+        "records_wanted": [
+          "पेंशन बंद होने के कारण संबंधी अभिलेख"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "yes",
+        "follow_up_questions": [
+          "कौन सा विभाग या कार्यालय पेंशन दे रहा है?",
+          "पेंशन किस योजना के अंतर्गत है?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "9460b88d-f2ea-440e-9ae2-f1e5642a3260"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "case_id": "TA-5",
+  "prompt_version": 2,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "tamil_nadu",
+        "authority": "சென்னையில் உள்ள அரசு கலைக் கல்லூரி",
+        "time_period": "ஏப்ரல் 2026",
+        "records_wanted": [
+          "கணிதம் பாடத்தில் விடைத்தாள் நகல்"
+        ],
+        "delivery_mode": "post",
+        "bpl": "unknown",
+        "follow_up_questions": [
+          "தகவல் வசதிக்காக, நீங்கள் பயிலும் கல்லூரியின் முழு பெயரைக் குறிப்பிடுமாறு வேண்டுமே?",
+          "அந்தப் பாடத்திற்கான தேர்வு தேதியை அறிவீர்களா?"
+        ],
+        "ready_to_draft": true
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "cc0f9c9f-baff-4f71-84c3-b50c45d9383c"
+    }
+  ]
+}

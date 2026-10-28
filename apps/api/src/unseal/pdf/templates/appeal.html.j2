@@ -1,0 +1,102 @@
+{% import "_parts.html.j2" as parts %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<meta name="generator" content="UnSeal">
+<meta name="dcterms.created" content="{{ doc.prepared_on.isoformat() }}">
+<meta name="dcterms.modified" content="{{ doc.prepared_on.isoformat() }}">
+<style>
+{% include "_style.html.j2" %}
+
+/* The appeal carries more parts than the application, so it is set a little tighter to keep a
+   usual appeal on one page. */
+html { font-size: 11pt; line-height: 1.45; }
+h1 { margin-bottom: 4mm; }
+h2 { font-size: 11.5pt; font-weight: 700; line-height: 1.45; margin: 3.5mm 0 1mm; break-after: avoid; }
+
+dl.parties { margin-top: 3mm; }
+dl.parties dd p { margin: 0; }
+dl.parties > div > dt, dl.parties > div > dd { padding-top: 0; padding-bottom: 1.5mm; }
+
+/* Plain labels in a wide first column: the Hindi and Tamil labels are long and bold type would
+   wrap them onto two or three lines. */
+dl.facts { display: table; width: 100%; margin: 0; }
+dl.facts > div { display: table-row; }
+dl.facts dt, dl.facts dd { display: table-cell; margin: 0; padding: 0.3mm 0; vertical-align: top; }
+dl.facts dt { width: 52%; padding-right: 5mm; font-weight: 400; }
+
+ol.grounds { margin: 0; padding-left: 9mm; }
+ol.grounds li { margin-bottom: 1mm; padding-left: 1mm; break-inside: avoid; }
+.tail p { margin-bottom: 1.5mm; }
+.closing { margin-top: 4mm; }
+</style>
+</head>
+<body>
+{{ parts.page_footer(l.footer_local) }}
+
+<main>
+<h1>{{ title }}</h1>
+
+<section class="to">
+<p class="to-label">{{ l.to }}</p>
+<address>
+<p>{{ l.authority }},</p>
+<p>{{ run(doc.authority_name) }}</p>
+<p class="multiline">{{ run(doc.faa_address) }}</p>
+</address>
+</section>
+
+<dl class="details parties">
+<div><dt>{{ l.appellant }}</dt><dd>
+<p>{{ run(doc.appellant_name) }}</p>
+<p class="multiline">{{ run(doc.appellant_address) }}</p>
+</dd></div>
+<div><dt>{{ l.respondent }}</dt><dd>
+<p>{{ l.officer }}, {{ run(doc.authority_name) }}</p>
+<p class="multiline">{{ run(doc.pio_address) }}</p>
+</dd></div>
+</dl>
+
+<h2>{{ l.particulars }}</h2>
+<dl class="facts">
+<div><dt>{{ l.filed_on }}</dt><dd>{{ day(doc.filed_on) }}</dd></div>
+<div><dt>{{ l.filing_mode }}</dt><dd>{{ l.filing_modes[doc.filing_mode] }}</dd></div>
+<div><dt>{{ l.received_on }}</dt><dd>{{ day(doc.received_on) }}{% if doc.received_estimated %} ({{ l.estimated }}){% endif %}</dd></div>
+<div><dt>{{ l.reply_due_on }}</dt><dd>{{ day(doc.reply_due_on) }}</dd></div>
+{% if doc.reply_received_on %}
+<div><dt>{{ l.reply_received_on }}</dt><dd>{{ day(doc.reply_received_on) }}</dd></div>
+{% else %}
+<div><dt>{{ l.reply }}</dt><dd>{{ l.no_reply }}</dd></div>
+{% endif %}
+</dl>
+
+<h2>{{ l.grounds_heading }}</h2>
+<ol class="grounds">
+{% for sentence in grounds %}
+<li>{{ sentence }}</li>
+{% endfor %}
+</ol>
+
+{% if doc.details.strip() %}
+<h2>{{ l.details }}</h2>
+<p class="multiline">{{ run(doc.details.strip()) }}</p>
+{% endif %}
+
+<section class="tail">
+<h2>{{ l.relief_heading }}</h2>
+<p>{{ l.relief }}</p>
+{% if doc.late %}
+<h2>{{ l.delay_heading }}</h2>
+<p>{{ l.delay }}</p>
+{% if doc.delay_reason.strip() %}
+<p class="multiline delay-reason">{{ run(doc.delay_reason.strip()) }}</p>
+{% endif %}
+{% endif %}
+
+{{ parts.signature_block(l, run, l.appellant, doc.appellant_name, doc.appellant_address, doc.prepared_on, date_text, doc.place) }}
+</section>
+</main>
+</body>
+</html>

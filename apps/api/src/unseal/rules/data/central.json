@@ -1,0 +1,57 @@
+{
+  "application_fee": {
+    "rupees": 10,
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 3",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "shall be accompanied by a fee of rupees ten"
+  },
+  "copy_fee_per_page": {
+    "rupees": 2,
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 4(a)",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "rupees two for each page in A-3 or smaller size paper",
+    "note": "Larger paper is charged at actual cost (r. 4(b))."
+  },
+  "word_limit": {
+    "words": 500,
+    "blocks_filing": false,
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 3 and proviso",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "shall ordinarily not contain more than five hundred words ... no application shall be rejected only on the ground that it contains more than five hundred words"
+  },
+  "bpl_certificate_required": {
+    "applies": true,
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 5",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "is below poverty line provided a copy of the certificate issued by the appropriate Government in this regard is submitted alongwith the application"
+  },
+  "payment_modes": {
+    "modes": ["cash", "demand_draft", "bankers_cheque", "indian_postal_order", "electronic"],
+    "basis": "RTI Rules 2012 (G.S.R. 603(E), 31 Jul 2012), r. 6",
+    "source_url": "https://www.niti.gov.in/sites/default/files/2025-07/RTI%20Rules%20Final%20PDF.pdf",
+    "checked_on": "2026-10-26",
+    "quote": "by demand draft or bankers cheque or Indian Postal Order payable to the Accounts Officer of the public authority; or (c) by electronic means to the Accounts Officer of the public authority, if facility for receiving fees through electronic means is available with the public authority",
+    "note": "Statutory default. Cash is paid against a receipt; electronic only where the authority has the facility. Per-authority modes override this when the authority list exists."
+  },
+  "filing_channels": {
+    "channels": ["rti_online", "post", "in_person"],
+    "basis": "RTI Act 2005, s. 6(1) (in writing or electronic); RTI Online portal (DoPT)",
+    "source_url": "https://rtionline.gov.in/",
+    "checked_on": "2026-10-26",
+    "quote": "This is a portal to file RTI applications/first appeals online along with payment gateway.",
+    "note": "RTI Online covers only the central authorities onboarded to it; post and in person rest on s. 6(1) 'in writing'."
+  },
+  "second_appeal_format": {
+    "format": "cic_rule_8",
+    "enclosures": ["application", "pio_reply", "first_appeal", "faa_order", "relied_documents", "index"],
+    "basis": "RTI Rules 2012, rule 8 and Appendix (format of appeal); rule 10(1) proviso",
+    "source_url": "https://cic.gov.in/sites/default/files/RTIRules2012_Eng.pdf",
+    "checked_on": "2026-10-27",
+    "quote": "Any person aggrieved by an order passed by the First Appellate Authority or by non-disposal of his appeal by the First Appellate Authority, may file an appeal to the Commission in the format given in the Appendix and shall be accompanied by the following documents, duly authenticated and verified by the appellant, namely: (i) a copy of the application submitted to the Central Public Information Officer; (ii) a copy of the reply received, if any, from the Central Public Information Officer; (iii) a copy of the appeal made to the First Appellate Authority; (iv) a copy of the Order received, if any, from the First Appellate Authority; (v) copies of other documents relied upon by the appellant and referred to in his appeal; and (vi) an index of the documents referred to in the appeal. ... Provided that no appeal shall be dismissed only on the ground that it has not been made in the specified format if it is accompanied by documents as specified in rule 8.",
+    "note": "DoPT notification of 31 July 2012, as hosted by the CIC. The Appendix lists 11 items: appellant; CPIO addressed; CPIO who replied; FAA who decided; particulars of the application; particulars of the order(s) appealed against; brief facts; prayer or relief; grounds; any other information; verification. Currency: the CIC notifications page (opened 2026-10-27) lists no later amendment to these rules; its 2019 rules entry is the Term of Office and Salaries rules (G.S.R. 810(E)), which do not touch appeals."
+  }
+}

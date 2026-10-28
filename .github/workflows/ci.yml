@@ -1,0 +1,101 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: api (lint, types, tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.13"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy src
+      # PDF rendering runs only in the Docker job below, on the production image the golden PDFs
+      # were made with: this runner's Pango renders Hindi and Tamil, but not byte for byte the same
+      # twice. Live tests are opt-in.
+      - run: uv run pytest -q --ignore=tests/pdf
+
+  api-pdf:
+    name: api (PDF rendering in Docker)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t unseal-api apps/api
+      - run: >-
+          docker run --name pdf unseal-api
+          sh -c "uv run pytest -q tests/pdf tests/unit/test_pdf_*.py"
+      # The goldens the tests just wrote (fictional applicants only), for a human to look at.
+      - if: always()
+        run: docker cp pdf:/app/tests/golden/pdf ./golden-pdf
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-pdf
+          path: golden-pdf
+          retention-days: 7
+
+  api-postgres:
+    name: api (migrations on Postgres)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: ci-throwaway  # a service container that lives for this job only
+          POSTGRES_DB: unseal
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql://postgres:ci-throwaway@localhost:5432/unseal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.13"
+      - run: uv sync --frozen
+      - run: uv run alembic upgrade head
+      - run: uv run alembic check  # the models and the migrations agree on Postgres too
+      - run: uv run alembic downgrade base
+
+  web:
+    name: web (lint, unit, build, e2e)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      # The specs mock the API (e2e/support), so no API or model is needed here.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e

@@ -1,0 +1,27 @@
+{
+  "case_id": "HI-7",
+  "prompt_version": 1,
+  "model": "qwen-3.8-27b",
+  "runs": [
+    {
+      "output": {
+        "jurisdiction_hint": "unknown",
+        "authority": null,
+        "time_period": null,
+        "records_wanted": [
+          "सरकारी दफ़्तर में मेरी फ़ाइल आगे नहीं बढ़ रही"
+        ],
+        "delivery_mode": "unknown",
+        "bpl": "unknown",
+        "follow_up_questions": [
+          "आपकी फ़ाइल किस विशिष्ट सरकारी विभाग या कार्यालय में लंबी पड़ी है?",
+          "आप क्या जानकारी चाहते हैं कि फ़ाइल क्यों रुकी है या इसमें अब क्या कार्रवाई की गई है?"
+        ],
+        "ready_to_draft": false
+      },
+      "error": null,
+      "schema_retries": 0,
+      "request_id": "a5f4cd97-96a8-4f3d-9b90-170926e6fa9d"
+    }
+  ]
+}
